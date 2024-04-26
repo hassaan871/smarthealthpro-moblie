@@ -4,6 +4,7 @@ const BotChattingScreen = () => {
   return (
     <View>
       <Text>BotChattingScreen</Text>
+      <Text>asdsadsadsadsada</Text>
     </View>
   )
 }

@@ -9,7 +9,12 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="BotChattingScreen">
-        <Stack.Screen name="BotChattingScreen" component={BotChattingScreen} />
+        <Stack.Screen 
+        name="BotChattingScreen"
+        options={{
+          headerShown: false,
+        }}
+         component={BotChattingScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

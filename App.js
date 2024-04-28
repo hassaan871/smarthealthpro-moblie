@@ -15,9 +15,9 @@ import {
 } from "@react-navigation/native";
 import merge from "deepmerge";
 import { RootSiblingParent } from "react-native-root-siblings";
-import * as SplashScreen from "expo-splash-screen";
+// import * as SplashScreen from "expo-splash-screen";
 
-SplashScreen.preventAutoHideAsync();
+// SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [isThemeDark, setIsThemeDark] = useState(false);

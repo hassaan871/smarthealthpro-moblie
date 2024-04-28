@@ -1,9 +1,10 @@
 import { Chat, MessageType, defaultTheme } from '@flyerhq/react-native-chat-ui'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import darkTheme from '../../Themes/DarkTheme'
-import lightTheme from '../../Themes/LightTheme'
+// import darkTheme from '../../Themes/DarkTheme'
+// import lightTheme from '../../Themes/LightTheme'
+import { getFlaskResponse } from '../../hooks/chattingHooks/sendFlaskQuery'
 
 const uuidv4 = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -20,6 +21,11 @@ const App = () => {
   const addMessage = (message) => {
     setMessages([message, ...messages])
   }
+
+  useEffect(() => {
+    console.log('Getting response from Flask')
+    getFlaskResponse()
+  }, [])
 
   const handleSendPress = (message) => {
     const textMessage = {

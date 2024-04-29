@@ -25,7 +25,7 @@ const App = () => {
   useEffect(() => {
     console.log('Getting response from Flask')
     getFlaskResponse()
-  }, [])
+  }, [messages])
 
   const handleSendPress = (message) => {
     const textMessage = {
@@ -43,6 +43,7 @@ const App = () => {
     // or you have React Navigation set up
     <SafeAreaProvider>
       <Chat
+      // primary:"blue"
        theme={{
         ...defaultTheme,
         // colors: { ...defaultTheme.colors, inputBackground: darkTheme.colors.background},

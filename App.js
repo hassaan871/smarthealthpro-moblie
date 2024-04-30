@@ -1,8 +1,6 @@
-import AppNavigator from "./Navigator";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { Text } from "react-native";
-
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeContext } from "./Helper/ThemeContext";
 import { MyContextProvider } from "./Helper/context";
@@ -15,9 +13,13 @@ import {
 } from "@react-navigation/native";
 import merge from "deepmerge";
 import { RootSiblingParent } from "react-native-root-siblings";
-// import * as SplashScreen from "expo-splash-screen";
+import LoginScreen from "./screens/chattingUI/LoginScreen";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import AppNavigator from "./Navigator"; // Import the AppNavigator
+import SignUpScreen from "./screens/chattingUI/SignUpScreen";
 
-// SplashScreen.preventAutoHideAsync();
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [isThemeDark, setIsThemeDark] = useState(false);
@@ -32,7 +34,6 @@ export default function App() {
 
   const CombinedDefaultTheme = merge(lightTheme, LightTheme);
   const CombinedDarkTheme = merge(darkTheme, DarkTheme);
-
 
   useEffect(() => {
     const loadThemeFromStorage = async () => {
@@ -65,21 +66,38 @@ export default function App() {
 
   return (
     <RootSiblingParent>
-        <ThemeContext.Provider value={preferences}>
-          <SafeAreaProvider>
-            <PaperProvider
-              settings={{
-                rippleEffectEnabled: true,
-              }}
-              theme={myTheme}
-            >
-              <MyContextProvider>
-                <AppNavigator navTheme={navTheme} />
-              </MyContextProvider>
-            </PaperProvider>
-          </SafeAreaProvider>
-        </ThemeContext.Provider>
+      <ThemeContext.Provider value={preferences}>
+        <SafeAreaProvider>
+          <PaperProvider
+            settings={{
+              rippleEffectEnabled: true,
+            }}
+            theme={myTheme}
+          >
+            <MyContextProvider>
+              <NavigationContainer>
+                <Stack.Navigator>
+                  <Stack.Screen
+                    options={{ headerShown: false }}
+                    name="Login"
+                    component={LoginScreen}
+                  />
+                  <Stack.Screen
+                    options={{ headerShown: false }}
+                    name="SignUp"
+                    component={SignUpScreen}
+                  />
+                  <Stack.Screen
+                    options={{ headerShown: false }}
+                    name="AppNavigator"
+                    component={AppNavigator}
+                  />
+                </Stack.Navigator>
+              </NavigationContainer>
+            </MyContextProvider>
+          </PaperProvider>
+        </SafeAreaProvider>
+      </ThemeContext.Provider>
     </RootSiblingParent>
-    // <Text>Test</Text>
   );
 }

@@ -9,6 +9,8 @@ import Settings from "../tabNavScreens/Settings";
 import { TouchableOpacity, View } from "react-native";
 import ChattingList from "../chattingUIScreens/ChattingList";
 const Tab = createBottomTabNavigator();
+
+
 const TabScreensContainer = ({ navigation }) => {
   const [active, setActive] = useState("Home"); // Initialize active tab to "Home"
   return (

@@ -3,6 +3,7 @@ import LoginScreen from "./screens/authScreens/LoginScreen";
 import SignUpScreen from "./screens/authScreens/SignUpScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TabScreensContainer from "./screens/tabNavScreens/TabScreensContainer";
+import BotChattingScreen from "./screens/chattingUIScreens/BotChattingScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -19,6 +20,13 @@ const AppNavigator = () => {
         options={{ headerShown: false }}
         component={SignUpScreen} 
         />
+
+        <Stack.Screen 
+        name="BotChattingScreen" 
+        options={{ headerShown: false }}
+        component={BotChattingScreen} 
+        />
+
         <Stack.Screen 
         name="TabScreensContainer"
         options={{ headerShown: false }}

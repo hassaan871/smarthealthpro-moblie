@@ -10,7 +10,7 @@ const uuidv4 = () => {
     });
 }
 
-const App = () => {
+const BotChattingScreen = () => {
     const [messages, setMessages] = useState([]);
     const user = { id: '06c33e8b-e835-4736-80f4-63f44b66666c' };
     const chatbot = { id: "06c33e8b-e899-4736-80f4-63f44b66666c" };
@@ -54,4 +54,4 @@ const App = () => {
     );
 }
 
-export default App;
+export default BotChattingScreen;

@@ -47,7 +47,7 @@ const lightTheme = {
     homeBackground: "#E5E5E9",
     homeHeadColor: "#1D36C7",
     homeWelcomeTextColor: "#f4f4f4",
-    homeSearchInputColor: "#f4f4f4",
+    homeSearchInputColor: "#fff",
     homeMenuItemColor: "#f4f4f4",
     homeCardContainerMain: "#1D36C7",
     homeCardContainerSecondry: "#1B2060",

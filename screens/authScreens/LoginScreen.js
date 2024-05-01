@@ -13,8 +13,10 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import loginLogo from "../../assets/loginLogo.jpg";
 import { Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = () => {
+  const navigation = useNavigation();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [password, setPassword] = useState("");
   const inputRef = useRef(null);
@@ -30,6 +32,15 @@ const LoginScreen = ({ navigation }) => {
       inputRef.current.scrollTo({ x: contentWidth, animated: true });
     }
   };
+
+  const navigateToSignUp = () => {
+    navigation.navigate("SignUp");
+  }
+
+  const navigateToHomeTab = () => {
+    navigation.navigate("TabScreensContainer");
+  }
+  
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -74,10 +85,7 @@ const LoginScreen = ({ navigation }) => {
         </View>
         <Pressable
           style={styles.loginButton}
-          onPress={() => {
-            navigation.navigate("AppNavigator");
-          }}
-        >
+          onPress={()=>navigateToHomeTab()}>
           <Text style={styles.loginText}>Login</Text>
         </Pressable>
         <Text style={styles.orText}>Or, login with</Text>

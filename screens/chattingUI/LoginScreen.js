@@ -12,6 +12,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import loginLogo from "../../assets/loginLogo.jpg";
 import { Dimensions } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const LoginScreen = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -36,10 +37,7 @@ const LoginScreen = () => {
     >
       <View style={styles.card}>
         <View style={styles.imageContainer}>
-          <Image
-            source={loginLogo}
-            style={styles.image}
-          />
+          <Image source={loginLogo} style={styles.image} />
         </View>
         <Text style={styles.title}>Login</Text>
         <View style={styles.inputContainer}>
@@ -127,15 +125,12 @@ const styles = StyleSheet.create({
     maxWidth: 340,
   },
   imageContainer: {
-    marginBottom: 16,
+    // marginBottom: 16,
     alignItems: "center",
   },
   image: {
-    // width: 300,
-    // height: 150,
-    // borderRadius: 8,
-    height: Dimensions.get('window').height / 2.5,
-    width: Dimensions.get('window').width ,
+    height: Dimensions.get("window").height / 2.8,
+    resizeMode: "contain",
   },
   title: {
     fontSize: 24,

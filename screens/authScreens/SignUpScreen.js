@@ -1,198 +1,236 @@
 import React, { useState } from "react";
 import {
-  Alert,
-  Button,
-  Image,
-  Pressable,
-  SafeAreaView,
-  StyleSheet,
-  Switch,
+  View,
   Text,
   TextInput,
-  View,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  Pressable,
+  Dimensions,
+  Modal,
 } from "react-native";
-import favicon from "../../assets/favicon.png";
-import signupLogo from "../../assets/signupLogo.jpg"
-import { Dimensions } from "react-native";
-
+import signupLogo from "../../assets/signupLogo.jpg";
+import check from "../../assets/check.png";
+import checked from "../../assets/checked.png";
 
 const SignUpScreen = ({ navigation }) => {
-  const [click, setClick] = useState(false);
-  const { username, setUsername } = useState("");
-  const { password, setPassword } = useState("");
-
+  const [modalVisible, setModalVisible] = useState(false);
   return (
-    <SafeAreaView style={styles.container}>
-      <Image source={signupLogo} style={styles.image} resizeMode="contain" />
-      <Text style={styles.title}>Login</Text>
-      <View style={styles.inputView}>
-        <TextInput
-          style={styles.input}
-          placeholder="EMAIL OR USERNAME"
-          value={username}
-          onChangeText={setUsername}
-          autoCorrect={false}
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="PASSWORD"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-          autoCorrect={false}
-          autoCapitalize="none"
-        />
-      </View>
-      <View style={styles.rememberView}>
-        <View style={styles.switch}>
-          <Switch
-            value={click}
-            onValueChange={setClick}
-            trackColor={{ true: "green", false: "gray" }}
-          />
-          <Text style={styles.rememberText}>Remember Me</Text>
+    <View style={styles.container}>
+      <View style={styles.card}>
+        <View style={styles.imageContainer}>
+          <Image source={signupLogo} style={styles.image} />
         </View>
-        <View>
-          <Pressable onPress={() => Alert.alert("Forget Password!")}>
-            <Text style={styles.forgetText}>Forgot Password?</Text>
+        <Text style={styles.title}>Sign Up</Text>
+        <View style={styles.inputContainer}>
+          <TextInput placeholder="Full Name" style={styles.input} />
+          <TextInput placeholder="Date of Birth" style={styles.input} />
+          <TextInput
+            placeholder="Email address"
+            keyboardType="email-address"
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Password"
+            secureTextEntry
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Confirm Password"
+            secureTextEntry
+            style={styles.input}
+          />
+        </View>
+        <Pressable
+          onPress={() => setModalVisible(true)}
+          style={styles.loginButton}
+        >
+          <Text style={styles.loginText}>Sign Up</Text>
+        </Pressable>
+        <Text style={styles.orText}>Or, sign up with</Text>
+        <View style={styles.socialButtons}>
+          <Pressable style={styles.socialButton}>
+            <Image
+              source={{ uri: "https://placehold.co/32x32" }}
+              style={styles.socialIcon}
+            />
+          </Pressable>
+          <Pressable style={styles.socialButton}>
+            <Image
+              source={{ uri: "https://placehold.co/32x32" }}
+              style={styles.socialIcon}
+            />
+          </Pressable>
+          <Pressable style={styles.socialButton}>
+            <Image
+              source={{ uri: "https://placehold.co/32x32" }}
+              style={styles.socialIcon}
+            />
           </Pressable>
         </View>
-      </View>
-      <View style={styles.buttonView}>
         <Pressable
-          style={styles.button}
           onPress={() => {
-            navigation.navigate("AppNavigator");
+            navigation.navigate("Login");
           }}
         >
-          <Text style={styles.buttonText}>LOGIN</Text>
+          <Text style={{ textAlign: "center", color: "#6B7280", marginTop: 5 }}>
+            Already have an account?{" "}
+            <Text style={{ fontWeight: "bold", color: "#6366F1" }}>Login</Text>
+          </Text>
         </Pressable>
-        <Text style={styles.optionsText}>OR LOGIN WITH</Text>
       </View>
-      <View style={styles.mediaIcons}>
-        <Image source={favicon} style={styles.icons} />
-        <Image source={favicon} style={styles.icons} />
-        <Image source={favicon} style={styles.icons} />
-      </View>
-
-      <Text style={styles.footerText}>
-        Don't Have Account?<Text style={styles.signup}> Sign Up</Text>
-      </Text>
-    </SafeAreaView>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Image
+              source={checked}
+              style={{ width: 100, height: 100, marginBottom: 20 }}
+            />
+            <Text style={styles.title}>Sign Up Successful</Text>
+            <Text style={styles.text}>
+              You have successfully signed up for an account. Welcome aboard!
+            </Text>
+            <Pressable
+              style={styles.closeButton}
+              onPress={() => navigation.navigate("Login")}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    paddingTop: 70,
+    backgroundColor: "#E7ECF3",
   },
-
+  card: {
+    backgroundColor: "#fff",
+    padding: 16,
+    borderRadius: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { height: 0, width: 0 },
+    width: "90%",
+    maxWidth: 340,
+  },
+  imageContainer: {
+    // marginBottom: 16,
+    alignItems: "center",
+  },
   image: {
-    height: Dimensions.get('window').height / 2.5,
-    // width: Dimensions.get('window').width
+    height: Dimensions.get("window").height / 2.8,
+    resizeMode: "contain",
   },
-
   title: {
-    fontSize: 30,
+    fontSize: 24,
     fontWeight: "bold",
-    textTransform: "uppercase",
+    color: "#4a5568",
     textAlign: "center",
-    paddingVertical: 40,
-    color: "red",
+    marginBottom: 25,
   },
-
-  inputView: {
-    gap: 15,
-    width: "100%",
-    paddingHorizontal: 40,
+  inputContainer: {
     marginBottom: 5,
   },
-
-  input: {
-    height: 50,
-    paddingHorizontal: 20,
-    borderColor: "red",
-    borderWidth: 1,
-    borderRadius: 7,
-  },
-
-  rememberView: {
-    width: "100%",
-    paddingHorizontal: 50,
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexDirection: "row",
-    marginBottom: 8,
-  },
-
-  switch: {
-    flexDirection: "row",
-    gap: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  rememberText: {
-    fontSize: 13,
-  },
-
-  forgetText: {
-    fontSize: 11,
-    color: "red",
-  },
-
-  button: {
-    backgroundColor: "red",
-    height: 45,
-    borderColor: "gray",
-    borderWidth: 1,
-    borderRadius: 5,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  buttonText: {
-    color: "white",
-    fontSize: 18,
+  label: {
+    color: "#4a5568",
+    fontSize: 14,
     fontWeight: "bold",
   },
-
-  buttonView: {
-    width: "100%",
-    paddingHorizontal: 50,
+  input: {
+    backgroundColor: "#edf2f7",
+    borderColor: "#cbd5e0",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 16,
+    color: "#2d3748",
+    marginBottom: 5,
   },
-
-  optionsText: {
-    textAlign: "center",
-    paddingVertical: 10,
-    color: "gray",
-    fontSize: 13,
-    marginBottom: 6,
+  iconButton: {
+    position: "absolute",
+    right: 10,
+    top: "13%",
   },
-
-  mediaIcons: {
-    flexDirection: "row",
-    gap: 15,
+  forgotPassword: {
+    alignSelf: "flex-end",
+    color: "#3182ce",
+    fontSize: 14,
+  },
+  loginButton: {
+    backgroundColor: "#3182ce",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 23,
+    marginBottom: 8,
   },
-
-  icons: {
-    width: 40,
-    height: 40,
+  loginText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
-
-  footerText: {
+  orText: {
     textAlign: "center",
-    color: "gray",
+    color: "#718096",
+    marginBottom: 8,
   },
-
-  signup: {
-    color: "red",
-    fontSize: 13,
+  socialButtons: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  socialButton: {
+    padding: 8,
+    borderRadius: 50,
+    backgroundColor: "#edf2f7",
+    marginHorizontal: 8,
+  },
+  socialIcon: {
+    width: 32,
+    height: 32,
+  },
+  registerText: {
+    textAlign: "center",
+    color: "#3182ce",
+    fontSize: 14,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  closeButton: {
+    backgroundColor: "#64C5B1",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

@@ -4,8 +4,8 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import Icon2 from "react-native-vector-icons/FontAwesome5";
 import lightTheme from "./Themes/LightTheme";
 import BotChattingScreen from "./screens/chattingUI/BotChattingScreen";
-import HomeScreen from "./screens/chattingUI/HomeScreen";
-import Settings from "./screens/chattingUI/Settings";
+import HomeScreen from "./screens/tabNavScreens/HomeScreen";
+import Settings from "./screens/tabNavScreens/Settings";
 import { TouchableOpacity, View } from "react-native";
 
 const Tab = createBottomTabNavigator();
@@ -65,9 +65,9 @@ const AppNavigator = ({ navigation }) => {
         },
       })}
     >
-      {/* <Tab.Screen name="Home" component={HomeScreen} /> */}
+      <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Chat" component={BotChattingScreen} />
-      {/* <Tab.Screen name="Settings" component={Settings} /> */}
+      <Tab.Screen name="Settings" component={Settings} />
     </Tab.Navigator>
   );
 };

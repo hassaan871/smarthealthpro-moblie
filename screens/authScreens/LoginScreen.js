@@ -14,7 +14,7 @@ import loginLogo from "../../assets/loginLogo.jpg";
 import { Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const LoginScreen = () => {
+const LoginScreen = ({ navigation }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [password, setPassword] = useState("");
   const inputRef = useRef(null);
@@ -72,7 +72,12 @@ const LoginScreen = () => {
             </Pressable>
           </View>
         </View>
-        <Pressable style={styles.loginButton}>
+        <Pressable
+          style={styles.loginButton}
+          onPress={() => {
+            navigation.navigate("AppNavigator");
+          }}
+        >
           <Text style={styles.loginText}>Login</Text>
         </Pressable>
         <Text style={styles.orText}>Or, login with</Text>

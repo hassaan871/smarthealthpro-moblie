@@ -65,9 +65,9 @@ const AppNavigator = ({ navigation }) => {
         },
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      {/* <Tab.Screen name="Home" component={HomeScreen} /> */}
       <Tab.Screen name="Chat" component={BotChattingScreen} />
-      <Tab.Screen name="Settings" component={Settings} />
+      {/* <Tab.Screen name="Settings" component={Settings} /> */}
     </Tab.Navigator>
   );
 };

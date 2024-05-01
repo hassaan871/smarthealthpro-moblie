@@ -77,7 +77,7 @@ export default function App() {
             <MyContextProvider>
               <NavigationContainer>
                 <Stack.Navigator>
-                  {/* <Stack.Screen
+                  <Stack.Screen
                     options={{ headerShown: false }}
                     name="Login"
                     component={LoginScreen}
@@ -86,7 +86,7 @@ export default function App() {
                     options={{ headerShown: false }}
                     name="SignUp"
                     component={SignUpScreen}
-                  /> */}
+                  />
                   <Stack.Screen
                     options={{ headerShown: false }}
                     name="AppNavigator"

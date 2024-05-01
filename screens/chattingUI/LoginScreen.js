@@ -10,6 +10,8 @@ import {
   Platform,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import loginLogo from "../../assets/loginLogo.jpg";
+import { Dimensions } from "react-native";
 
 const LoginScreen = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -35,7 +37,7 @@ const LoginScreen = () => {
       <View style={styles.card}>
         <View style={styles.imageContainer}>
           <Image
-            source={{ uri: "https://placehold.co/300x150" }}
+            source={loginLogo}
             style={styles.image}
           />
         </View>
@@ -129,9 +131,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   image: {
-    width: 300,
-    height: 150,
-    borderRadius: 8,
+    // width: 300,
+    // height: 150,
+    // borderRadius: 8,
+    height: Dimensions.get('window').height / 2.5,
+    width: Dimensions.get('window').width ,
   },
   title: {
     fontSize: 24,

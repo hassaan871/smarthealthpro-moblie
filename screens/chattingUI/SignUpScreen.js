@@ -12,6 +12,9 @@ import {
   View,
 } from "react-native";
 import favicon from "../../assets/favicon.png";
+import signupLogo from "../../assets/signupLogo.jpg"
+import { Dimensions } from "react-native";
+
 
 const SignUpScreen = ({ navigation }) => {
   const [click, setClick] = useState(false);
@@ -20,7 +23,7 @@ const SignUpScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Image source={favicon} style={styles.image} resizeMode="contain" />
+      <Image source={signupLogo} style={styles.image} resizeMode="contain" />
       <Text style={styles.title}>Login</Text>
       <View style={styles.inputView}>
         <TextInput
@@ -87,8 +90,8 @@ const styles = StyleSheet.create({
   },
 
   image: {
-    height: 160,
-    width: 170,
+    height: Dimensions.get('window').height / 2.5,
+    // width: Dimensions.get('window').width
   },
 
   title: {

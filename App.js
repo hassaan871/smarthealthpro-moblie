@@ -13,11 +13,11 @@ import {
 } from "@react-navigation/native";
 import merge from "deepmerge";
 import { RootSiblingParent } from "react-native-root-siblings";
-import LoginScreen from "./screens/chattingUI/LoginScreen";
+import LoginScreen from "./screens/authScreens/LoginScreen";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AppNavigator from "./Navigator"; // Import the AppNavigator
-import SignUpScreen from "./screens/chattingUI/SignUpScreen";
+import SignUpScreen from "./screens/authScreens/SignUpScreen";
 
 const Stack = createNativeStackNavigator();
 

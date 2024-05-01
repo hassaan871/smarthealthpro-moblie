@@ -18,29 +18,11 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [password, setPassword] = useState("");
-  const inputRef = useRef(null);
-
-  const handlePasswordChange = (text) => {
-    setPassword(text);
-    const maxLength = 20;
-    setPasswordVisible(text.length > maxLength);
-  };
-
-  const handleContentSizeChange = (contentWidth, contentHeight) => {
-    if (contentWidth > inputRef.current.offsetWidth) {
-      inputRef.current.scrollTo({ x: contentWidth, animated: true });
-    }
-  };
-
-  const navigateToSignUp = () => {
-    navigation.navigate("SignUp");
-  }
 
   const navigateToHomeTab = () => {
     navigation.navigate("TabScreensContainer");
-  }
-  
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -52,7 +34,6 @@ const LoginScreen = () => {
         </View>
         <Text style={styles.title}>Login</Text>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
             placeholder="Enter your email"
@@ -60,7 +41,6 @@ const LoginScreen = () => {
           />
         </View>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password</Text>
           <View>
             <TextInput
               style={styles.input}
@@ -78,14 +58,19 @@ const LoginScreen = () => {
                 color="#718096"
               />
             </Pressable>
-            <Pressable>
+            <Pressable
+              onPress={() => {
+                navigation.navigate("SignUp");
+              }}
+            >
               <Text style={styles.forgotPassword}>Forgot?</Text>
             </Pressable>
           </View>
         </View>
         <Pressable
           style={styles.loginButton}
-          onPress={()=>navigateToHomeTab()}>
+          onPress={() => navigateToHomeTab()}
+        >
           <Text style={styles.loginText}>Login</Text>
         </Pressable>
         <Text style={styles.orText}>Or, login with</Text>
@@ -109,7 +94,11 @@ const LoginScreen = () => {
             />
           </Pressable>
         </View>
-        <Pressable>
+        <Pressable
+          onPress={() => {
+            navigation.navigate("SignUp");
+          }}
+        >
           <Text style={styles.registerText}>
             New to this platform? Register
           </Text>

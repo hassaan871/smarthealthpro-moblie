@@ -1,6 +1,7 @@
 import { Chat, defaultTheme } from '@flyerhq/react-native-chat-ui';
 import React, { useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import ChatHeader from './components/ChatHeader';
 
 const uuidv4 = () => {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -43,8 +44,10 @@ const BotChattingScreen = () => {
 
     return (
         <SafeAreaProvider>
+            <ChatHeader />
             <Chat
-                theme={{ ...defaultTheme }}
+            // change text message background
+                theme={{ ...defaultTheme, colors: { ...defaultTheme.colors, primary: '#3182ce' }}}
                 messages={messages}
                 onSendPress={handleSendPress}
                 user={user}

@@ -44,7 +44,7 @@ const BotChattingScreen = () => {
 
     return (
         <SafeAreaProvider>
-            <ChatHeader />
+            <ChatHeader icons={true} />
             <Chat
             // change text message background
                 theme={{ ...defaultTheme, colors: { ...defaultTheme.colors, primary: '#3182ce' }}}

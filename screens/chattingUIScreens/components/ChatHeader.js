@@ -7,69 +7,55 @@ import loginLogo from "../../../assets/loginLogo.jpg";
 import { useNavigation } from '@react-navigation/native';
 
 // create a component
-const ChatHeader = () => {
+const ChatHeader = ({icons,title}) => {
     const navigation = useNavigation();
-    const [lastSeen, setlastSeen] = useState('')
+    const [lastSeen, setlastSeen] = useState('');
 
     return (
         <View style={styles.container}>
-            {/* backgroundColor={COLORS.theme} */}
-            <StatusBar barStyle="light-content"  translucent={false} />
+            <StatusBar barStyle="light-content" translucent={false} />
             <Ionicons
-                style={{
-                    marginHorizontal: 10,
-                    // color: COLORS.white,
-                    color:"white"
-                }}
-                name = "chevron-back"
-                type = "Ionicons"
+                style={styles.icon}
+                name="chevron-back"
+                type="Ionicons"
                 size={26}
-                onPress={() => navigation.goBack() }
+                onPress={() => navigation.goBack()}
             />
+            <Text style={styles.text}>{title}</Text>
+
+            {icons && (
+            <>
+           
             <Avatar
                source={loginLogo}
                rounded
                size="medium"
             /> 
 
-            <View 
-                style={{flex:1, marginLeft: 10}}
-            >
-                <Text
-                    numberOfLines={1}
-                    style={{
-                        // color: COLORS.white,
-                        color:"white",
-                        fontSize: 16,
-                        // fontFamily: "bold",
-                        textTransform:'capitalize'
-                    }}
-                >
+            <View style={styles.textContainer}>
+                <Text numberOfLines={1} style={styles.name}>
                     Zuhair Raza
-                    {/* {data.name} */}
                 </Text>
-
-                <Text
-                // color: COLORS.primaryBackground,
-                // fontFamily: FONTS.Regular 
-                    style={{  fontSize: 10}}
-                >
-                    {/* {lastSeen} */}
+                <Text style={styles.lastSeen}>
                     last seen
                 </Text>
             </View>
 
             <Ionicons
-                style={{
-                    marginHorizontal: 10,
-                    // color: COLORS.themeColor
-                    color:"white"
-                }}
-                name="videocam-outline"
+                style={styles.icon}
+                name='call-outline'
                 type="Ionicons"
                 size={26}
             />
 
+                <Ionicons
+                style={styles.icon}
+                name="videocam-outline"
+                type="Ionicons"
+                size={26}
+            />
+            </>
+            )}
         </View>
     );
 };
@@ -77,12 +63,33 @@ const ChatHeader = () => {
 // define your styles
 const styles = StyleSheet.create({
     container: {
-        height:70,
-        // backgroundColor: COLORS.theme,
-        backgroundColor:"#3182ce",
+        height: 70,
+        backgroundColor: "#3182ce",
         elevation: 5,
         flexDirection: 'row',
-        alignItems:'center',
+        alignItems: 'center',
+    },
+    icon: {
+        marginHorizontal: 10,
+        color: "white",
+    },
+    textContainer: {
+        flex: 1,
+        marginLeft: 10,
+    },
+    name: {
+        color: "white",
+        fontSize: 16,
+        textTransform: 'capitalize',
+    },
+    lastSeen: {
+        fontSize: 10,
+    },
+    text: {
+        color: "white",
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginLeft: 10,
     },
 });
 

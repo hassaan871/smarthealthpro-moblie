@@ -4,6 +4,7 @@ import loginLogo from "../../assets/loginLogo.jpg";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import lightTheme from "../../Themes/LightTheme";
+import ChatHeader from './components/ChatHeader';
 
 
 const ChatListItem = ({ name, lastMessage, time }) => {
@@ -39,11 +40,14 @@ const ChatList = () => {
 
   return (
     <SafeAreaView>
+      <ChatHeader icons={false} title={"dummy title"} />
       <TextInput
       style={styles.searchInput}
       placeholder="Search for conversations"
       placeholderTextColor="#999"
     />
+      <Text style={styles.title}>Messages</Text>
+
       <ScrollView>
         <FlatList
           data={data}
@@ -64,6 +68,13 @@ const ChatList = () => {
 };
 
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 16,
+    fontWeight:"700",
+    // marginLeft: 16,
+    margin: 16,
+
+  },
   itemContainer: {
     flexDirection: 'row',
     padding:12
@@ -86,13 +97,14 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   name: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
   },
   time: {
     // paddingRight: 16,
     marginTop:8,
-    fontSize: 14,
+    fontSize: 12,
+    color: '#999',
   },
   messageContainer: {
     paddingTop: 1,
@@ -105,6 +117,7 @@ const styles = StyleSheet.create({
     backgroundColor: lightTheme.colors.homeSearchInputColor,
     alignSelf:"center",
     borderRadius: 12,
+    marginTop: 10,
     paddingHorizontal: 20,
     width: "92%",
     // backgroundColor:"red",

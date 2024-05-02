@@ -47,7 +47,8 @@ const BotChattingScreen = () => {
             <ChatHeader icons={true} />
             <Chat
             // change text message background
-                theme={{ ...defaultTheme, colors: { ...defaultTheme.colors, primary: '#3182ce' }}}
+                theme={{ ...defaultTheme, colors: 
+                    { ...defaultTheme.colors, primary: '#3182ce', background: '#f7fafc',inputBackground: '#3182ce'}}}
                 messages={messages}
                 onSendPress={handleSendPress}
                 user={user}

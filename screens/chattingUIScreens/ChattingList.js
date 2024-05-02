@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 16,
+    color: '#999',
   },
   searchInput: {
     height: 48,

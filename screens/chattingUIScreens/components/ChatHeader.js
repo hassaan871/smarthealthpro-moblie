@@ -9,7 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 // create a component
 const ChatHeader = ({icons,title}) => {
     const navigation = useNavigation();
-    const [lastSeen, setlastSeen] = useState('');
+    // const [lastSeen, setlastSeen] = useState('');
 
     return (
         <View style={styles.container}>
@@ -37,7 +37,8 @@ const ChatHeader = ({icons,title}) => {
                     Zuhair Raza
                 </Text>
                 <Text style={styles.lastSeen}>
-                    last seen
+                    {/* dumy date */}
+                    10:00 AM
                 </Text>
             </View>
 
@@ -84,6 +85,7 @@ const styles = StyleSheet.create({
     },
     lastSeen: {
         fontSize: 10,
+        color:"white",
     },
     text: {
         color: "white",

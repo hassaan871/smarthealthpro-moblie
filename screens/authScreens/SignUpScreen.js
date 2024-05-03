@@ -25,7 +25,7 @@ const SignUpScreen = ({ navigation }) => {
         <Text style={styles.title}>Sign Up</Text>
         <View style={styles.inputContainer}>
           <TextInput placeholder="Full Name" style={styles.input} />
-          {/* <TextInput placeholder="Date of Birth" style={styles.input} /> */}
+          <TextInput placeholder="Date of Birth" style={styles.input} />
           <TextInput
             placeholder="Email address"
             keyboardType="email-address"
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   image: {
-    height: Dimensions.get("window").height / 4,
+    height: Dimensions.get("window").height / 2.8,
     resizeMode: "contain",
   },
   title: {
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 16,
     color: "#2d3748",
-    marginBottom: 18,
+    marginBottom: 5,
   },
   iconButton: {
     position: "absolute",

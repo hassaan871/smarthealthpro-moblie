@@ -59,11 +59,15 @@ const HomeScreen = () => {
       <View style={styles.scheduleContainer}>
         <View style={styles.scheduleHeader}>
           <Text style={styles.scheduleTitle}>Upcoming Schedule</Text>
-          <TouchableOpacity
-            title="View All"
-            color={lightTheme.colors.homeViewBtnTextColor}
-          >
-            <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
+          <TouchableOpacity>
+            <Text
+              style={{
+                fontSize: 16,
+                color: "#1B2060",
+              }}
+            >
+              View All
+            </Text>
           </TouchableOpacity>
         </View>
         <View style={styles.cardContainer}>
@@ -136,7 +140,7 @@ const styles = StyleSheet.create({
     height: 48,
     backgroundColor: lightTheme.colors.homeSearchInputColor,
     borderRadius: 12,
-    paddingHorizontal: 16,
+    padding: 16,
     fontSize: 16,
   },
   menuContainer: {
@@ -151,8 +155,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: lightTheme.colors.homeMenuItemColor,
     borderRadius: 12,
-    marginHorizontal: 5,
-    paddingVertical: 10,
+    margin: 5,
+    padding: 10,
   },
   menuText: {
     marginTop: 4,
@@ -160,8 +164,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   scheduleContainer: {
-    flex: 1,
-    padding: 8,
+    padding: 10,
+    marginBottom: 40,
   },
   scheduleHeader: {
     flexDirection: "row",
@@ -217,7 +221,7 @@ const styles = StyleSheet.create({
   },
   appointmentText: {
     fontSize: 14,
-    color: "#F0F0F0",
+    color: "#fff",
     textAlign: "center",
   },
   tabContainer: {

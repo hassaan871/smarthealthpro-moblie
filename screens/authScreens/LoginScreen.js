@@ -69,7 +69,7 @@ const LoginScreen = () => {
         </View>
         <Pressable
           style={styles.loginButton}
-          onPress={() => navigateToHomeTab()}
+          onPress={() => navigation.navigate("TabScreensContainer")}
         >
           <Text style={styles.loginText}>Login</Text>
         </Pressable>

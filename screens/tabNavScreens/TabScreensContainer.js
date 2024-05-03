@@ -5,6 +5,7 @@ import lightTheme from "../../Themes/LightTheme";
 import HomeScreen from "../tabNavScreens/HomeScreen";
 import Settings from "../tabNavScreens/Settings";
 import { TouchableOpacity, View } from "react-native";
+import ChattingList from "../chattingUIScreens/ChattingList";
 
 const Tab = createBottomTabNavigator();
 
@@ -40,31 +41,21 @@ const TabScreensContainer = ({ navigation }) => {
           let iconName;
           if (route.name === "Home") {
             iconName = "home";
-<<<<<<< Updated upstream
           } else if (route.name === "Chat") {
-            iconName = "robot";
+            iconName = "chat";
           } else if (route.name === "Settings") {
             iconName = "settings";
           }
 
           if (route.name === "Chat") {
-            return <Icon2 name={iconName} size={size} color={color} />;
+            return <Icon name={iconName} size={size} color={color} />;
           }
           return <Icon name={iconName} size={size} color={color} />;
-=======
-          } else if (route.name === "Settings") {
-            iconName = "settings";
-          }
-          return <Icon name={iconName} size={size} color={color} style={{}} />;
->>>>>>> Stashed changes
         },
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-<<<<<<< Updated upstream
-      <Tab.Screen name="Chat" component={BotChattingScreen} />
-=======
->>>>>>> Stashed changes
+      <Tab.Screen name="Chat" component={ChattingList} />
       <Tab.Screen name="Settings" component={Settings} />
     </Tab.Navigator>
   );

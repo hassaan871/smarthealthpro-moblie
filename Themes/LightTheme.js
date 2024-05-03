@@ -46,17 +46,10 @@ const lightTheme = {
     backdrop: "rgba(46, 48, 56, 0.4)",
     homeBackground: "#f4f4f4",
     homeHeadColor: "#1D36C7",
-<<<<<<< Updated upstream
-    homeWelcomeTextColor: "#f4f4f4",
-    homeSearchInputColor: "#f4f4f4",
-    homeMenuItemColor: "#f4f4f4",
-    homeCardContainerMain: "#1D36C7",
-=======
     homeWelcomeTextColor: "black",
     homeSearchInputColor: "#DCDFE6",
     homeMenuItemColor: "#fff",
     homeCardContainerMain: "#fff",
->>>>>>> Stashed changes
     homeCardContainerSecondry: "#1B2060",
     homeTabContainerColor: "#f4f4f4",
     homeActiveTabColor: "#1D36C7",

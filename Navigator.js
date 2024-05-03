@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import TabScreensContainer from "./screens/tabNavScreens/TabScreensContainer";
 import BotChattingScreen from "./screens/chattingUIScreens/BotChattingScreen";
 import ChattingList from "./screens/chattingUIScreens/ChattingList";
+import CameraAccessScreen from "./screens/cameraAccess/CameraAccessScreen";
 
 const Stack = createNativeStackNavigator();
 const AppNavigator = () => {
@@ -35,10 +36,16 @@ const AppNavigator = () => {
       />
 
       <Stack.Screen
+      name="CameraAccessScreen"
+      options={{ headerShown: false }}
+      component={CameraAccessScreen}
+      />
+
+      {/* <Stack.Screen
         name="TabScreensContainer"
         options={{ headerShown: false }}
         component={TabScreensContainer}
-      />
+      /> */}
     </Stack.Navigator>
   );
 };

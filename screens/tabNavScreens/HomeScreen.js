@@ -10,14 +10,14 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from react-native-vector-icons
 import Icon2 from "react-native-vector-icons/FontAwesome5";
-
+import { SafeAreaView } from "react-native-safe-area-context";
 import favicon from "../../assets/favicon.png";
 import lightTheme from "../../Themes/LightTheme";
 
 const HomeScreen = () => {
   const [activeTab, setActiveTab] = useState("home");
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.welcomeText}>Welcome back, Samantha</Text>
         <Text style={styles.headerTitle}>Keep Healthy!</Text>
@@ -106,7 +106,7 @@ const HomeScreen = () => {
           </View>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

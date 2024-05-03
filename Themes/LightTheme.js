@@ -46,13 +46,10 @@ const lightTheme = {
     backdrop: "rgba(46, 48, 56, 0.4)",
     homeBackground: "#f4f4f4",
     homeHeadColor: "#1D36C7",
-    homeCardContainerSecondry: "#1B2060",
-    homeTabContainerColor: "#f4f4f4",
-    homeActiveTabColor: "#1D36C7",
-    homeCardContainerText: "black",
-    homeIconColor: "#888",
-    homeViewBtnTextColor: "#1D36C7",
-    homeMenuText: "#888",
+    homeWelcomeTextColor: "#f4f4f4",
+    homeSearchInputColor: "#fff",
+    homeMenuItemColor: "#f4f4f4",
+    homeCardContainerMain: "#1D36C7",
   },
 
   // Other custom theme properties for light mode

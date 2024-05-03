@@ -40,15 +40,31 @@ const TabScreensContainer = ({ navigation }) => {
           let iconName;
           if (route.name === "Home") {
             iconName = "home";
+<<<<<<< Updated upstream
+          } else if (route.name === "Chat") {
+            iconName = "robot";
+          } else if (route.name === "Settings") {
+            iconName = "settings";
+          }
+
+          if (route.name === "Chat") {
+            return <Icon2 name={iconName} size={size} color={color} />;
+          }
+          return <Icon name={iconName} size={size} color={color} />;
+=======
           } else if (route.name === "Settings") {
             iconName = "settings";
           }
           return <Icon name={iconName} size={size} color={color} style={{}} />;
+>>>>>>> Stashed changes
         },
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      {/* <Tab.Screen name="Chat" component={BotChattingScreen} /> */}
+<<<<<<< Updated upstream
+      <Tab.Screen name="Chat" component={BotChattingScreen} />
+=======
+>>>>>>> Stashed changes
       <Tab.Screen name="Settings" component={Settings} />
     </Tab.Navigator>
   );

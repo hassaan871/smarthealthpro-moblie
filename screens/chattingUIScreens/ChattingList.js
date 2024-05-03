@@ -4,28 +4,28 @@ import loginLogo from "../../assets/loginLogo.jpg";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import lightTheme from "../../Themes/LightTheme";
-import ChatHeader from './components/ChatHeader';
+// import ChatHeader from './components/ChatHeader';
 
 
 const ChatListItem = ({ name, lastMessage, time }) => {
   const navigation = useNavigation();
   return (
-      <TouchableOpacity onPress={() => navigation.navigate("BotChattingScreen")}>
-          <View style={styles.itemContainer}>
-          <View style={styles.avatarContainer}>
-            <Image source={loginLogo} style={styles.avatar} />
-          </View>
-          <View style={styles.textContainer}>
-            <View style={styles.nameTimeContainer}>
-              <Text style={styles.name}>{name}</Text>
-              <Text style={styles.time}>{time}</Text>
-            </View>
-            <View style={styles.messageContainer}>
-              <Text style={styles.message}>{lastMessage}</Text>
-            </View>
-          </View>
+    <TouchableOpacity onPress={() => navigation.navigate("BotChattingScreen")}>
+    <View style={[styles.itemContainer, { marginBottom: 8 }]}>
+      <View style={styles.avatarContainer}>
+        <Image source={loginLogo} style={styles.avatar} />
+      </View>
+      <View style={styles.textContainer}>
+        <View style={styles.nameTimeContainer}>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.time}>{time}</Text>
         </View>
-      </TouchableOpacity>
+        <View style={styles.messageContainer}>
+          <Text style={styles.message}>{lastMessage}</Text>
+        </View>
+      </View>
+    </View>
+  </TouchableOpacity>
   );
 };
 
@@ -37,16 +37,33 @@ const ChatList = () => {
     { id: '4', name: 'Jane', lastMessage: 'How are you?', time: '11:30 AM' },
     // Add more data as needed
   ];
+  const avatarsOnly = [
+    {id:1 ,avatar:loginLogo},
+    {id:2,avatar:loginLogo},
+    {id:3,avatar:loginLogo},
+    {id:4,avatar:loginLogo},
+  ]
 
   return (
     <SafeAreaView>
-      <ChatHeader icons={false} title={"dummy title"} />
+      {/* <ChatHeader icons={false} title={"dummy title"} /> */}
+      <Text style={styles.text}> Chat Room </Text>
       <TextInput
       style={styles.searchInput}
       placeholder="Search for conversations"
       placeholderTextColor="#999"
     />
-      <Text style={styles.title}>Messages</Text>
+     <FlatList  
+        data={avatarsOnly}
+        keyExtractor={(item) => item.avatar}
+        horizontal
+        renderItem={({ item }) => (
+          <View style={styles.onlineAvatarsContainser}>
+            <Image source={item.avatar} style={styles.avatar} />
+          </View>
+        )}
+      />
+      {/* <Text style={styles.title}>Messages</Text> */}
 
       <ScrollView>
         <FlatList
@@ -76,7 +93,10 @@ const styles = StyleSheet.create({
 
   },
   itemContainer: {
+    backgroundColor: '#fff',
     flexDirection: 'row',
+    borderRadius: 12,
+    marginHorizontal: 12,
     padding:12
   },
   avatarContainer: {
@@ -118,11 +138,22 @@ const styles = StyleSheet.create({
     backgroundColor: lightTheme.colors.homeSearchInputColor,
     alignSelf:"center",
     borderRadius: 12,
-    marginTop: 10,
+    margin: 8,
+    // marginBottom: 20,
     paddingHorizontal: 20,
     width: "92%",
     // backgroundColor:"red",
     fontSize: 16,
+  },
+  text: {
+    fontSize: 24,
+    fontWeight: "700",
+    margin: 16,
+    alignSelf: "center",
+  },
+  onlineAvatarsContainser: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
 });
 

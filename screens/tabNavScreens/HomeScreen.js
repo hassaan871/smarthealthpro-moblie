@@ -7,6 +7,8 @@ import {
   Image,
   TouchableOpacity,
   Platform,
+  StatusBar,
+  SafeAreaView
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from react-native-vector-icons
 import Icon2 from "react-native-vector-icons/FontAwesome5";
@@ -17,7 +19,9 @@ import lightTheme from "../../Themes/LightTheme";
 const HomeScreen = () => {
   const [activeTab, setActiveTab] = useState("home");
   return (
-    <View style={styles.container}>
+    // <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      {/* <StatusBar barStyle="dark-content" /> */}
       <View style={styles.header}>
         <Text style={styles.welcomeText}>Welcome back, Samantha</Text>
         <Text style={styles.headerTitle}>Keep Healthy!</Text>
@@ -110,7 +114,7 @@ const HomeScreen = () => {
           </View>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -120,7 +124,8 @@ const styles = StyleSheet.create({
     backgroundColor: lightTheme.colors.homeBackground,
   },
   header: {
-    backgroundColor: lightTheme.colors.homeBackground,
+    // backgroundColor: lightTheme.colors.homeBackground,
+    
     paddingTop: Platform.OS === "ios" ? 40 : 0,
     padding: 16,
   },
@@ -132,6 +137,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "bold",
     color: lightTheme.colors.homeWelcomeTextColor,
+    
   },
   searchContainer: {
     padding: 16,
@@ -189,7 +195,7 @@ const styles = StyleSheet.create({
     top: 10,
   },
   headerContainer: {
-    backgroundColor: lightTheme.colors.homeCardContainerMain,
+    // backgroundColor: lightTheme.colors.homeCardContainerMain,
     padding: 16,
     flexDirection: "row",
     alignItems: "center",
@@ -213,7 +219,8 @@ const styles = StyleSheet.create({
     color: lightTheme.colors.homeCardContainerText,
   },
   appointmentContainer: {
-    backgroundColor: lightTheme.colors.homeCardContainerSecondry,
+    // backgroundColor: lightTheme.colors.homeCardContainerSecondry,
+    backgroundColor: "#55A8FF",
     padding: 8,
     borderRadius: 4,
     marginHorizontal: 16,

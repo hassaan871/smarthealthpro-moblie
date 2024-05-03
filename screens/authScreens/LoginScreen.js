@@ -69,7 +69,7 @@ const LoginScreen = () => {
         </View>
         <Pressable
           style={styles.loginButton}
-          onPress={() => navigation.navigate("TabScreensContainer")}
+          onPress={() => navigateToHomeTab()}
         >
           <Text style={styles.loginText}>Login</Text>
         </Pressable>
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loginButton: {
-    backgroundColor: "#3182ce",
+    backgroundColor: "#1B2060",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,

@@ -1,59 +1,67 @@
-import React from 'react';
-import { View, FlatList, Text, Image, StyleSheet,TouchableOpacity, ScrollView,TextInput } from 'react-native';
+import React from "react";
+import {
+  View,
+  FlatList,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+} from "react-native";
 import loginLogo from "../../assets/loginLogo.jpg";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import lightTheme from "../../Themes/LightTheme";
 // import ChatHeader from './components/ChatHeader';
 
-
 const ChatListItem = ({ name, lastMessage, time }) => {
   const navigation = useNavigation();
   return (
     <TouchableOpacity onPress={() => navigation.navigate("BotChattingScreen")}>
-    <View style={[styles.itemContainer, { marginBottom: 8 }]}>
-      <View style={styles.avatarContainer}>
-        <Image source={loginLogo} style={styles.avatar} />
-      </View>
-      <View style={styles.textContainer}>
-        <View style={styles.nameTimeContainer}>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.time}>{time}</Text>
+      <View style={[styles.itemContainer, { marginBottom: 8 }]}>
+        <View style={styles.avatarContainer}>
+          <Image source={loginLogo} style={styles.avatar} />
         </View>
-        <View style={styles.messageContainer}>
-          <Text style={styles.message}>{lastMessage}</Text>
+        <View style={styles.textContainer}>
+          <View style={styles.nameTimeContainer}>
+            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.time}>{time}</Text>
+          </View>
+          <View style={styles.messageContainer}>
+            <Text style={styles.message}>{lastMessage}</Text>
+          </View>
         </View>
       </View>
-    </View>
-  </TouchableOpacity>
+    </TouchableOpacity>
   );
 };
 
 const ChatList = () => {
   const data = [
-    { id: '1', name: 'John', lastMessage: 'Hey there!', time: '10:00 AM' },
-    { id: '2', name: 'Jane', lastMessage: 'How are you?', time: '11:30 AM' },
-    { id: '3', name: 'John', lastMessage: 'Hey there!', time: '10:00 AM' },
-    { id: '4', name: 'Jane', lastMessage: 'How are you?', time: '11:30 AM' },
+    { id: "1", name: "John", lastMessage: "Hey there!", time: "10:00 AM" },
+    { id: "2", name: "Jane", lastMessage: "How are you?", time: "11:30 AM" },
+    { id: "3", name: "John", lastMessage: "Hey there!", time: "10:00 AM" },
+    { id: "4", name: "Jane", lastMessage: "How are you?", time: "11:30 AM" },
     // Add more data as needed
   ];
   const avatarsOnly = [
-    {id:1 ,avatar:loginLogo},
-    {id:2,avatar:loginLogo},
-    {id:3,avatar:loginLogo},
-    {id:4,avatar:loginLogo},
-  ]
+    { id: 1, avatar: loginLogo },
+    { id: 2, avatar: loginLogo },
+    { id: 3, avatar: loginLogo },
+    { id: 4, avatar: loginLogo },
+  ];
 
   return (
     <SafeAreaView>
       {/* <ChatHeader icons={false} title={"dummy title"} /> */}
       <Text style={styles.text}> Chat Room </Text>
       <TextInput
-      style={styles.searchInput}
-      placeholder="Search for conversations"
-      placeholderTextColor="#999"
-    />
-     <FlatList  
+        style={styles.searchInput}
+        placeholder="Search for conversations"
+        placeholderTextColor="#999"
+      />
+      <FlatList
         data={avatarsOnly}
         keyExtractor={(item) => item.avatar}
         horizontal
@@ -80,24 +88,22 @@ const ChatList = () => {
         />
       </ScrollView>
     </SafeAreaView>
-    
   );
 };
 
 const styles = StyleSheet.create({
   title: {
     fontSize: 16,
-    fontWeight:"700",
+    fontWeight: "700",
     // marginLeft: 16,
     margin: 16,
-
   },
   itemContainer: {
-    backgroundColor: '#fff',
-    flexDirection: 'row',
+    backgroundColor: "#fff",
+    flexDirection: "row",
     borderRadius: 12,
     marginHorizontal: 12,
-    padding:12
+    padding: 12,
   },
   avatarContainer: {
     marginRight: 6,
@@ -112,31 +118,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   nameTimeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 1,
   },
   name: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   time: {
     // paddingRight: 16,
-    marginTop:8,
+    marginTop: 8,
     fontSize: 12,
-    color: '#999',
+    color: "#999",
   },
   messageContainer: {
     paddingTop: 1,
   },
   message: {
     fontSize: 16,
-    color: '#999',
+    color: "#999",
   },
   searchInput: {
     height: 48,
     backgroundColor: lightTheme.colors.homeSearchInputColor,
-    alignSelf:"center",
+    alignSelf: "center",
     borderRadius: 12,
     margin: 8,
     // marginBottom: 20,
@@ -156,6 +162,5 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
 });
-
 
 export default ChatList;

@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   StyleSheet,
   Image,
   TouchableOpacity,
@@ -11,14 +10,14 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from react-native-vector-icons
 import Icon2 from "react-native-vector-icons/FontAwesome5";
-import { SafeAreaView } from "react-native-safe-area-context";
+
 import favicon from "../../assets/favicon.png";
 import lightTheme from "../../Themes/LightTheme";
 
 const HomeScreen = () => {
   const [activeTab, setActiveTab] = useState("home");
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.welcomeText}>Welcome back, Samantha</Text>
         <Text style={styles.headerTitle}>Keep Healthy!</Text>
@@ -60,11 +59,12 @@ const HomeScreen = () => {
       <View style={styles.scheduleContainer}>
         <View style={styles.scheduleHeader}>
           <Text style={styles.scheduleTitle}>Upcoming Schedule</Text>
-          <Button
-            title="View all"
+          <TouchableOpacity
+            title="View All"
             color={lightTheme.colors.homeViewBtnTextColor}
-            onPress={() => {}}
-          />
+          >
+            <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.cardContainer}>
           <View style={styles.headerContainer}>
@@ -81,7 +81,32 @@ const HomeScreen = () => {
           </View>
         </View>
       </View>
-    </SafeAreaView>
+      <View style={styles.scheduleContainer}>
+        <View style={styles.scheduleHeader}>
+          <Text style={styles.scheduleTitle}>Popular Doctors</Text>
+          <TouchableOpacity
+            title="View All"
+            color={lightTheme.colors.homeViewBtnTextColor}
+          >
+            <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.cardContainer}>
+          <View style={styles.headerContainer}>
+            <Image source={favicon} style={styles.image} />
+            <View style={styles.detailsContainer}>
+              <Text style={styles.nameText}>Dr. Emily Davis</Text>
+              <Text style={styles.specialtyText}>Dermatologist</Text>
+            </View>
+          </View>
+          <View style={styles.appointmentContainer}>
+            <Text style={styles.appointmentText}>
+              Thu, May 18, 09:00 am - 10:00 am
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
   );
 };
 
@@ -91,16 +116,16 @@ const styles = StyleSheet.create({
     backgroundColor: lightTheme.colors.homeBackground,
   },
   header: {
-    backgroundColor: lightTheme.colors.homeHeadColor,
+    backgroundColor: lightTheme.colors.homeBackground,
     paddingTop: Platform.OS === "ios" ? 40 : 0,
     padding: 16,
   },
   welcomeText: {
     color: lightTheme.colors.homeWelcomeTextColor,
-    fontSize: 16,
+    fontSize: 30,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: "bold",
     color: lightTheme.colors.homeWelcomeTextColor,
   },
@@ -136,16 +161,16 @@ const styles = StyleSheet.create({
   },
   scheduleContainer: {
     flex: 1,
-    padding: 10,
+    padding: 8,
   },
   scheduleHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 1,
   },
   scheduleTitle: {
-    fontSize: 20,
+    fontSize: 23,
     fontWeight: "bold",
   },
   cardContainer: {
@@ -157,7 +182,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     backgroundColor: lightTheme.colors.homeCardContainerMain,
-    marginBottom: 10,
+    top: 10,
   },
   headerContainer: {
     backgroundColor: lightTheme.colors.homeCardContainerMain,
@@ -192,7 +217,7 @@ const styles = StyleSheet.create({
   },
   appointmentText: {
     fontSize: 14,
-    color: lightTheme.colors.homeCardContainerText,
+    color: "#F0F0F0",
     textAlign: "center",
   },
   tabContainer: {

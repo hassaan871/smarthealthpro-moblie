@@ -6,11 +6,18 @@ import TabScreensContainer from "./screens/tabNavScreens/TabScreensContainer";
 import BotChattingScreen from "./screens/chattingUIScreens/BotChattingScreen";
 import ChattingList from "./screens/chattingUIScreens/ChattingList";
 import CameraAccessScreen from "./screens/cameraAccess/CameraAccessScreen";
+import OnBoardingScreen from "./screens/extras/OnBoarding";
 
 const Stack = createNativeStackNavigator();
 const AppNavigator = () => {
   return (
     <Stack.Navigator>
+      <Stack.Screen
+        name="OnBoarding"
+        options={{ headerShown: false }}
+        component={OnBoardingScreen}
+      />
+
       <Stack.Screen
         name="Login"
         options={{ headerShown: false }}

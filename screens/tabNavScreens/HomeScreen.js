@@ -8,10 +8,12 @@ import {
   TouchableOpacity,
   Platform,
   StatusBar,
-  SafeAreaView
+  SafeAreaView,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from react-native-vector-icons
-import Icon2 from "react-native-vector-icons/FontAwesome5";
+import Icon2 from "react-native-vector-icons/Feather";
+import Icon3 from "react-native-vector-icons/FontAwesome";
+import Icon4 from "react-native-vector-icons/MaterialCommunityIcons";
 
 import favicon from "../../assets/favicon.png";
 import lightTheme from "../../Themes/LightTheme";
@@ -80,12 +82,32 @@ const HomeScreen = () => {
             <View style={styles.detailsContainer}>
               <Text style={styles.nameText}>Dr. Emily Davis</Text>
               <Text style={styles.specialtyText}>Dermatologist</Text>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Icon3 name="map-marker" size={20} color="#fff" />
+                <Text style={{ ...styles.specialtyText, paddingLeft: 10 }}>
+                  Shaukat Khanum
+                </Text>
+              </View>
             </View>
           </View>
-          <View style={styles.appointmentContainer}>
-            <Text style={styles.appointmentText}>
-              Thu, May 18, 09:00 am - 10:00 am
-            </Text>
+          <View
+            style={[
+              styles.appointmentContainer,
+              { flexDirection: "row", justifyContent: "space-between" },
+            ]}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Icon2 name="clock" size={14} color="#fff" />
+              <Text style={{ ...styles.appointmentText, marginLeft: 5 }}>
+                Thu, May 18, 09:00 am - 10:00 am
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Icon4 name="cash" size={14} color="#fff" />
+              <Text style={{ ...styles.appointmentText, marginLeft: 5 }}>
+                Clinic Fees: Rs.200
+              </Text>
+            </View>
           </View>
         </View>
       </View>
@@ -105,12 +127,32 @@ const HomeScreen = () => {
             <View style={styles.detailsContainer}>
               <Text style={styles.nameText}>Dr. Emily Davis</Text>
               <Text style={styles.specialtyText}>Dermatologist</Text>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Icon3 name="map-marker" size={20} color="#fff" />
+                <Text style={{ ...styles.specialtyText, paddingLeft: 10 }}>
+                  Shaukat Khanum
+                </Text>
+              </View>
             </View>
           </View>
-          <View style={styles.appointmentContainer}>
-            <Text style={styles.appointmentText}>
-              Thu, May 18, 09:00 am - 10:00 am
-            </Text>
+          <View
+            style={[
+              styles.appointmentContainer,
+              { flexDirection: "row", justifyContent: "space-between" },
+            ]}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Icon2 name="clock" size={10} color="#fff" />
+              <Text style={{ ...styles.appointmentText, marginLeft: 5 }}>
+                Thu, May 18, 09:00 am - 10:00 am
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Icon4 name="cash" size={10} color="#fff" />
+              <Text style={{ ...styles.appointmentText, marginLeft: 5 }}>
+                Clinic Fees: Rs.200
+              </Text>
+            </View>
           </View>
         </View>
       </View>
@@ -125,7 +167,7 @@ const styles = StyleSheet.create({
   },
   header: {
     // backgroundColor: lightTheme.colors.homeBackground,
-    
+
     paddingTop: Platform.OS === "ios" ? 40 : 0,
     padding: 16,
   },
@@ -137,7 +179,6 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "bold",
     color: lightTheme.colors.homeWelcomeTextColor,
-    
   },
   searchContainer: {
     padding: 16,
@@ -216,20 +257,20 @@ const styles = StyleSheet.create({
   },
   specialtyText: {
     fontSize: 14,
+
     color: lightTheme.colors.homeCardContainerText,
   },
   appointmentContainer: {
     // backgroundColor: lightTheme.colors.homeCardContainerSecondry,
-    backgroundColor: "#55A8FF",
+    backgroundColor: "#007BFF",
     padding: 8,
     borderRadius: 4,
     marginHorizontal: 16,
     marginBottom: 10,
   },
   appointmentText: {
-    fontSize: 14,
+    fontSize: 12,
     color: "#fff",
-    textAlign: "center",
   },
   tabContainer: {
     flexDirection: "row",

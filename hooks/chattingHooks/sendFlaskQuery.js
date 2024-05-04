@@ -15,7 +15,7 @@ const sendQueryToFlask = async (query) => {
 
 const getFlaskResponse = async () => {
   try {
-      const response = await axios.get("http://192.168.100.109");
+      const response = await axios.get("http://192.168.100.222");
       console.log("Response:", response.data);
       return response.data;
   } catch(error) {

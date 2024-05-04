@@ -6,6 +6,7 @@ import HomeScreen from "../tabNavScreens/HomeScreen";
 import Settings from "../tabNavScreens/Settings";
 import { TouchableOpacity, View } from "react-native";
 import ChattingList from "../chattingUIScreens/ChattingList";
+import CameraAccessScreen from "../cameraAccess/CameraAccessScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -45,6 +46,8 @@ const TabScreensContainer = ({ navigation }) => {
             iconName = "chat";
           } else if (route.name === "Settings") {
             iconName = "settings";
+          }else if (route.name === "Camera") {
+            iconName = "camera";
           }
 
           if (route.name === "Chat") {
@@ -57,6 +60,7 @@ const TabScreensContainer = ({ navigation }) => {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Chat" component={ChattingList} />
       <Tab.Screen name="Settings" component={Settings} />
+      <Tab.Screen name="Camera" component={CameraAccessScreen} /> 
     </Tab.Navigator>
   );
 };

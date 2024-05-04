@@ -21,11 +21,11 @@ export const pickImageFromGallery = async () => {
       if (!result.cancelled) {
         // Access the URI from the first asset in the assets array
         const uri = result.assets[0].uri;
-        console.log("Gallery Image URI:", uri);
+        // console.log("Gallery Image URI:", uri);
         return uri;
       }
     } catch (error) {
-      console.error('Error picking image from gallery:', error);
+      // console.error('Error picking image from gallery:', error);
       Alert.alert('Error', 'An error occurred while picking an image from the gallery.');
     }
   };
@@ -41,11 +41,11 @@ export const takePicture = async () => {
 
     if (!result.cancelled) {
         const uri = result.assets[0].uri;
-        console.log("taken Image URI:", uri);
+        // console.log("taken Image URI:", uri);
         return uri;
     }
   } catch (error) {
-    console.error('Error taking picture:', error);
+    // console.error('Error taking picture:', error);
     Alert.alert('Error', 'An error occurred while taking a picture.');
   }
 };

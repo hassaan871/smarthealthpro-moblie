@@ -7,6 +7,8 @@ import BotChattingScreen from "./screens/chattingUIScreens/BotChattingScreen";
 import ChattingList from "./screens/chattingUIScreens/ChattingList";
 import CameraAccessScreen from "./screens/cameraAccess/CameraAccessScreen";
 import OnBoardingScreen from "./screens/extras/OnBoarding";
+import ViewAllScreen from "./screens/extras/ViewAllScreen";
+import DoctorDetailPage from "./screens/extras/DoctorDetailPage";
 
 const Stack = createNativeStackNavigator();
 const AppNavigator = () => {
@@ -28,6 +30,18 @@ const AppNavigator = () => {
         name="SignUp"
         options={{ headerShown: false }}
         component={SignUpScreen}
+      />
+
+      <Stack.Screen
+        name="ViewAll"
+        options={{ headerShown: false }}
+        component={ViewAllScreen}
+      />
+
+      <Stack.Screen
+        name="DoctorDetail"
+        options={{ headerShown: false }}
+        component={DoctorDetailPage}
       />
 
       <Stack.Screen

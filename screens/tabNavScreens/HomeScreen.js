@@ -5,7 +5,7 @@ import {
   TextInput,
   StyleSheet,
   Image,
-  TouchableOpacity,
+  Pressable,
   Platform,
   StatusBar,
   SafeAreaView,
@@ -14,12 +14,91 @@ import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from 
 import Icon2 from "react-native-vector-icons/Feather";
 import Icon3 from "react-native-vector-icons/FontAwesome";
 import Icon4 from "react-native-vector-icons/MaterialCommunityIcons";
+import ScheduleCard from "../../components/ScheduleCard";
+import PopularCard from "../../components/PopularCard";
 
 import favicon from "../../assets/favicon.png";
 import lightTheme from "../../Themes/LightTheme";
 
+import { useNavigation, useRoute } from "@react-navigation/native";
+
 const HomeScreen = () => {
   const [activeTab, setActiveTab] = useState("home");
+
+  const [upcomingSchedule, setUpcomingSchedule] = useState([
+    {
+      id: "1",
+      name: "Appointment 1",
+      date: "May 10, 2024",
+      time: "10:00 AM",
+      detail: "Regular checkup",
+      location: "Hospital A",
+      fees: "50",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    {
+      id: "2",
+      name: "Appointment 2",
+      date: "May 12, 2024",
+      time: "11:30 AM",
+      detail: "Dental checkup",
+      location: "Dental Clinic B",
+      fees: "80",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    {
+      id: "3",
+      name: "Appointment 1",
+      date: "May 10, 2024",
+      time: "10:00 AM",
+      detail: "Regular checkup",
+      location: "Hospital A",
+      fees: "50",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    {
+      id: "4",
+      name: "Appointment 2",
+      date: "May 12, 2024",
+      time: "11:30 AM",
+      detail: "Dental checkup",
+      location: "Dental Clinic B",
+      fees: "80",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    // Add more upcoming schedule items as needed
+  ]);
+
+  const [popularDoctors, setPopularDoctors] = useState([
+    {
+      id: "1",
+      name: "Dr. John Doe",
+      specialty: "Cardiologist",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    {
+      id: "2",
+      name: "Dr. Jane Smith",
+      specialty: "Pediatrician",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    {
+      id: "3",
+      name: "Dr. John Doe",
+      specialty: "Cardiologist",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    {
+      id: "4",
+      name: "Dr. Jane Smith",
+      specialty: "Pediatrician",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    // Add more popular doctors as needed
+  ]);
+
+  const navigation = useNavigation();
+
   return (
     // <View style={styles.container}>
     <SafeAreaView style={styles.container}>
@@ -37,35 +116,45 @@ const HomeScreen = () => {
         />
       </View>
       <View style={styles.menuContainer}>
-        <View style={styles.menuItem}>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => {
+            alert("Results");
+          }}
+        >
           <Icon
             name="assessment"
             size={24}
             color={lightTheme.colors.homeIconColor}
           />
           <Text style={styles.menuText}>Results</Text>
-        </View>
-        <View style={styles.menuItem}>
+        </Pressable>
+        <Pressable
+          style={styles.menuItem}
+          onPress={() => {
+            navigation.navigate("CameraAccessScreen");
+          }}
+        >
           <Icon
-            name="event-note"
+            name="camera"
             size={24}
             color={lightTheme.colors.homeIconColor}
           />
-          <Text style={styles.menuText}>Booking</Text>
-        </View>
-        <View style={styles.menuItem}>
-          <Icon
-            name="local-hospital"
-            size={24}
-            color={lightTheme.colors.homeIconColor}
-          />
-          <Text style={styles.menuText}>Doctors</Text>
-        </View>
+          <Text style={styles.menuText}>Camera</Text>
+        </Pressable>
       </View>
+
       <View style={styles.scheduleContainer}>
         <View style={styles.scheduleHeader}>
           <Text style={styles.scheduleTitle}>Upcoming Schedule</Text>
-          <TouchableOpacity>
+          <Pressable
+            onPress={() => {
+              navigation.navigate("ViewAll", {
+                data: upcomingSchedule,
+                isPopular: false,
+              }); // or false
+            }}
+          >
             <Text
               style={{
                 fontSize: 16,
@@ -74,85 +163,32 @@ const HomeScreen = () => {
             >
               View All
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
-        <View style={styles.cardContainer}>
-          <View style={styles.headerContainer}>
-            <Image source={favicon} style={styles.image} />
-            <View style={styles.detailsContainer}>
-              <Text style={styles.nameText}>Dr. Emily Davis</Text>
-              <Text style={styles.specialtyText}>Dermatologist</Text>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Icon3 name="map-marker" size={20} color="#fff" />
-                <Text style={{ ...styles.specialtyText, paddingLeft: 10 }}>
-                  Shaukat Khanum
-                </Text>
-              </View>
-            </View>
-          </View>
-          <View
-            style={[
-              styles.appointmentContainer,
-              { flexDirection: "row", justifyContent: "space-between" },
-            ]}
-          >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Icon2 name="clock" size={14} color="#fff" />
-              <Text style={{ ...styles.appointmentText, marginLeft: 5 }}>
-                Thu, May 18, 09:00 am - 10:00 am
-              </Text>
-            </View>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Icon4 name="cash" size={14} color="#fff" />
-              <Text style={{ ...styles.appointmentText, marginLeft: 5 }}>
-                Clinic Fees: Rs.200
-              </Text>
-            </View>
-          </View>
-        </View>
+        <ScheduleCard item={upcomingSchedule[0]} />
       </View>
       <View style={styles.scheduleContainer}>
         <View style={styles.scheduleHeader}>
           <Text style={styles.scheduleTitle}>Popular Doctors</Text>
-          <TouchableOpacity
+          <Pressable
             title="View All"
             color={lightTheme.colors.homeViewBtnTextColor}
+            onPress={() => {
+              navigation.navigate("ViewAll", {
+                data: popularDoctors,
+                isPopular: true,
+              }); // or false
+            }}
           >
             <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
-        <View style={styles.cardContainer}>
-          <View style={styles.headerContainer}>
-            <Image source={favicon} style={styles.image} />
-            <View style={styles.detailsContainer}>
-              <Text style={styles.nameText}>Dr. Emily Davis</Text>
-              <Text style={styles.specialtyText}>Dermatologist</Text>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Icon3 name="map-marker" size={20} color="#fff" />
-                <Text style={{ ...styles.specialtyText, paddingLeft: 10 }}>
-                  Shaukat Khanum
-                </Text>
-              </View>
-            </View>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <View style={{ flex: 1, marginRight: 10 }}>
+            <PopularCard item={popularDoctors[0]} />
           </View>
-          <View
-            style={[
-              styles.appointmentContainer,
-              { flexDirection: "row", justifyContent: "space-between" },
-            ]}
-          >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Icon2 name="clock" size={10} color="#fff" />
-              <Text style={{ ...styles.appointmentText, marginLeft: 5 }}>
-                Thu, May 18, 09:00 am - 10:00 am
-              </Text>
-            </View>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Icon4 name="cash" size={10} color="#fff" />
-              <Text style={{ ...styles.appointmentText, marginLeft: 5 }}>
-                Clinic Fees: Rs.200
-              </Text>
-            </View>
+          <View style={{ flex: 1, marginRight: 10 }}>
+            <PopularCard item={popularDoctors[1]} />
           </View>
         </View>
       </View>
@@ -164,6 +200,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: lightTheme.colors.homeBackground,
+    marginTop: Platform.OS === "android" ? 40 : 0,
   },
   header: {
     // backgroundColor: lightTheme.colors.homeBackground,
@@ -236,7 +273,7 @@ const styles = StyleSheet.create({
     top: 10,
   },
   headerContainer: {
-    // backgroundColor: lightTheme.colors.homeCardContainerMain,
+    backgroundColor: lightTheme.colors.homeCardContainerMain,
     padding: 16,
     flexDirection: "row",
     alignItems: "center",

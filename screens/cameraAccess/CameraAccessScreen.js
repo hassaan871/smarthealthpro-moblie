@@ -1,20 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Alert, StyleSheet, Image, Platform } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import axios from 'axios';
-import { MaterialIcons } from '@expo/vector-icons';
-import { requestCameraPermission, pickImageFromGallery, takePicture } from "./components/CameraAccess";
-import { saveImage } from './components/SaveImage';
-import sendImageToServer from '../../Helper/sendImageToServer';
-import {Dialog, Portal,ActivityIndicator,Text } from 'react-native-paper';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Pressable,
+  Alert,
+  StyleSheet,
+  Image,
+  Platform,
+} from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import axios from "axios";
+import { MaterialIcons } from "@expo/vector-icons";
+import {
+  requestCameraPermission,
+  pickImageFromGallery,
+  takePicture,
+} from "./components/CameraAccess";
+import { saveImage } from "./components/SaveImage";
+import sendImageToServer from "../../Helper/sendImageToServer";
+import { Dialog, Portal, ActivityIndicator, Text } from "react-native-paper";
 
 const CameraAccessScreen = () => {
-
-  const FLASK_SERVER_URL = 'http://192.168.100.222';
+  const FLASK_SERVER_URL = "http://192.168.100.222";
   const [selectedImage, setSelectedImage] = useState(null);
   const [showLatestImage, setShowLatestImage] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
-  const [processing, setProcessing] = useState(false); 
+  const [processing, setProcessing] = useState(false);
 
   const serverSent = async () => {
     try {
@@ -22,11 +32,13 @@ const CameraAccessScreen = () => {
       await sendImageToServer(selectedImage, FLASK_SERVER_URL);
       // dialog success here
       setShowDialog(true); // Show dialog on success
-      setShowLatestImage(`http://192.168.100.222/display_latest_image?v=${Math.random()}`)
+      setShowLatestImage(
+        `http://192.168.100.222/display_latest_image?v=${Math.random()}`
+      );
       // setTimeout(fetchLatestImage, 3000);
     } catch (error) {
-      Alert.alert('Error', error.message);
-    }finally{
+      Alert.alert("Error", error.message);
+    } finally {
       setProcessing(false); // Stop processing
     }
   };
@@ -34,17 +46,17 @@ const CameraAccessScreen = () => {
   const handleCapture = async () => {
     const uri = await takePicture();
     if (!uri) {
-      Dialog.alert('Upload Failed', 'No image was selected.');
+      Dialog.alert("Upload Failed", "No image was selected.");
       return;
     }
     setSelectedImage(uri);
   };
 
   const handleUpload = async () => {
-    setShowLatestImage(null)
+    setShowLatestImage(null);
     const uri = await pickImageFromGallery();
     if (!uri) {
-      Dialog.alert('Upload Failed', 'No image was selected.');
+      Dialog.alert("Upload Failed", "No image was selected.");
       return;
     }
     setSelectedImage(uri);
@@ -55,55 +67,60 @@ const CameraAccessScreen = () => {
       <Text style={styles.headerText}>Upload Image</Text>
       <View style={styles.imagePreview}>
         {selectedImage || showLatestImage ? (
-          <Image source={{ uri: showLatestImage  ? showLatestImage : selectedImage }} style={styles.image} />
+          <Image
+            source={{ uri: showLatestImage ? showLatestImage : selectedImage }}
+            style={styles.image}
+          />
         ) : (
           <View>
-          <MaterialIcons name="cloud-upload" size={50} color="#fff" />
-          <Text style={styles.imagePlaceholder}>Upload</Text></View>
+            <MaterialIcons name="cloud-upload" size={50} color="#fff" />
+            <Text style={styles.imagePlaceholder}>Upload</Text>
+          </View>
         )}
       </View>
 
       {processing && (
-      <View style={styles.processingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-        <Text style={styles.processingText}>Please wait while processing...</Text>
-      </View>
-    )}
+        <View style={styles.processingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text style={styles.processingText}>
+            Please wait while processing...
+          </Text>
+        </View>
+      )}
 
       <Portal>
-          <Dialog visible={showDialog} onDismiss={() => setShowDialog(false)}>
-            <Dialog.Title>Success</Dialog.Title>
-            <Dialog.Content>
-              <Text>Image sent successfully!</Text>
-            </Dialog.Content>
-            <Dialog.Actions>
-              <Text onPress={() => setShowDialog(false)}>OK</Text>
-            </Dialog.Actions>
-          </Dialog>
+        <Dialog visible={showDialog} onDismiss={() => setShowDialog(false)}>
+          <Dialog.Title>Success</Dialog.Title>
+          <Dialog.Content>
+            <Text>Image sent successfully!</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Text onPress={() => setShowDialog(false)}>OK</Text>
+          </Dialog.Actions>
+        </Dialog>
       </Portal>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleUpload}>
+        <Pressable style={styles.button} onPress={handleUpload}>
           <MaterialIcons name="photo-library" size={28} color="white" />
           <Text style={styles.buttonText}>Upload</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleCapture}>
+        </Pressable>
+        <Pressable style={styles.button} onPress={handleCapture}>
           <MaterialIcons name="camera-alt" size={28} color="white" />
           <Text style={styles.buttonText}>Capture</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
       {selectedImage && (
         <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={serverSent}>
-          <MaterialIcons name="key" size={28} color="white" />
-          <Text style={styles.buttonText}>Decipher</Text>
-        </TouchableOpacity>
-        {/* <TouchableOpacity style={styles.button} onPress={imageSaved}>
+          <Pressable style={styles.button} onPress={serverSent}>
+            <MaterialIcons name="key" size={28} color="white" />
+            <Text style={styles.buttonText}>Decipher</Text>
+          </Pressable>
+          {/* <Pressable style={styles.button} onPress={imageSaved}>
         <MaterialIcons name="key" size={28} color="white" />
         <Text style={styles.buttonText}>Save Image</Text>
-        </TouchableOpacity> */}
+        </Pressable> */}
         </View>
-        
       )}
     </View>
   );
@@ -111,77 +128,75 @@ const CameraAccessScreen = () => {
 
 export default CameraAccessScreen;
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    backgroundColor: '#CDE8E5'
+    backgroundColor: "#CDE8E5",
   },
   headerText: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    color: '#fff'
+    color: "#fff",
   },
   imagePreview: {
     width: 300,
     height: 300,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 20,
-    borderColor: '#fff',
+    borderColor: "#fff",
     borderWidth: 4,
     borderRadius: 10,
-    backgroundColor: '#CDE8E5',
+    backgroundColor: "#CDE8E5",
     elevation: 3,
     shadowOffset: { width: 1, height: 1 },
-    shadowColor: '#666',
+    shadowColor: "#666",
     shadowOpacity: 0.3,
     shadowRadius: 2,
   },
   image: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     borderRadius: 10,
   },
   imagePlaceholder: {
-    color: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center'
+    color: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttonContainer: {
-    flexDirection: 'row',
-    marginBottom: 20
+    flexDirection: "row",
+    marginBottom: 20,
   },
   button: {
-    flexDirection: 'row',
-    backgroundColor: '#7AB2B2',
+    flexDirection: "row",
+    backgroundColor: "#7AB2B2",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 25,
-    alignItems: 'center',
+    alignItems: "center",
     marginRight: 10,
     shadowOffset: { width: 0, height: 2 },
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
   buttonText: {
     marginLeft: 10,
-    color: 'white',
+    color: "white",
     fontSize: 18,
-    fontWeight: '500'
+    fontWeight: "500",
   },
   processingContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
-    flexDirection: 'row', // Align items horizontally
+    flexDirection: "row", // Align items horizontally
   },
   processingText: {
     marginLeft: 12, // Add some space between the indicator and text
   },
 });
-

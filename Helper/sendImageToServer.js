@@ -20,7 +20,7 @@ const sendImageToServer = async (selectedImage, FLASK_SERVER_URL) => {
     // console.log('Response from server:', response);
     return 'Image has been sent successfully!';
   } catch (error) {
-    console.error('Error sending image to server:', error);
+    // console.error('Error sending image to server:', error);
     throw new Error('An error occurred while sending the image to the server.');
   }
 };

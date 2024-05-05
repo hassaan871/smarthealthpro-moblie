@@ -56,16 +56,16 @@ const OnBoardingScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <View style={{ flex: 0.6 }}>
-        <View style={{ paddingHorizontal: 20, marginTop: 40 }}>
+      <View style={{ flex: 0.6}}>
+        <View style={{  }}>
           <Image
             source={items[currentItemIndex].image}
             resizeMode="contain"
-            style={{ width: "100%", height: "75%" }}
+            style={{ width: "100%", height: "85%" }}
           />
         </View>
         <View
-          style={{ alignItems: "center", paddingHorizontal: 20, marginTop: 40 }}
+          style={{ alignItems: "center",paddingHorizontal:24}}
         >
           <Text style={{ fontSize: 20, fontWeight: "bold", color: "#1F2937" }}>
             {items[currentItemIndex].title}

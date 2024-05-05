@@ -5,7 +5,7 @@ export const requestCameraPermission = async () => {
   if (Platform.OS !== 'web') {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission required', 'Please grant access to the camera to proceed.');
+      // Alert.alert('Permission required', 'Please grant access to the camera to proceed.');
     }
   }
 };
@@ -26,7 +26,7 @@ export const pickImageFromGallery = async () => {
       }
     } catch (error) {
       // console.error('Error picking image from gallery:', error);
-      Alert.alert('Error', 'An error occurred while picking an image from the gallery.');
+      // Alert.alert('Error', 'An error occurred while picking an image from the gallery.');
     }
   };
 
@@ -46,6 +46,6 @@ export const takePicture = async () => {
     }
   } catch (error) {
     // console.error('Error taking picture:', error);
-    Alert.alert('Error', 'An error occurred while taking a picture.');
+    // Alert.alert('Error', 'An error occurred while taking a picture.');
   }
 };

@@ -1,47 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Alert, StyleSheet, Image, Platform } from 'react-native';
+import { View, TouchableOpacity, Alert, StyleSheet, Image, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import { MaterialIcons } from '@expo/vector-icons';
 import { requestCameraPermission, pickImageFromGallery, takePicture } from "./components/CameraAccess";
 import { saveImage } from './components/SaveImage';
 import sendImageToServer from '../../Helper/sendImageToServer';
+import {Dialog, Portal,ActivityIndicator,Text } from 'react-native-paper';
 
 const CameraAccessScreen = () => {
+
+  const FLASK_SERVER_URL = 'http://192.168.100.222';
   const [selectedImage, setSelectedImage] = useState(null);
   const [showLatestImage, setShowLatestImage] = useState(null);
-  const FLASK_SERVER_URL = 'http://192.168.100.222';
-
-  // useEffect(() => {
-  //   console.log("useEffect");
-  //   setShowLatestImage(null)
-  // }, [selectedImage]);
+  const [showDialog, setShowDialog] = useState(false);
+  const [processing, setProcessing] = useState(false); 
 
   const serverSent = async () => {
     try {
+      setProcessing(true); // Start processing
       await sendImageToServer(selectedImage, FLASK_SERVER_URL);
-      Alert.alert('Success', 'Image sent to server successfully!');
+      // dialog success here
+      setShowDialog(true); // Show dialog on success
       setShowLatestImage(`http://192.168.100.222/display_latest_image?v=${Math.random()}`)
-      
       // setTimeout(fetchLatestImage, 3000);
     } catch (error) {
       Alert.alert('Error', error.message);
+    }finally{
+      setProcessing(false); // Stop processing
     }
   };
 
   const handleCapture = async () => {
     const uri = await takePicture();
     if (!uri) {
-      Alert.alert('Capture Failed', 'No image was captured.');
+      Dialog.alert('Upload Failed', 'No image was selected.');
       return;
     }
     setSelectedImage(uri);
   };
 
   const handleUpload = async () => {
+    setShowLatestImage(null)
     const uri = await pickImageFromGallery();
     if (!uri) {
-      Alert.alert('Upload Failed', 'No image was selected.');
+      Dialog.alert('Upload Failed', 'No image was selected.');
       return;
     }
     setSelectedImage(uri);
@@ -59,6 +62,26 @@ const CameraAccessScreen = () => {
           <Text style={styles.imagePlaceholder}>Upload</Text></View>
         )}
       </View>
+
+      {processing && (
+      <View style={styles.processingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text style={styles.processingText}>Please wait while processing...</Text>
+      </View>
+    )}
+
+      <Portal>
+          <Dialog visible={showDialog} onDismiss={() => setShowDialog(false)}>
+            <Dialog.Title>Success</Dialog.Title>
+            <Dialog.Content>
+              <Text>Image sent successfully!</Text>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Text onPress={() => setShowDialog(false)}>OK</Text>
+            </Dialog.Actions>
+          </Dialog>
+      </Portal>
+
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handleUpload}>
           <MaterialIcons name="photo-library" size={28} color="white" />
@@ -151,6 +174,14 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: '500'
-  }
+  },
+  processingContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+    flexDirection: 'row', // Align items horizontally
+  },
+  processingText: {
+    marginLeft: 12, // Add some space between the indicator and text
+  },
 });
 

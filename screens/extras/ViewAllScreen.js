@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, TextInput } from "react-native";
 import ScheduleCard from "../../components/ScheduleCard";
 import lightTheme from "../../Themes/LightTheme";
 import PopularCard from "../../components/PopularCard";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ViewAllScreen = ({ route }) => {
   const [searchQuery, setSearchQuery] = useState(""); // State to store search query
@@ -34,13 +35,13 @@ const ViewAllScreen = ({ route }) => {
   const renderItem = ({ item }) => {
     if (route.params.isPopular) {
       return (
-        <View style={{ flex: 1 }}>
+        <View style={{ padding: 8 }}>
           <PopularCard item={item} />
         </View>
       );
     } else {
       return (
-        <View style={{ marginTop: 20 }}>
+        <View style={{ padding: 8 }}>
           <ScheduleCard item={item} />
         </View>
       );
@@ -48,23 +49,25 @@ const ViewAllScreen = ({ route }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search for doctors or anything"
-          placeholderTextColor="#999"
-          value={searchQuery}
-          onChangeText={setSearchQuery} // Update search query state on input change
-        />
-      </View>
+    <SafeAreaView style={styles.container}>
+      {!route.params.isPopular && (
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search for doctors or anything"
+            placeholderTextColor="#999"
+            value={searchQuery}
+            onChangeText={setSearchQuery} // Update search query state on input change
+          />
+        </View>
+      )}
       <FlatList
         data={filteredData} // Render filtered data
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         numColumns={route.params.isPopular ? 2 : 1}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

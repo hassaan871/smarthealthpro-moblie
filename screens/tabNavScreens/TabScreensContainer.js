@@ -7,6 +7,8 @@ import Settings from "../tabNavScreens/Settings";
 import { Pressable, View } from "react-native";
 import ChattingList from "../chattingUIScreens/ChattingList";
 import CameraAccessScreen from "../cameraAccess/CameraAccessScreen";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -59,6 +61,7 @@ const TabScreensContainer = ({ navigation }) => {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Chat" component={ChattingList} />
+
       <Tab.Screen name="Settings" component={Settings} />
       {/* <Tab.Screen name="Camera" component={CameraAccessScreen} /> */}
     </Tab.Navigator>

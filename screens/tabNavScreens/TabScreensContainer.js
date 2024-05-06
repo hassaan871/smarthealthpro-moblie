@@ -4,7 +4,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import lightTheme from "../../Themes/LightTheme";
 import HomeScreen from "../tabNavScreens/HomeScreen";
 import Settings from "../tabNavScreens/Settings";
-import { TouchableOpacity, View } from "react-native";
+import { Pressable, View } from "react-native";
 import ChattingList from "../chattingUIScreens/ChattingList";
 import CameraAccessScreen from "../cameraAccess/CameraAccessScreen";
 
@@ -24,7 +24,7 @@ const TabScreensContainer = ({ navigation }) => {
         },
         tabBarStyle: {},
         tabBarButton: (props) => (
-          <TouchableOpacity
+          <Pressable
             {...props}
             onPress={() => {
               navigation.navigate(route.name);
@@ -36,7 +36,7 @@ const TabScreensContainer = ({ navigation }) => {
               alignItems: "center",
             }}
             activeOpacity={1} // Finish default opacity effect
-          ></TouchableOpacity>
+          ></Pressable>
         ),
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
@@ -46,7 +46,7 @@ const TabScreensContainer = ({ navigation }) => {
             iconName = "chat";
           } else if (route.name === "Settings") {
             iconName = "settings";
-          }else if (route.name === "Camera") {
+          } else if (route.name === "Camera") {
             iconName = "camera";
           }
 
@@ -60,7 +60,7 @@ const TabScreensContainer = ({ navigation }) => {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Chat" component={ChattingList} />
       <Tab.Screen name="Settings" component={Settings} />
-      <Tab.Screen name="Camera" component={CameraAccessScreen} /> 
+      {/* <Tab.Screen name="Camera" component={CameraAccessScreen} /> */}
     </Tab.Navigator>
   );
 };

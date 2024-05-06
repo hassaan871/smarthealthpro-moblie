@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 const items = [
@@ -47,26 +47,22 @@ const OnBoardingScreen = () => {
           }}
         >
           <View style={{ height: 24, width: 24 }}></View>
-          <TouchableOpacity
-            onPress={() => setCurrentItemIndex(items.length - 1)}
-          >
+          <Pressable onPress={() => setCurrentItemIndex(items.length - 1)}>
             <Text style={{ color: "#007BFF", fontWeight: "600", top: 40 }}>
               skip
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
-      <View style={{ flex: 0.6}}>
-        <View style={{  }}>
+      <View style={{ flex: 0.6 }}>
+        <View style={{}}>
           <Image
             source={items[currentItemIndex].image}
             resizeMode="contain"
             style={{ width: "100%", height: "85%" }}
           />
         </View>
-        <View
-          style={{ alignItems: "center",paddingHorizontal:24}}
-        >
+        <View style={{ alignItems: "center", paddingHorizontal: 24 }}>
           <Text style={{ fontSize: 20, fontWeight: "bold", color: "#1F2937" }}>
             {items[currentItemIndex].title}
           </Text>
@@ -97,7 +93,7 @@ const OnBoardingScreen = () => {
         </View>
       </View>
       <View style={{ flex: 0.2, top: 80, padding: 20 }}>
-        <TouchableOpacity
+        <Pressable
           style={{
             backgroundColor: "#007BFF",
             borderRadius: 8,
@@ -114,7 +110,7 @@ const OnBoardingScreen = () => {
           >
             {currentItemIndex === items.length - 1 ? "Finish" : "Continue"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );

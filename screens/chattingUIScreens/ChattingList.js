@@ -5,7 +5,7 @@ import {
   Text,
   Image,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   ScrollView,
   TextInput,
 } from "react-native";
@@ -18,7 +18,7 @@ import lightTheme from "../../Themes/LightTheme";
 const ChatListItem = ({ name, lastMessage, time }) => {
   const navigation = useNavigation();
   return (
-    <TouchableOpacity onPress={() => navigation.navigate("BotChattingScreen")}>
+    <Pressable onPress={() => navigation.navigate("BotChattingScreen")}>
       <View style={[styles.itemContainer, { marginBottom: 8 }]}>
         <View style={styles.avatarContainer}>
           <Image source={loginLogo} style={styles.avatar} />
@@ -33,7 +33,7 @@ const ChatListItem = ({ name, lastMessage, time }) => {
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 

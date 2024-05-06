@@ -165,9 +165,11 @@ const HomeScreen = () => {
             </Text>
           </Pressable>
         </View>
-        <ScheduleCard item={upcomingSchedule[0]} />
+        <View style={{}}>
+          <ScheduleCard item={upcomingSchedule[0]} />
+        </View>
       </View>
-      <View style={styles.scheduleContainer}>
+      <View style={styles.scheduleContainer2}>
         <View style={styles.scheduleHeader}>
           <Text style={styles.scheduleTitle}>Popular Doctors</Text>
           <Pressable
@@ -183,11 +185,16 @@ const HomeScreen = () => {
             <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
           </Pressable>
         </View>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <View style={{ flex: 1, marginRight: 10 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <View>
             <PopularCard item={popularDoctors[0]} />
           </View>
-          <View style={{ flex: 1, marginRight: 10 }}>
+          <View>
             <PopularCard item={popularDoctors[1]} />
           </View>
         </View>
@@ -230,7 +237,6 @@ const styles = StyleSheet.create({
   menuContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 10,
     padding: 10,
   },
   menuItem: {
@@ -249,13 +255,15 @@ const styles = StyleSheet.create({
   },
   scheduleContainer: {
     padding: 10,
-    marginBottom: 40,
+  },
+  scheduleContainer2: {
+    padding: 10,
+    marginTop: 15,
   },
   scheduleHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 1,
   },
   scheduleTitle: {
     fontSize: 23,

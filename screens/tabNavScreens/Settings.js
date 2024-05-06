@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet,Image,Dimensions } from 'react-native';
-import { Divider } from 'react-native-paper';
+import { Avatar, Divider, Switch } from 'react-native-paper';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Ionicons } from '@expo/vector-icons'; // assuming you're using expo
 import signupLogo from "../../assets/signupLogo.jpg"
@@ -45,45 +45,69 @@ const SettingScreen = () => {
 
   return (
     <View style={styles.container}>
-       <Image
-            source={signupLogo}
-            resizeMode="contain"
-            style={{ width:"auto", height: "53%" }}
-          />
+      <View style={{alignItems:"center",top:24}}>
+      <Avatar.Icon size={144} icon="" />
+      
+      <Text style={styles.itemText}>Name</Text>
+      </View>
       <BottomSheet
         ref={bottomSheetRef}
         onChange={handleSheetChanges}
         snapPoints={snapPoints}
       >
         <BottomSheetView style={styles.contentContainer}>
-          <TouchableOpacity style={styles.item} onPress={handleProfile}>
-            <Ionicons name="person" size={24} color="#007BFF" />
+          {/* <TouchableOpacity style={styles.item} onPress={handleProfile}>
+            <Ionicons name="person" size={32} color="#007BFF" />
             <Text style={styles.itemText}>Profile</Text>
-          </TouchableOpacity>
-          <Divider bold style={{ marginVertical: "4%" }} />
-          <TouchableOpacity style={styles.item} onPress={handleAppointments}>
-            <Ionicons name="calendar" size={24} color="#007BFF" />
+          </TouchableOpacity> */}
+          {/* <Divider bold style={{ marginVertical: "4%" }} /> */}
+          {/* <TouchableOpacity style={styles.item} onPress={handleAppointments}>
+            <Ionicons name="calendar" size={32} color="#007BFF" />
             <Text style={styles.itemText}>Appointments</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <Divider bold style={{ marginVertical: "4%" }} />
           <TouchableOpacity style={styles.item} onPress={handleMedicalRecords}>
-            <Ionicons name="folder" size={24} color="#007BFF" />
-            <Text style={styles.itemText}>Medical Records</Text>
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="notifications" size={32} color="#007BFF" />
+                <Text style={styles.itemText}>Notifications</Text>
+              </View>
+              <Switch />
+            </View>
           </TouchableOpacity>
           <Divider bold style={{ marginVertical: "4%" }} />
-          <TouchableOpacity style={styles.item} onPress={handleMessages}>
-            <Ionicons name="mail" size={24} color="#007BFF" />
+          {/* <TouchableOpacity style={styles.item} onPress={handleMessages}>
+            <Ionicons name="mail" size={32} color="#007BFF" />
             <Text style={styles.itemText}>Messages</Text>
           </TouchableOpacity>
-          <Divider bold style={{ marginVertical: "4%" }} />
+          <Divider bold style={{ marginVertical: "4%" }} /> */}
+
           <TouchableOpacity style={styles.item} onPress={handleSettings}>
-            <Ionicons name="settings" size={24} color="#007BFF" />
-            <Text style={styles.itemText}>Settings</Text>
+            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="moon" size={32} color="#007BFF" />
+                <Text style={styles.itemText}>Dark Mode</Text>
+              </View>
+              <Switch />
+            </View>
           </TouchableOpacity>
+
           <Divider bold style={{ marginVertical: "4%" }} />
           <TouchableOpacity style={styles.item} onPress={handleLogout}>
-            <Ionicons name="log-out" size={24} color="red" />
+            <Ionicons name="bag-remove" size={32} color="#007BFF" />
+            <Text style={styles.itemText}>Clear Cache</Text>
+          </TouchableOpacity>
+
+          <Divider bold style={{ marginVertical: "4%" }} />
+          <TouchableOpacity style={styles.item} onPress={handleLogout}>
+            <Ionicons name="log-out" size={32} color="red" />
             <Text style={styles.itemText}>Logout</Text>
+          </TouchableOpacity>
+
+          <Divider bold style={{ marginVertical: "4%" }} />
+          <TouchableOpacity style={styles.item} onPress={handleLogout}>
+            <Ionicons name="trash" size={32} color="red" />
+            <Text style={styles.itemText}>Delete Account</Text>
           </TouchableOpacity>
         </BottomSheetView>
       </BottomSheet>
@@ -109,9 +133,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
+      borderBottomColor: '#CCCCCC',
   },
   itemText:{
     paddingLeft:12,
-    fontSize:16,
+    fontSize:20,
   }
 })

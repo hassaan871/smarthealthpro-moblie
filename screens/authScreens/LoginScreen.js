@@ -14,14 +14,65 @@ import loginLogo from "../../assets/loginLogo.jpg";
 import { Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import axios from 'axios'
+// import CookieManager from 'react-native-cookies';
+
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [email,setEmail] = useState()
+  const [password,setPassword] = useState()
+  
+  // useEffect(() => {
+  //   // Define your token
+  //   const token = 'your_token_here';
+
+  //   // Define your cookie object
+  //   const cookie = {
+  //     name: 'token',
+  //     value: token,
+  //     domain: 'example.com', // replace with your domain
+  //     origin: 'example.com', // replace with your domain
+  //     path: '/',
+  //     version: '1',
+  //     expiration: '2024-12-31T12:00:00.000Z', // optional, can be in ISO format or a number (in milliseconds)
+  //   };
+
+  //   // Set the cookie
+  //   CookieManager.set(cookie)
+  //     .then(() => {
+  //       console.log('Cookie set successfully');
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error setting cookie:', error);
+  //     });
+  // }, []); // This effect runs only once, when the component mounts
 
   const navigateToHomeTab = () => {
     navigation.navigate("TabScreensContainer");
   };
+
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+      try {
+          const res = await axios.post('http://localhost:5000/user/login', { email, password });
+          if (res.status === 200) {
+              const token = res.data.token;
+              setCookie('token', token, { path: '/' });
+
+              if (res.data.role === 'doctor') {
+                  await  navigateToHomeTab();
+                  alert('Login success doctor');
+              } else if (res.data.role === 'patient') {
+                  await  navigateToHomeTab();
+                  alert('Login success patien');
+              }
+          }
+      } catch (error) {
+          alert(error.response.data.error);
+      }
+    }
 
   return (
     <KeyboardAvoidingView
@@ -69,7 +120,7 @@ const LoginScreen = () => {
         </View>
         <Pressable
           style={styles.loginButton}
-          onPress={() => navigateToHomeTab()}
+          onPress={handleSubmit}
         >
           <Text style={styles.loginText}>Login</Text>
         </Pressable>

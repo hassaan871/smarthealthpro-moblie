@@ -1,20 +1,49 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Image,
-  StyleSheet,
-  Pressable,
-  Dimensions,
-  Modal,
-} from "react-native";
+import {View, Text, TextInput, Image, StyleSheet, Pressable, Dimensions, Modal} from "react-native";
 import signupLogo from "../../assets/signupLogo.jpg";
-import check from "../../assets/check.png";
 import checked from "../../assets/checked.png";
+import axios from 'axios'
+import { useNavigation } from "@react-navigation/native";
 
 const SignUpScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [name,setName] = useState()
+  const [email,setEmail] = useState()
+  const [password,setPassword] = useState()
+  const [confirmPassword,setConfirmPassword] = useState()
+  const [dateOfBirth, setdateOfBirth] = useState()
+  const [bloodType, setBloodType] = useState()
+  const [role, setRole] = useState('patient');
+
+  const navigate = useNavigation();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!name || !email || !password) {
+        alert('Please fill in all fields.');
+        return;
+    }
+    console.log('Form data:', { name, email, password, role });
+
+    axios.post('http://192.168.100.82/user/register', { name, email, password ,dateOfBirth, bloodType, role})
+        .then(res => {
+            console.log('Response:', res);
+            navigate.navigate("Login");
+        })
+        .catch(error => {
+            console.log('Error:', error);
+            if (error.response) {
+                console.log('Server Error:', error.response.data);
+                alert(error.response.data.error);
+            } else if (error.request) {
+                console.log('Request Error:', error.request);
+            } else {
+                console.log('Error Message:', error.message);
+            }
+        });
+    }
+
   return (
     <View style={styles.container}>
       <View style={styles.card}>
@@ -23,26 +52,44 @@ const SignUpScreen = ({ navigation }) => {
         </View>
         <Text style={styles.title}>Sign Up</Text>
         <View style={styles.inputContainer}>
-          <TextInput placeholder="Full Name" style={styles.input} />
+          <TextInput placeholder="Full Name" 
+          onChangeText={(text) => setName(text)}
+          style={styles.input} />
           {/* <TextInput placeholder="Date of Birth" style={styles.input} /> */}
           <TextInput
             placeholder="Email address"
             keyboardType="email-address"
             style={styles.input}
+            onChangeText={(text) => setEmail(text)}
           />
           <TextInput
             placeholder="Password"
             secureTextEntry
             style={styles.input}
+            onChangeText={(text) => setPassword(text)}
           />
           <TextInput
             placeholder="Confirm Password"
             secureTextEntry
             style={styles.input}
+            onChangeText={(text) => setConfirmPassword(text)}
+          />
+           <TextInput
+            placeholder="Blood Type"
+            secureTextEntry
+            style={styles.input}
+            onChangeText={(text) => setBloodType(text)}
+          />
+           <TextInput
+            placeholder="Date of Birth"
+            secureTextEntry
+            style={styles.input}
+            onChangeText={(text) => setdateOfBirth(text)}
           />
         </View>
         <Pressable
-          onPress={() => setModalVisible(true)}
+        // () => setModalVisible(true)
+          onPress={ handleSubmit }
           style={styles.loginButton}
         >
           <Text style={styles.loginText}>Sign Up</Text>
@@ -154,7 +201,7 @@ const styles = StyleSheet.create({
     borderColor: "#cbd5e0",
     borderWidth: 1,
     borderRadius: 8,
-    padding: 10,
+    padding: 5,
     fontSize: 16,
     color: "#2d3748",
     marginBottom: 14,

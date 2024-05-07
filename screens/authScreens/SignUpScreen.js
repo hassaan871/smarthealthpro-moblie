@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState,useContext } from "react";
 import {View, Text, TextInput, Image, StyleSheet, Pressable, Dimensions, Modal} from "react-native";
 import signupLogo from "../../assets/signupLogo.jpg";
 import checked from "../../assets/checked.png";
 import axios from 'axios'
 import { useNavigation } from "@react-navigation/native";
+import Context from "../../Helper/context";
 
 const SignUpScreen = ({ navigation }) => {
+  // const { setToken, setUser } = useContext(Context);
   const [modalVisible, setModalVisible] = useState(false);
   const [name,setName] = useState()
   const [email,setEmail] = useState()
@@ -29,6 +31,7 @@ const SignUpScreen = ({ navigation }) => {
     axios.post('http://192.168.100.82/user/register', { name, email, password ,dateOfBirth, bloodType, role})
         .then(res => {
             console.log('Response:', res);
+            // setUser(res.data);
             navigate.navigate("Login");
         })
         .catch(error => {
@@ -76,13 +79,11 @@ const SignUpScreen = ({ navigation }) => {
           />
            <TextInput
             placeholder="Blood Type"
-            secureTextEntry
             style={styles.input}
             onChangeText={(text) => setBloodType(text)}
           />
            <TextInput
             placeholder="Date of Birth"
-            secureTextEntry
             style={styles.input}
             onChangeText={(text) => setdateOfBirth(text)}
           />

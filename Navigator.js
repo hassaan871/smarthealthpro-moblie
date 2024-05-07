@@ -31,6 +31,11 @@ const AppNavigator = () => {
         options={{ headerShown: false }}
         component={SignUpScreen}
       />
+      <Stack.Screen
+        name="TabScreensContainer"
+        options={{ headerShown: false }}
+        component={TabScreensContainer}
+      />
 
       <Stack.Screen
         name="ViewAll"
@@ -60,12 +65,6 @@ const AppNavigator = () => {
         name="CameraAccessScreen"
         options={{ headerShown: false }}
         component={CameraAccessScreen}
-      />
-
-      <Stack.Screen
-        name="TabScreensContainer"
-        options={{ headerShown: false }}
-        component={TabScreensContainer}
       />
     </Stack.Navigator>
   );

@@ -47,7 +47,7 @@ const OnBoardingScreen = () => {
           }}
         >
           <View style={{ height: 24, width: 24 }}></View>
-          <Pressable onPress={() => setCurrentItemIndex(items.length - 1)}>
+          <Pressable onPress={() => navigation.navigate("Login")}>
             <Text style={{ color: "#007BFF", fontWeight: "600", top: 40 }}>
               skip
             </Text>

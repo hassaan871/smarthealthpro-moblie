@@ -1,4 +1,4 @@
-import React, { useState, useRef,useContext } from "react";
+import React, { useState, useRef, useContext } from "react";
 import {
   View,
   Text,
@@ -14,21 +14,22 @@ import loginLogo from "../../assets/loginLogo.jpg";
 import { Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import axios from 'axios'
+import axios from "axios";
+import Icon from "react-native-vector-icons/AntDesign";
 // import CookieManager from 'react-native-cookies';
 import Context from "../../Helper/context";
-
+import lightTheme from "../../Themes/LightTheme";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [email,setEmail] = useState()
-  const [password,setPassword] = useState()
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
   const { setToken } = useContext(Context);
 
   // const { user } = useContext(Context);
   // console.log('User:', user);
-  
+
   // useEffect(() => {
   //   // Define your token
   //   const token = 'your_token_here';
@@ -61,26 +62,29 @@ const LoginScreen = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const res = await axios.post('http://192.168.100.82/user/login', { email, password });
-        console.log("red",res)
-        if (res.status === 200) {
-            const token = res.data.token;
-           setToken(token);
+      const res = await axios.post("http://192.168.100.82/user/login", {
+        email,
+        password,
+      });
+      console.log("red", res);
+      if (res.status === 200) {
+        const token = res.data.token;
+        setToken(token);
 
-            if (res.data.role === 'doctor') {
-                // await navigate('/admin');
-                await navigateToHomeTab();
-                alert('Login success doctor');
-            } else if (res.data.role === 'patient') {
-                // await navigate('/');
-                await navigateToHomeTab();
-                alert('Login success patient');
-            }
+        if (res.data.role === "doctor") {
+          // await navigate('/admin');
+          await navigateToHomeTab();
+          alert("Login success doctor");
+        } else if (res.data.role === "patient") {
+          // await navigate('/');
+          await navigateToHomeTab();
+          alert("Login success patient");
         }
+      }
     } catch (error) {
-        alert(error.response.data.error);
+      alert(error.response.data.error);
     }
-  } 
+  };
 
   return (
     <KeyboardAvoidingView
@@ -128,13 +132,12 @@ const LoginScreen = () => {
             </Pressable>
           </View>
         </View>
-        <Pressable
-          style={styles.loginButton}
-          onPress={handleSubmit}
-        >
+        <Pressable style={styles.loginButton} onPress={handleSubmit}>
           <Text style={styles.loginText}>Login</Text>
         </Pressable>
-        <Text style={styles.orText}>Or, login with</Text>
+        <Pressable onPress={() => navigateToHomeTab()}>
+          <Text style={styles.orText}>Or, login with</Text>
+        </Pressable>
         <View style={styles.socialButtons}>
           <Pressable style={styles.socialButton}>
             <Image
@@ -231,7 +234,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loginButton: {
-    backgroundColor: "#3182ce",
+    backgroundColor: lightTheme.colors.primaryBtn,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,

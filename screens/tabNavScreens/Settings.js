@@ -65,7 +65,7 @@ const SettingScreen = () => {
             <Ionicons name="calendar" size={32} color="#007BFF" />
             <Text style={styles.itemText}>Appointments</Text>
           </TouchableOpacity> */}
-          <Divider bold style={{ marginVertical: "4%" }} />
+          {/* <Divider bold style={{ marginVertical: "4%" }} /> */}
           <TouchableOpacity style={styles.item} onPress={handleMedicalRecords}>
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>

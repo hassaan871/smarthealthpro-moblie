@@ -16,6 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 import Context from "../../Helper/context";
 import lightTheme from "../../Themes/LightTheme";
 import Alert from "../../components/Alert";
+import showAlertMessage from "../../Helper/AlertHelper";
 
 const SignUpScreen = ({ navigation }) => {
   // const { setToken, setUser } = useContext(Context);
@@ -42,9 +43,7 @@ const SignUpScreen = ({ navigation }) => {
     e.preventDefault();
 
     if (!name || !email || !password) {
-      setShowAlert(true);
-      setAlertType("error");
-      setAlertMessage("Please Fill all fields");
+      showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Please Fill all Fields", "error");
       return;
     }
     console.log("Form data:", { name, email, password, role });
@@ -65,12 +64,10 @@ const SignUpScreen = ({ navigation }) => {
       })
       .catch((error) => {
         console.log("Error:", error);
-        setShowAlert(true);
-        setAlertType("error");
-        setAlertMessage("Some error occured during registration. Please try again later.");
+        showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Email Already Exists!", "Failed");
         if (error.response) {
           console.log("Server Error:", error.response.data);
-          alert(error.response.data.error);
+          showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Email Already exists", "Failed");
         } else if (error.request) {
           console.log("Request Error:", error.request);
         } else {

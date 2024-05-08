@@ -20,6 +20,7 @@ import Icon from "react-native-vector-icons/AntDesign";
 import Context from "../../Helper/context";
 import lightTheme from "../../Themes/LightTheme";
 import Alert from "../../components/Alert";
+import showAlertMessage from "../../Helper/AlertHelper";
 
 const LoginScreen = () => {
   const { setToken,setUserName,setEmailGlobal,setAvatar,setId } = useContext(Context);
@@ -59,9 +60,7 @@ const LoginScreen = () => {
         setUserName(name);
         setAvatar(avatar);
 
-        setShowAlert(true);
-        setAlertType("success");
-        setAlertMessage("Login successful!");
+        showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Login Success", "success");
 
         if (res.data.role === "doctor") {
           // await navigate('/admin');
@@ -73,10 +72,7 @@ const LoginScreen = () => {
       }
     } catch (error) {
       // alert(error.response.data.error);
-      setShowAlert(true);
-      setAlertType("error");
-      setAlertMessage("Login failed. Please try again.");
-     
+      showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Login failed. Please try again.", "error");
     }
   };
 

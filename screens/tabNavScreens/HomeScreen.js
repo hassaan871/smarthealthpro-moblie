@@ -11,6 +11,7 @@ import {
   SafeAreaView,
   Modal,
   FlatList,
+  ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from react-native-vector-icons
 import Icon2 from "react-native-vector-icons/Feather";
@@ -140,125 +141,131 @@ const HomeScreen = () => {
   return (
     // <View style={styles.container}>
     <SafeAreaView style={styles.container}>
-      {/* <StatusBar barStyle="dark-content" /> */}
-      <View style={styles.header}>
-        <Text style={styles.welcomeText}>Welcome back, Samantha</Text>
-        <Text style={styles.headerTitle}>Keep Healthy!</Text>
-      </View>
-      <View style={styles.searchContainer}>
-        {/* <Icon name="search" size={24} color="#999" style={{}} /> */}
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search for doctors"
-          placeholderTextColor="#999"
-          onFocus={openModal}
-        />
-      </View>
-      <View style={styles.menuContainer}>
-        <Pressable
-          style={styles.menuItem}
-          onPress={() => {
-            alert("Results");
-          }}
-        >
-          <Icon
-            name="assessment"
-            size={24}
-            color={lightTheme.colors.primaryText}
+      <ScrollView>
+        {/* <StatusBar barStyle="dark-content" /> */}
+        <View style={styles.header}>
+          <Text style={styles.welcomeText}>Welcome back, Samantha</Text>
+          <Text style={styles.headerTitle}>Keep Healthy!</Text>
+        </View>
+        <View style={styles.searchContainer}>
+          {/* <Icon name="search" size={24} color="#999" style={{}} /> */}
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search for doctors"
+            placeholderTextColor="#999"
+            onFocus={openModal}
           />
-          <Text style={styles.menuText}>Results</Text>
-        </Pressable>
-        <Pressable
-          style={styles.menuItem}
-          onPress={() => {
-            navigation.navigate("CameraAccessScreen");
-          }}
-        >
-          <Icon name="camera" size={24} color={lightTheme.colors.primaryText} />
-          <Text style={styles.menuText}>Camera</Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.scheduleContainer}>
-        <View style={styles.scheduleHeader}>
-          <Text style={styles.scheduleTitle}>Upcoming Schedule</Text>
+        </View>
+        <View style={styles.menuContainer}>
           <Pressable
+            style={styles.menuItem}
             onPress={() => {
-              navigation.navigate("ViewAll", {
-                data: upcomingSchedule,
-                isPopular: false,
-              }); // or false
+              alert("Results");
             }}
           >
-            <Text
-              style={{
-                fontSize: 16,
-                color: "#1B2060",
+            <Icon
+              name="assessment"
+              size={24}
+              color={lightTheme.colors.primaryText}
+            />
+            <Text style={styles.menuText}>Results</Text>
+          </Pressable>
+          <Pressable
+            style={styles.menuItem}
+            onPress={() => {
+              navigation.navigate("CameraAccessScreen");
+            }}
+          >
+            <Icon
+              name="camera"
+              size={24}
+              color={lightTheme.colors.primaryText}
+            />
+            <Text style={styles.menuText}>Camera</Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.scheduleContainer}>
+          <View style={styles.scheduleHeader}>
+            <Text style={styles.scheduleTitle}>Upcoming Schedule</Text>
+            <Pressable
+              onPress={() => {
+                navigation.navigate("ViewAll", {
+                  data: upcomingSchedule,
+                  isPopular: false,
+                }); // or false
               }}
             >
-              View All
-            </Text>
-          </Pressable>
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: "#1B2060",
+                }}
+              >
+                View All
+              </Text>
+            </Pressable>
+          </View>
+          <View style={{}}>
+            <ScheduleCard item={upcomingSchedule[0]} />
+          </View>
         </View>
-        <View style={{}}>
-          <ScheduleCard item={upcomingSchedule[0]} />
-        </View>
-      </View>
-      <View style={styles.scheduleContainer2}>
-        <View style={styles.scheduleHeader}>
-          <Text style={styles.scheduleTitle}>Popular Doctors</Text>
-          <Pressable
-            title="View All"
-            color={lightTheme.colors.homeViewBtnTextColor}
-            onPress={() => {
-              navigation.navigate("ViewAll", {
-                data: popularDoctors,
-                isPopular: true,
-              }); // or false
+        <View style={styles.scheduleContainer2}>
+          <View style={styles.scheduleHeader}>
+            <Text style={styles.scheduleTitle}>Popular Doctors</Text>
+            <Pressable
+              title="View All"
+              color={lightTheme.colors.homeViewBtnTextColor}
+              onPress={() => {
+                navigation.navigate("ViewAll", {
+                  data: popularDoctors,
+                  isPopular: true,
+                }); // or false
+              }}
+            >
+              <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
+            </Pressable>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
             }}
           >
-            <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
-          </Pressable>
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
-          <View>
-            <PopularCard item={popularDoctors[0]} />
-          </View>
-          <View>
-            <PopularCard item={popularDoctors[1]} />
+            <View>
+              <PopularCard item={popularDoctors[0]} />
+            </View>
+            <View>
+              <PopularCard item={popularDoctors[1]} />
+            </View>
           </View>
         </View>
-      </View>
-      <Modal visible={modalVisible} animationType="slide">
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Pressable onPress={closeModal}>
-              <Icon name="arrow-back" size={24} color="#000" />
-            </Pressable>
-            <TextInput
-              ref={modalSearchInputRef}
-              style={styles.modalSearchInput}
-              placeholder="Search for doctors"
-              placeholderTextColor="#999"
-              onChangeText={handleSearch}
-            />
-          </View>
-          {searchResults.length > 0 && (
-            <FlatList
-              data={searchResults}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <DoctorCard item={item} closeModal={closeModal} />
-              )}
-            />
-          )}
-        </SafeAreaView>
-      </Modal>
+        <Modal visible={modalVisible} animationType="slide">
+          <SafeAreaView style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Pressable onPress={closeModal}>
+                <Icon name="arrow-back" size={24} color="#000" />
+              </Pressable>
+              <TextInput
+                ref={modalSearchInputRef}
+                style={styles.modalSearchInput}
+                placeholder="Search for doctors"
+                placeholderTextColor="#999"
+                onChangeText={handleSearch}
+              />
+            </View>
+            {searchResults.length > 0 && (
+              <FlatList
+                data={searchResults}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                  <DoctorCard item={item} closeModal={closeModal} />
+                )}
+              />
+            )}
+          </SafeAreaView>
+        </Modal>
+      </ScrollView>
     </SafeAreaView>
   );
 };

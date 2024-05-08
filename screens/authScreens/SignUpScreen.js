@@ -17,6 +17,8 @@ import Context from "../../Helper/context";
 import lightTheme from "../../Themes/LightTheme";
 import Alert from "../../components/Alert";
 import showAlertMessage from "../../Helper/AlertHelper";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import ReusableModal from "../../components/ReusableModal";
 
 const SignUpScreen = ({ navigation }) => {
   // const { setToken, setUser } = useContext(Context);
@@ -28,6 +30,8 @@ const SignUpScreen = ({ navigation }) => {
   const [dateOfBirth, setdateOfBirth] = useState(12);
   const [bloodType, setBloodType] = useState("B+");
   const [role, setRole] = useState("patient");
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [passwordVisible2, setPasswordVisible2] = useState(false);
 
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -43,7 +47,13 @@ const SignUpScreen = ({ navigation }) => {
     e.preventDefault();
 
     if (!name || !email || !password) {
-      showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Please Fill all Fields", "error");
+      showAlertMessage(
+        setShowAlert,
+        setAlertMessage,
+        setAlertType,
+        "Please Fill all Fields",
+        "error"
+      );
       return;
     }
     console.log("Form data:", { name, email, password, role });
@@ -64,10 +74,22 @@ const SignUpScreen = ({ navigation }) => {
       })
       .catch((error) => {
         console.log("Error:", error);
-        showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Email Already Exists!", "Failed");
+        showAlertMessage(
+          setShowAlert,
+          setAlertMessage,
+          setAlertType,
+          "Email Already Exists!",
+          "Failed"
+        );
         if (error.response) {
           console.log("Server Error:", error.response.data);
-          showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Email Already exists", "Failed");
+          showAlertMessage(
+            setShowAlert,
+            setAlertMessage,
+            setAlertType,
+            "Email Already exists",
+            "Failed"
+          );
         } else if (error.request) {
           console.log("Request Error:", error.request);
         } else {
@@ -96,18 +118,42 @@ const SignUpScreen = ({ navigation }) => {
             style={styles.input}
             onChangeText={(text) => setEmail(text)}
           />
-          <TextInput
-            placeholder="Password"
-            secureTextEntry
-            style={styles.input}
-            onChangeText={(text) => setPassword(text)}
-          />
-          <TextInput
-            placeholder="Confirm Password"
-            secureTextEntry
-            style={styles.input}
-            onChangeText={(text) => setConfirmPassword(text)}
-          />
+          <View>
+            <TextInput
+              placeholder="Password"
+              secureTextEntry={!passwordVisible}
+              style={styles.input}
+              onChangeText={(text) => setPassword(text)}
+            />
+            <Pressable
+              onPress={() => setPasswordVisible(!passwordVisible)}
+              style={styles.iconButton}
+            >
+              <Ionicons
+                name={passwordVisible ? "eye-off-outline" : "eye-outline"}
+                size={24}
+                color="#718096"
+              />
+            </Pressable>
+          </View>
+          <View>
+            <TextInput
+              placeholder="Confirm Password"
+              secureTextEntry={!passwordVisible2}
+              style={styles.input}
+              onChangeText={(text) => setConfirmPassword(text)}
+            />
+            <Pressable
+              onPress={() => setPasswordVisible2(!passwordVisible2)}
+              style={styles.iconButton}
+            >
+              <Ionicons
+                name={passwordVisible2 ? "eye-off-outline" : "eye-outline"}
+                size={24}
+                color="#718096"
+              />
+            </Pressable>
+          </View>
           {/* <TextInput
             placeholder="Blood Type"
             style={styles.input}
@@ -120,11 +166,16 @@ const SignUpScreen = ({ navigation }) => {
           /> */}
         </View>
 
-        <Alert visible={showAlert} onDismiss={handleDismissAlert} message={alertMessage} type={alertType} />
+        <Alert
+          visible={showAlert}
+          onDismiss={handleDismissAlert}
+          message={alertMessage}
+          type={alertType}
+        />
 
         <Pressable
-          // () => setModalVisible(true)
-          onPress={handleSubmit}
+          onPress={() => setModalVisible(true)}
+          // onPress={handleSubmit}
           style={styles.loginButton}
         >
           <Text style={styles.loginText}>Sign Up</Text>
@@ -161,31 +212,16 @@ const SignUpScreen = ({ navigation }) => {
           </Text>
         </Pressable>
       </View>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Image
-              source={checked}
-              style={{ width: 100, height: 100, marginBottom: 20 }}
-            />
-            <Text style={styles.title}>Sign Up Successful</Text>
-            <Text style={styles.text}>
-              You have successfully signed up for an account. Welcome aboard!
-            </Text>
-            <Pressable
-              style={styles.closeButton}
-              onPress={() => navigation.navigate("Login")}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+      <ReusableModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        title={"Sign Up Successful"}
+        message={
+          "You have successfully signed up for an account. Welcome aboard!"
+        }
+        imageSource={checked}
+        onClose={() => navigation.navigate("Login")}
+      />
     </View>
   );
 };

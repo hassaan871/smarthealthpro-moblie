@@ -10,18 +10,21 @@ const DoctorDetailPage = ({ route }) => {
         flex: 1,
         backgroundColor: "#f0f4f7",
         marginTop: 50,
-        alignItems: "center",
       }}
     >
-      <Image
-        source={{ uri: "https://via.placeholder.com/300x300" }}
-        style={{ width: 120, height: 120, borderRadius: 60 }}
-      />
-      <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 5 }}>
-        {item.name}
-      </Text>
-      <Text style={{ color: "#666", marginBottom: 10 }}>{item.specialty}</Text>
-      <Text style={{ padding: 15 }}>
+      <View style={{ alignItems: "center" }}>
+        <Image
+          source={{ uri: "https://via.placeholder.com/300x300" }}
+          style={{ width: 120, height: 120, borderRadius: 60 }}
+        />
+        <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 5 }}>
+          {item.name}
+        </Text>
+        <Text style={{ color: "#666", marginBottom: 10 }}>
+          {item.specialty}
+        </Text>
+      </View>
+      <Text style={{ marginTop: 20, marginBottom: 20 }}>
         Dr. John Doe has over 10 years of experience in cardiology, specializing
         in treating heart conditions and promoting heart health.
       </Text>
@@ -39,9 +42,11 @@ const DoctorDetailPage = ({ route }) => {
       <Pressable
         style={{
           backgroundColor: lightTheme.colors.secondaryBtn,
-          paddingVertical: 10,
-          paddingHorizontal: 20,
+          padding: 15,
           borderRadius: 5,
+          width: 200,
+          alignSelf: "center",
+          alignItems: "center",
         }}
       >
         <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 16 }}>

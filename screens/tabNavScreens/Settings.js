@@ -7,9 +7,28 @@ import signupLogo from "../../assets/signupLogo.jpg"
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import Context from "../../Helper/context";
+import Alert from '../../components/Alert';
+import showAlertMessage from '../../Helper/AlertHelper';
 
 const SettingScreen = () => {
-  const {token, userName, emailGlobal, avatar ,id} = useContext(Context);
+  const { token,
+    setToken,
+    userName,
+    setUserName,
+    emailGlobal,
+    setEmailGlobal,
+    image,
+    setImage,
+    avatar,
+    setAvatar,
+    id,
+    setId
+  } = useContext(Context);
+
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("success"); // success or error
+
   const navigation = useNavigation();
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["40%", "55%"], []);
@@ -25,6 +44,11 @@ const SettingScreen = () => {
     // Additional logic to toggle app theme to dark/light mode
   };
 
+  const handleDismissAlert = () => {
+    setShowAlert(false);
+  };
+
+
   const handleDeleteAccount = async () => {
     try {
       const config = {
@@ -38,6 +62,7 @@ const SettingScreen = () => {
       // Check if the delete request was successful
       if (response.status === 200) {
         console.log('User account deleted successfully');
+        showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Account Deleted!", "success");
         navigation.navigate("SignUp")
         // Optionally, perform any additional actions after successful deletion
       } else {
@@ -45,28 +70,43 @@ const SettingScreen = () => {
       }
     } catch (error) {
       console.error('Error deleting user account:', error.message);
+      showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Deletion failed. Please try again.", "error");
     }
   }
-  
 
   const handleLogout = () => {
-    // Logic to handle user logout
-  };
-  const handleMedicalRecords = () => {
-    // Logic to navigate to the medical records screen
-  };
+      axios.get('http://192.168.100.81/user/logout')
+          .then(res => {
+              showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Logout Success", "success");
+              setAvatar("");
+              setEmailGlobal("");
+              setId("");
+              setImage("");
+              setToken("");
+              setUserName("");
+              navigation.navigate("Login")
+            })
+          .catch(error => {
+            // console.error('Logout error:', error);
+            showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Logout failed. Please try again.", "error");
+          });
+    };
+
   const handleSettings = () => {
     // Logic to navigate to the settings screen
   };
 
   return (
     <SafeAreaView style={styles.container}>
+       <Alert visible={showAlert} onDismiss={handleDismissAlert} message={alertMessage} type={alertType} />
       <View style={{alignItems:"center",top:24}}>
       {/* <Avatar.Icon size={144} icon="" /> */}
-      <Image source={avatar} style={styles.Image}/>
+      <Image source={image} style={styles.Image}/>
       
       <Text style={styles.itemText}>{userName}</Text>
       <Text style={styles.itemText}>{emailGlobal}</Text>
+
+     
 
       </View>
       <BottomSheet
@@ -85,7 +125,7 @@ const SettingScreen = () => {
             <Text style={styles.itemText}>Appointments</Text>
           </TouchableOpacity> */}
           {/* <Divider bold style={{ marginVertical: "4%" }} /> */}
-          <TouchableOpacity style={styles.item} onPress={handleMedicalRecords}>
+          <TouchableOpacity style={styles.item}>
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Ionicons name="notifications" size={32} color="#007BFF" />

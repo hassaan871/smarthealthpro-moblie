@@ -6,17 +6,27 @@ const Context = createContext();
 
 export const MyContextProvider = ({ children }) => {
   const [token, setToken] = useState(null);
-  const [user, setUser] = useState(null);
-  
- 
+  const [userName, setUserName] = useState(null);
+  const [emailGlobal, setEmailGlobal] = useState("");
+  const [image, setImage] = useState(null);
+  const [avatar, setAvatar] = useState("");
+  const [id, setId] = useState(null);
 
   return (
     <Context.Provider
       value={{
         token,
         setToken,
-        user,
-        setUser,
+        userName,
+        setUserName,
+        emailGlobal,
+        setEmailGlobal,
+        image,
+        setImage,
+        avatar,
+        setAvatar,
+        id,
+        setId,
       }}
     >
       {children}

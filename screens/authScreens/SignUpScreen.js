@@ -15,6 +15,7 @@ import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import Context from "../../Helper/context";
 import lightTheme from "../../Themes/LightTheme";
+import Alert from "../../components/Alert";
 
 const SignUpScreen = ({ navigation }) => {
   // const { setToken, setUser } = useContext(Context);
@@ -23,23 +24,33 @@ const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [confirmPassword, setConfirmPassword] = useState();
-  const [dateOfBirth, setdateOfBirth] = useState();
-  const [bloodType, setBloodType] = useState();
+  const [dateOfBirth, setdateOfBirth] = useState(12);
+  const [bloodType, setBloodType] = useState("B+");
   const [role, setRole] = useState("patient");
 
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("success"); // success or error
+
   const navigate = useNavigation();
+
+  const handleDismissAlert = () => {
+    setShowAlert(false);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!name || !email || !password) {
-      alert("Please fill in all fields.");
+      setShowAlert(true);
+      setAlertType("error");
+      setAlertMessage("Please Fill all fields");
       return;
     }
     console.log("Form data:", { name, email, password, role });
 
     axios
-      .post("http://192.168.100.82/user/register", {
+      .post("http://192.168.100.81/user/register", {
         name,
         email,
         password,
@@ -54,6 +65,9 @@ const SignUpScreen = ({ navigation }) => {
       })
       .catch((error) => {
         console.log("Error:", error);
+        setShowAlert(true);
+        setAlertType("error");
+        setAlertMessage("Some error occured during registration. Please try again later.");
         if (error.response) {
           console.log("Server Error:", error.response.data);
           alert(error.response.data.error);
@@ -97,17 +111,20 @@ const SignUpScreen = ({ navigation }) => {
             style={styles.input}
             onChangeText={(text) => setConfirmPassword(text)}
           />
-          <TextInput
+          {/* <TextInput
             placeholder="Blood Type"
             style={styles.input}
             onChangeText={(text) => setBloodType(text)}
-          />
-          <TextInput
+          /> */}
+          {/* <TextInput
             placeholder="Date of Birth"
             style={styles.input}
             onChangeText={(text) => setdateOfBirth(text)}
-          />
+          /> */}
         </View>
+
+        <Alert visible={showAlert} onDismiss={handleDismissAlert} message={alertMessage} type={alertType} />
+
         <Pressable
           // () => setModalVisible(true)
           onPress={handleSubmit}
@@ -222,7 +239,7 @@ const styles = StyleSheet.create({
     borderColor: "#cbd5e0",
     borderWidth: 1,
     borderRadius: 8,
-    padding: 5,
+    padding: 12,
     fontSize: 16,
     color: "#2d3748",
     marginBottom: 14,

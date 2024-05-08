@@ -1,14 +1,20 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet,Image,Dimensions } from 'react-native';
+import React, { useCallback, useMemo, useRef, useState,useContext} from 'react';
+import { View, Text, TouchableOpacity, StyleSheet,Image,Dimensions, SafeAreaView } from 'react-native';
 import { Avatar, Divider, Switch } from 'react-native-paper';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Ionicons } from '@expo/vector-icons'; // assuming you're using expo
 import signupLogo from "../../assets/signupLogo.jpg"
+import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
+import Context from "../../Helper/context";
+
 const SettingScreen = () => {
+  const {token, userName, emailGlobal, avatar ,id} = useContext(Context);
+  const navigation = useNavigation();
   const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() => ["60%", "70%"], []);
+  const snapPoints = useMemo(() => ["40%", "55%"], []);
   const handleSheetChanges = useCallback((index) => {
-    console.log('handleSheetChanges', index);
+    // console.log('handleSheetChanges', index);
   }, []);
 
   // State for light/dark mode
@@ -19,36 +25,49 @@ const SettingScreen = () => {
     // Additional logic to toggle app theme to dark/light mode
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      const config = {
+        headers: {
+          'token': token
+        }
+      };
+  
+      const response = await axios.delete(`http://192.168.100.81/user/deleteUser/${id}`, config);
+      
+      // Check if the delete request was successful
+      if (response.status === 200) {
+        console.log('User account deleted successfully');
+        navigation.navigate("SignUp")
+        // Optionally, perform any additional actions after successful deletion
+      } else {
+        console.error('Failed to delete user account');
+      }
+    } catch (error) {
+      console.error('Error deleting user account:', error.message);
+    }
+  }
+  
+
   const handleLogout = () => {
     // Logic to handle user logout
   };
-
-  const handleProfile = () => {
-    // Logic to navigate to the profile screen
-  };
-
-  const handleAppointments = () => {
-    // Logic to navigate to the appointments screen
-  };
-
   const handleMedicalRecords = () => {
     // Logic to navigate to the medical records screen
   };
-
-  const handleMessages = () => {
-    // Logic to navigate to the messages screen
-  };
-
   const handleSettings = () => {
     // Logic to navigate to the settings screen
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={{alignItems:"center",top:24}}>
-      <Avatar.Icon size={144} icon="" />
+      {/* <Avatar.Icon size={144} icon="" /> */}
+      <Image source={avatar} style={styles.Image}/>
       
-      <Text style={styles.itemText}>Name</Text>
+      <Text style={styles.itemText}>{userName}</Text>
+      <Text style={styles.itemText}>{emailGlobal}</Text>
+
       </View>
       <BottomSheet
         ref={bottomSheetRef}
@@ -75,7 +94,7 @@ const SettingScreen = () => {
               <Switch />
             </View>
           </TouchableOpacity>
-          <Divider bold style={{ marginVertical: "4%" }} />
+          <Divider bold style={{ marginVertical: "2%" }} />
           {/* <TouchableOpacity style={styles.item} onPress={handleMessages}>
             <Ionicons name="mail" size={32} color="#007BFF" />
             <Text style={styles.itemText}>Messages</Text>
@@ -92,26 +111,26 @@ const SettingScreen = () => {
             </View>
           </TouchableOpacity>
 
-          <Divider bold style={{ marginVertical: "4%" }} />
+          <Divider bold style={{ marginVertical: "2%" }} />
           <TouchableOpacity style={styles.item} onPress={handleLogout}>
             <Ionicons name="bag-remove" size={32} color="#007BFF" />
             <Text style={styles.itemText}>Clear Cache</Text>
           </TouchableOpacity>
 
-          <Divider bold style={{ marginVertical: "4%" }} />
+          <Divider bold style={{ marginVertical: "2%" }} />
           <TouchableOpacity style={styles.item} onPress={handleLogout}>
             <Ionicons name="log-out" size={32} color="red" />
             <Text style={styles.itemText}>Logout</Text>
           </TouchableOpacity>
 
-          <Divider bold style={{ marginVertical: "4%" }} />
-          <TouchableOpacity style={styles.item} onPress={handleLogout}>
+          <Divider bold style={{ marginVertical: "2%" }} />
+          <TouchableOpacity style={styles.item} onPress={handleDeleteAccount}>
             <Ionicons name="trash" size={32} color="red" />
             <Text style={styles.itemText}>Delete Account</Text>
           </TouchableOpacity>
         </BottomSheetView>
       </BottomSheet>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -138,5 +157,14 @@ const styles = StyleSheet.create({
   itemText:{
     paddingLeft:12,
     fontSize:20,
+  },
+  Image:{
+    width: 200,
+    height: 200,
+    borderRadius: 100 / 2,
+    overflow: "hidden",
+    borderWidth: 3,
+    borderColor: "black",
+    margin: 12,
   }
 })

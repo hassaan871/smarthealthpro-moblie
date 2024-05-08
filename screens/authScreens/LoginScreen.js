@@ -1,13 +1,13 @@
 import React, { useState, useRef, useContext } from "react";
 import {
   View,
-  Text,
   TextInput,
   StyleSheet,
   Image,
   Pressable,
   KeyboardAvoidingView,
   Platform,
+  Text
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import loginLogo from "../../assets/loginLogo.jpg";
@@ -19,41 +19,23 @@ import Icon from "react-native-vector-icons/AntDesign";
 // import CookieManager from 'react-native-cookies';
 import Context from "../../Helper/context";
 import lightTheme from "../../Themes/LightTheme";
+import Alert from "../../components/Alert";
 
 const LoginScreen = () => {
+  const { setToken,setUserName,setEmailGlobal,setAvatar,setId } = useContext(Context);
+
   const navigation = useNavigation();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-  const { setToken } = useContext(Context);
 
-  // const { user } = useContext(Context);
-  // console.log('User:', user);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("success"); // success or error
 
-  // useEffect(() => {
-  //   // Define your token
-  //   const token = 'your_token_here';
-
-  //   // Define your cookie object
-  //   const cookie = {
-  //     name: 'token',
-  //     value: token,
-  //     domain: 'example.com', // replace with your domain
-  //     origin: 'example.com', // replace with your domain
-  //     path: '/',
-  //     version: '1',
-  //     expiration: '2024-12-31T12:00:00.000Z', // optional, can be in ISO format or a number (in milliseconds)
-  //   };
-
-  //   // Set the cookie
-  //   CookieManager.set(cookie)
-  //     .then(() => {
-  //       console.log('Cookie set successfully');
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error setting cookie:', error);
-  //     });
-  // }, []); // This effect runs only once, when the component mounts
+  const handleDismissAlert = () => {
+    setShowAlert(false);
+  };
 
   const navigateToHomeTab = () => {
     navigation.navigate("TabScreensContainer");
@@ -62,27 +44,39 @@ const LoginScreen = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://192.168.100.82/user/login", {
+      const res = await axios.post("http://192.168.100.81/user/login", {
         email,
         password,
       });
-      console.log("red", res);
+      // console.log("red", res);
       if (res.status === 200) {
-        const token = res.data.token;
+        const data = res.data;
+        const {name, token, email, role, avatar, id} = data;
+
+        setId(id);
+        setEmailGlobal(email);
         setToken(token);
+        setUserName(name);
+        setAvatar(avatar);
+
+        setShowAlert(true);
+        setAlertType("success");
+        setAlertMessage("Login successful!");
 
         if (res.data.role === "doctor") {
           // await navigate('/admin');
           await navigateToHomeTab();
-          alert("Login success doctor");
         } else if (res.data.role === "patient") {
           // await navigate('/');
           await navigateToHomeTab();
-          alert("Login success patient");
         }
       }
     } catch (error) {
-      alert(error.response.data.error);
+      // alert(error.response.data.error);
+      setShowAlert(true);
+      setAlertType("error");
+      setAlertMessage("Login failed. Please try again.");
+     
     }
   };
 
@@ -132,6 +126,9 @@ const LoginScreen = () => {
             </Pressable>
           </View>
         </View>
+
+        <Alert visible={showAlert} onDismiss={handleDismissAlert} message={alertMessage} type={alertType} />
+        
         <Pressable style={styles.loginButton} onPress={handleSubmit}>
           <Text style={styles.loginText}>Login</Text>
         </Pressable>

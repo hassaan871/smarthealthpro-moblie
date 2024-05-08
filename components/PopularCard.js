@@ -8,6 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import lightTheme from "../Themes/LightTheme";
 
 const PopularCard = ({ item }) => {
   const navigation = useNavigation();
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: lightTheme.colors.primaryCard,
     borderRadius: 8,
     shadowColor: "#000",
     shadowOffset: {
@@ -66,14 +67,15 @@ const styles = StyleSheet.create({
   name: {
     marginTop: 5,
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: "900",
     textAlign: "center",
-    color: "#333",
+    color: lightTheme.colors.primaryText,
   },
   specialty: {
     fontSize: 12,
     textAlign: "center",
-    color: "#666",
+    fontWeight: "400",
+    color: lightTheme.colors.primaryText,
   },
 });
 

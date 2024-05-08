@@ -1,21 +1,31 @@
-import React, { useState,useContext } from "react";
-import {View, Text, TextInput, Image, StyleSheet, Pressable, Dimensions, Modal} from "react-native";
+import React, { useState, useContext } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Image,
+  StyleSheet,
+  Pressable,
+  Dimensions,
+  Modal,
+} from "react-native";
 import signupLogo from "../../assets/signupLogo.jpg";
 import checked from "../../assets/checked.png";
-import axios from 'axios'
+import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import Context from "../../Helper/context";
+import lightTheme from "../../Themes/LightTheme";
 
 const SignUpScreen = ({ navigation }) => {
   // const { setToken, setUser } = useContext(Context);
   const [modalVisible, setModalVisible] = useState(false);
-  const [name,setName] = useState()
-  const [email,setEmail] = useState()
-  const [password,setPassword] = useState()
-  const [confirmPassword,setConfirmPassword] = useState()
-  const [dateOfBirth, setdateOfBirth] = useState()
-  const [bloodType, setBloodType] = useState()
-  const [role, setRole] = useState('patient');
+  const [name, setName] = useState();
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
+  const [confirmPassword, setConfirmPassword] = useState();
+  const [dateOfBirth, setdateOfBirth] = useState();
+  const [bloodType, setBloodType] = useState();
+  const [role, setRole] = useState("patient");
 
   const navigate = useNavigation();
 
@@ -23,29 +33,37 @@ const SignUpScreen = ({ navigation }) => {
     e.preventDefault();
 
     if (!name || !email || !password) {
-        alert('Please fill in all fields.');
-        return;
+      alert("Please fill in all fields.");
+      return;
     }
-    console.log('Form data:', { name, email, password, role });
+    console.log("Form data:", { name, email, password, role });
 
-    axios.post('http://192.168.100.82/user/register', { name, email, password ,dateOfBirth, bloodType, role})
-        .then(res => {
-            console.log('Response:', res);
-            // setUser(res.data);
-            navigate.navigate("Login");
-        })
-        .catch(error => {
-            console.log('Error:', error);
-            if (error.response) {
-                console.log('Server Error:', error.response.data);
-                alert(error.response.data.error);
-            } else if (error.request) {
-                console.log('Request Error:', error.request);
-            } else {
-                console.log('Error Message:', error.message);
-            }
-        });
-    }
+    axios
+      .post("http://192.168.100.82/user/register", {
+        name,
+        email,
+        password,
+        dateOfBirth,
+        bloodType,
+        role,
+      })
+      .then((res) => {
+        console.log("Response:", res);
+        // setUser(res.data);
+        setModalVisible(true);
+      })
+      .catch((error) => {
+        console.log("Error:", error);
+        if (error.response) {
+          console.log("Server Error:", error.response.data);
+          alert(error.response.data.error);
+        } else if (error.request) {
+          console.log("Request Error:", error.request);
+        } else {
+          console.log("Error Message:", error.message);
+        }
+      });
+  };
 
   return (
     <View style={styles.container}>
@@ -55,9 +73,11 @@ const SignUpScreen = ({ navigation }) => {
         </View>
         <Text style={styles.title}>Sign Up</Text>
         <View style={styles.inputContainer}>
-          <TextInput placeholder="Full Name" 
-          onChangeText={(text) => setName(text)}
-          style={styles.input} />
+          <TextInput
+            placeholder="Full Name"
+            onChangeText={(text) => setName(text)}
+            style={styles.input}
+          />
           {/* <TextInput placeholder="Date of Birth" style={styles.input} /> */}
           <TextInput
             placeholder="Email address"
@@ -77,20 +97,20 @@ const SignUpScreen = ({ navigation }) => {
             style={styles.input}
             onChangeText={(text) => setConfirmPassword(text)}
           />
-           <TextInput
+          <TextInput
             placeholder="Blood Type"
             style={styles.input}
             onChangeText={(text) => setBloodType(text)}
           />
-           <TextInput
+          <TextInput
             placeholder="Date of Birth"
             style={styles.input}
             onChangeText={(text) => setdateOfBirth(text)}
           />
         </View>
         <Pressable
-        // () => setModalVisible(true)
-          onPress={ handleSubmit }
+          // () => setModalVisible(true)
+          onPress={handleSubmit}
           style={styles.loginButton}
         >
           <Text style={styles.loginText}>Sign Up</Text>
@@ -123,7 +143,7 @@ const SignUpScreen = ({ navigation }) => {
         >
           <Text style={{ textAlign: "center", color: "#6B7280", marginTop: 5 }}>
             Already have an account?{" "}
-            <Text style={{ fontWeight: "bold", color: "#6366F1" }}>Login</Text>
+            <Text style={{ fontWeight: "bold", color: "#3182ce" }}>Login</Text>
           </Text>
         </Pressable>
       </View>
@@ -218,7 +238,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loginButton: {
-    backgroundColor: "#3182ce",
+    backgroundColor: lightTheme.colors.primaryBtn,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,

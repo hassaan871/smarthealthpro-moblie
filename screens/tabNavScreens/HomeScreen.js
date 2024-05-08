@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
   Platform,
   StatusBar,
   SafeAreaView,
+  Modal,
+  FlatList,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from react-native-vector-icons
 import Icon2 from "react-native-vector-icons/Feather";
@@ -16,6 +18,7 @@ import Icon3 from "react-native-vector-icons/FontAwesome";
 import Icon4 from "react-native-vector-icons/MaterialCommunityIcons";
 import ScheduleCard from "../../components/ScheduleCard";
 import PopularCard from "../../components/PopularCard";
+import DoctorCard from "../../components/DoctorCard";
 
 import favicon from "../../assets/favicon.png";
 import lightTheme from "../../Themes/LightTheme";
@@ -24,6 +27,10 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 
 const HomeScreen = () => {
   const [activeTab, setActiveTab] = useState("home");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const modalSearchInputRef = useRef(null);
 
   const [upcomingSchedule, setUpcomingSchedule] = useState([
     {
@@ -99,6 +106,37 @@ const HomeScreen = () => {
 
   const navigation = useNavigation();
 
+  const openModal = () => {
+    setModalVisible(true);
+    setTimeout(() => {
+      modalSearchInputRef.current.focus();
+    }, 200); // Delay focusing to ensure modal animation is complete
+  };
+
+  const closeModal = () => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setModalVisible(false);
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    // Perform search based on query
+    const filteredResults = popularDoctors.filter((item) => {
+      // Convert each object's values to lowercase strings
+      const values = Object.entries(item).map(([key, value]) => {
+        // Check if the key is pictureUrl or id, if so, return an empty string
+        // Otherwise, return the lowercase string value
+        return key !== "pictureUrl" && key !== "id"
+          ? value.toString().toLowerCase()
+          : "";
+      });
+      // Check if any value (excluding pictureUrl and id) includes the search query
+      return values.some((val) => val.includes(searchQuery.toLowerCase()));
+    });
+    setSearchResults(filteredResults);
+  };
+
   return (
     // <View style={styles.container}>
     <SafeAreaView style={styles.container}>
@@ -111,8 +149,9 @@ const HomeScreen = () => {
         {/* <Icon name="search" size={24} color="#999" style={{}} /> */}
         <TextInput
           style={styles.searchInput}
-          placeholder="Search for doctors or anything"
+          placeholder="Search for doctors"
           placeholderTextColor="#999"
+          onFocus={openModal}
         />
       </View>
       <View style={styles.menuContainer}>
@@ -125,7 +164,7 @@ const HomeScreen = () => {
           <Icon
             name="assessment"
             size={24}
-            color={lightTheme.colors.homeIconColor}
+            color={lightTheme.colors.primaryText}
           />
           <Text style={styles.menuText}>Results</Text>
         </Pressable>
@@ -135,11 +174,7 @@ const HomeScreen = () => {
             navigation.navigate("CameraAccessScreen");
           }}
         >
-          <Icon
-            name="camera"
-            size={24}
-            color={lightTheme.colors.homeIconColor}
-          />
+          <Icon name="camera" size={24} color={lightTheme.colors.primaryText} />
           <Text style={styles.menuText}>Camera</Text>
         </Pressable>
       </View>
@@ -199,6 +234,31 @@ const HomeScreen = () => {
           </View>
         </View>
       </View>
+      <Modal visible={modalVisible} animationType="slide">
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Pressable onPress={closeModal}>
+              <Icon name="arrow-back" size={24} color="#000" />
+            </Pressable>
+            <TextInput
+              ref={modalSearchInputRef}
+              style={styles.modalSearchInput}
+              placeholder="Search for doctors"
+              placeholderTextColor="#999"
+              onChangeText={handleSearch}
+            />
+          </View>
+          {searchResults.length > 0 && (
+            <FlatList
+              data={searchResults}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <DoctorCard item={item} closeModal={closeModal} />
+              )}
+            />
+          )}
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -206,11 +266,11 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: lightTheme.colors.homeBackground,
+    backgroundColor: lightTheme.colors.defaultBackground,
     marginTop: Platform.OS === "android" ? 40 : 0,
   },
   header: {
-    // backgroundColor: lightTheme.colors.homeBackground,
+    // backgroundColor: lightTheme.colors.defaultBackground,
 
     paddingTop: Platform.OS === "ios" ? 40 : 0,
     padding: 16,
@@ -243,14 +303,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: lightTheme.colors.homeMenuItemColor,
+    backgroundColor: lightTheme.colors.primaryCard,
     borderRadius: 12,
     margin: 5,
     padding: 10,
   },
   menuText: {
     marginTop: 4,
-    color: lightTheme.colors.homeMenuText,
+    color: lightTheme.colors.primaryText,
     fontSize: 14,
   },
   scheduleContainer: {
@@ -334,6 +394,26 @@ const styles = StyleSheet.create({
   },
   activeTabText: {
     color: lightTheme.colors.homeActiveTabColor,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  modalSearchInput: {
+    flex: 1,
+    height: 40,
+    backgroundColor: lightTheme.colors.homeSearchInputColor,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    marginLeft: 10,
   },
 });
 

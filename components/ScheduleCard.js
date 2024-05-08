@@ -6,7 +6,7 @@ const ScheduleCard = ({ item }) => {
   return (
     <View
       style={{
-        backgroundColor: lightTheme.colors.homeCardContainerMain,
+        backgroundColor: lightTheme.colors.primaryCard,
 
         borderRadius: 10,
         marginTop: 5,
@@ -31,9 +31,9 @@ const ScheduleCard = ({ item }) => {
           <Text
             style={{
               fontSize: 18,
-              fontWeight: "bold",
-              color: "black",
-              marginBottom: 5,
+              fontWeight: "900",
+              color: lightTheme.colors.primaryText,
+              marginBottom: 15,
             }}
           >
             {item.name}
@@ -59,7 +59,17 @@ const ScheduleCard = ({ item }) => {
 };
 
 const styles = StyleSheet.create({
-  header: { fontSize: 14, color: "#666", marginBottom: 3, fontWeight: "900" },
-  info: { fontSize: 14, color: "black", marginBottom: 8 },
+  header: {
+    fontSize: 14,
+    color: lightTheme.colors.primaryText,
+    marginBottom: 3,
+    fontWeight: "900",
+  },
+  info: {
+    fontSize: 14,
+    color: lightTheme.colors.primaryText,
+    marginBottom: 15,
+    fontWeight: "400",
+  },
 });
 export default ScheduleCard;

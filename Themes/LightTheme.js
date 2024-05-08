@@ -44,7 +44,8 @@ const lightTheme = {
     surfaceDisabled: "rgba(27, 27, 31, 0.12)",
     onSurfaceDisabled: "rgba(27, 27, 31, 0.38)",
     backdrop: "rgba(46, 48, 56, 0.4)",
-    homeBackground: "#f4f4f4",
+
+    defaultBackground: "#f4f4f4",
     homeHeadColor: "#1D36C7",
     homeWelcomeTextColor: "black",
     homeSearchInputColor: "#DCDFE6",
@@ -54,9 +55,13 @@ const lightTheme = {
     homeTabContainerColor: "#f4f4f4",
     homeActiveTabColor: "#1D36C7",
     homeCardContainerText: "black",
-    homeIconColor: "#888",
+    homeIconColor: "#666",
     homeViewBtnTextColor: "black",
     homeMenuText: "#888",
+    primaryCard: "#B2BEB5",
+    primaryText: "#333",
+    primaryBtn: "#007BFF",
+    secondaryBtn: "#3182ce",
   },
 
   // Other custom theme properties for light mode

@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, Image, Pressable } from "react-native";
+import lightTheme from "../../Themes/LightTheme";
 
 const DoctorDetailPage = ({ route }) => {
   const item = route.params.item;
@@ -37,7 +38,7 @@ const DoctorDetailPage = ({ route }) => {
       </View>
       <Pressable
         style={{
-          backgroundColor: "#007bff",
+          backgroundColor: lightTheme.colors.secondaryBtn,
           paddingVertical: 10,
           paddingHorizontal: 20,
           borderRadius: 5,

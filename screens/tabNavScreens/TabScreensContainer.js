@@ -7,8 +7,7 @@ import Settings from "../tabNavScreens/Settings";
 import { Pressable, View } from "react-native";
 import ChattingList from "../chattingUIScreens/ChattingList";
 import CameraAccessScreen from "../cameraAccess/CameraAccessScreen";
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const Tab = createBottomTabNavigator();
 

@@ -13,13 +13,10 @@ import {
 } from "@react-navigation/native";
 import merge from "deepmerge";
 import { RootSiblingParent } from "react-native-root-siblings";
-import LoginScreen from "./screens/chattingUI/LoginScreen";
+import LoginScreen from "./screens/authScreens/LoginScreen";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AppNavigator from "./Navigator"; // Import the AppNavigator
-import SignUpScreen from "./screens/chattingUI/SignUpScreen";
-
-const Stack = createNativeStackNavigator();
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function App() {
   const [isThemeDark, setIsThemeDark] = useState(false);
@@ -66,38 +63,27 @@ export default function App() {
 
   return (
     <RootSiblingParent>
-      <ThemeContext.Provider value={preferences}>
-        <SafeAreaProvider>
-          <PaperProvider
-            settings={{
-              rippleEffectEnabled: true,
-            }}
-            theme={myTheme}
-          >
-            <MyContextProvider>
-              <NavigationContainer>
-                <Stack.Navigator>
-                  <Stack.Screen
-                    options={{ headerShown: false }}
-                    name="Login"
-                    component={LoginScreen}
-                  />
-                  <Stack.Screen
-                    options={{ headerShown: false }}
-                    name="SignUp"
-                    component={SignUpScreen}
-                  />
-                  <Stack.Screen
-                    options={{ headerShown: false }}
-                    name="AppNavigator"
-                    component={AppNavigator}
-                  />
-                </Stack.Navigator>
-              </NavigationContainer>
-            </MyContextProvider>
-          </PaperProvider>
-        </SafeAreaProvider>
-      </ThemeContext.Provider>
+        <ThemeContext.Provider value={preferences}>
+          <SafeAreaProvider>
+            <PaperProvider
+              settings={{
+                rippleEffectEnabled: true,
+              }}
+              theme={myTheme}
+            >
+              <MyContextProvider>
+                <NavigationContainer>
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                <MyContextProvider>
+                  
+                  <AppNavigator navTheme={navTheme} />
+                </MyContextProvider>
+                </GestureHandlerRootView>
+                </NavigationContainer>
+              </MyContextProvider>
+            </PaperProvider>
+          </SafeAreaProvider>
+        </ThemeContext.Provider>
     </RootSiblingParent>
   );
 }

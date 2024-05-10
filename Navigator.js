@@ -1,74 +1,72 @@
 import React, { useState } from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import Icon2 from "react-native-vector-icons/FontAwesome5";
-import lightTheme from "./Themes/LightTheme";
-import BotChattingScreen from "./screens/chattingUI/BotChattingScreen";
-import HomeScreen from "./screens/chattingUI/HomeScreen";
-import Settings from "./screens/chattingUI/Settings";
-import { TouchableOpacity, View } from "react-native";
+import LoginScreen from "./screens/authScreens/LoginScreen";
+import SignUpScreen from "./screens/authScreens/SignUpScreen";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import TabScreensContainer from "./screens/tabNavScreens/TabScreensContainer";
+import BotChattingScreen from "./screens/chattingUIScreens/BotChattingScreen";
+import ChattingList from "./screens/chattingUIScreens/ChattingList";
+import CameraAccessScreen from "./screens/cameraAccess/CameraAccessScreen";
+import OnBoardingScreen from "./screens/extras/OnBoarding";
+import ViewAllScreen from "./screens/extras/ViewAllScreen";
+import DoctorDetailPage from "./screens/extras/DoctorDetailPage";
 
-const Tab = createBottomTabNavigator();
-
-const AppNavigator = ({ navigation }) => {
-  const [active, setActive] = useState("Home"); // Initialize active tab to "Home"
+const Stack = createNativeStackNavigator();
+const AppNavigator = () => {
   return (
-    <Tab.Navigator
-      screenOptions={({ route, navigation }) => ({
-        headerShown: false,
-        tabBarActiveTintColor: lightTheme.colors.homeActiveTabColor,
-        tabBarInactiveTintColor: lightTheme.colors.homeIconColor,
-        tabBarLabelPosition: "below-icon",
-        tabBarStyle: {},
-        tabBarButton: (props) => (
-          <TouchableOpacity
-            {...props}
-            onPress={() => {
-              navigation.navigate(route.name);
-              setActive(route.name);
-            }}
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            activeOpacity={1} // Finish default opacity effect
-          >
-            {props.children}
-            {active === route.name && (
-              <View
-                style={{
-                  width: 5,
-                  height: 5,
-                  borderRadius: 5,
-                  backgroundColor: "black",
-                  marginTop: 4,
-                }}
-              />
-            )}
-          </TouchableOpacity>
-        ),
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          if (route.name === "Home") {
-            iconName = "home";
-          } else if (route.name === "Chat") {
-            iconName = "robot";
-          } else if (route.name === "Settings") {
-            iconName = "settings";
-          }
+    <Stack.Navigator>
+      <Stack.Screen
+        name="OnBoarding"
+        options={{ headerShown: false }}
+        component={OnBoardingScreen}
+      />
 
-          if (route.name === "Chat") {
-            return <Icon2 name={iconName} size={size} color={color} />;
-          }
-          return <Icon name={iconName} size={size} color={color} />;
-        },
-      })}
-    >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Chat" component={BotChattingScreen} />
-      <Tab.Screen name="Settings" component={Settings} />
-    </Tab.Navigator>
+      <Stack.Screen
+        name="Login"
+        options={{ headerShown: false }}
+        component={LoginScreen}
+      />
+
+      <Stack.Screen
+        name="SignUp"
+        options={{ headerShown: false }}
+        component={SignUpScreen}
+      />
+      <Stack.Screen
+        name="TabScreensContainer"
+        options={{ headerShown: false }}
+        component={TabScreensContainer}
+      />
+
+      <Stack.Screen
+        name="ViewAll"
+        options={{ headerShown: false }}
+        component={ViewAllScreen}
+      />
+
+      <Stack.Screen
+        name="DoctorDetail"
+        options={{ headerShown: false }}
+        component={DoctorDetailPage}
+      />
+
+      <Stack.Screen
+        name="ChatList"
+        options={{ headerShown: false }}
+        component={ChattingList}
+      />
+
+      <Stack.Screen
+        name="BotChattingScreen"
+        options={{ headerShown: false }}
+        component={BotChattingScreen}
+      />
+
+      <Stack.Screen
+        name="CameraAccessScreen"
+        options={{ headerShown: false }}
+        component={CameraAccessScreen}
+      />
+    </Stack.Navigator>
   );
 };
 

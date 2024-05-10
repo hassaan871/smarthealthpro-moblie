@@ -45,7 +45,7 @@ const lightTheme = {
     onSurfaceDisabled: "rgba(27, 27, 31, 0.38)",
     backdrop: "rgba(46, 48, 56, 0.4)",
 
-    defaultBackground: "#f4f4f4",
+    defaultBackground: "",
     homeHeadColor: "#1D36C7",
     homeWelcomeTextColor: "black",
     homeSearchInputColor: "#DCDFE6",
@@ -58,7 +58,7 @@ const lightTheme = {
     homeIconColor: "#666",
     homeViewBtnTextColor: "black",
     homeMenuText: "#888",
-    primaryCard: "#B2BEB5",
+    primaryCard: "#fff",
     primaryText: "#333",
     primaryBtn: "#007BFF",
     secondaryBtn: "#3182ce",

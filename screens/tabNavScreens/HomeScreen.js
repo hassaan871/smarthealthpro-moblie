@@ -273,7 +273,7 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: lightTheme.colors.defaultBackground,
+    // backgroundColor: lightTheme.colors.defaultBackground,
     marginTop: Platform.OS === "android" ? 40 : 0,
   },
   header: {

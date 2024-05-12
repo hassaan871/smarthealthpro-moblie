@@ -12,6 +12,7 @@ import {
   Modal,
   FlatList,
   ScrollView,
+  ImageBackground
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from react-native-vector-icons
 import Icon2 from "react-native-vector-icons/Feather";
@@ -140,6 +141,7 @@ const HomeScreen = () => {
 
   return (
     // <View style={styles.container}>
+    <ImageBackground source={require("../../assets/bg.png")} style={{width: '100%', height: '100%'}}>
     <SafeAreaView style={styles.container}>
       <ScrollView>
         {/* <StatusBar barStyle="dark-content" /> */}
@@ -206,7 +208,14 @@ const HomeScreen = () => {
               </Text>
             </Pressable>
           </View>
-          <View style={{}}>
+          <View style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 12,
+            // elevation: 5,
+            margin: 2,
+          }}>
             <ScheduleCard item={upcomingSchedule[0]} />
           </View>
         </View>
@@ -267,6 +276,8 @@ const HomeScreen = () => {
         </Modal>
       </ScrollView>
     </SafeAreaView>
+    </ImageBackground>
+
   );
 };
 
@@ -278,7 +289,6 @@ const styles = StyleSheet.create({
   },
   header: {
     // backgroundColor: lightTheme.colors.defaultBackground,
-
     paddingTop: Platform.OS === "ios" ? 40 : 0,
     padding: 16,
   },
@@ -325,7 +335,6 @@ const styles = StyleSheet.create({
   },
   scheduleContainer2: {
     padding: 10,
-    marginTop: 15,
   },
   scheduleHeader: {
     flexDirection: "row",
@@ -369,7 +378,6 @@ const styles = StyleSheet.create({
   },
   specialtyText: {
     fontSize: 14,
-
     color: lightTheme.colors.homeCardContainerText,
   },
   appointmentContainer: {
@@ -378,7 +386,6 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 4,
     marginHorizontal: 16,
-    marginBottom: 10,
   },
   appointmentText: {
     fontSize: 12,

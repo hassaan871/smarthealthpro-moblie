@@ -1,9 +1,11 @@
 import React from "react";
 import { View, Text, Image, Pressable } from "react-native";
 import lightTheme from "../../Themes/LightTheme";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 const DoctorDetailPage = ({ route }) => {
   const item = route.params.item;
+  const navigation = useNavigation();
   return (
     <View
       style={{
@@ -48,6 +50,11 @@ const DoctorDetailPage = ({ route }) => {
           alignSelf: "center",
           alignItems: "center",
         }}
+        onPress={() =>
+          navigation.navigate("BookingScreen", {
+            item: item,
+          })
+        }
       >
         <Text style={{ color: "#fff", fontWeight: "bold", fontSize: 16 }}>
           Book Appointment

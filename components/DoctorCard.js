@@ -3,7 +3,7 @@ import { View, Text, Image, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import lightTheme from "../Themes/LightTheme";
 
-const DoctorCard = ({ item, closeModal }) => {
+const DoctorCard = ({ item, closeModal, isBook }) => {
   const navigation = useNavigation();
   return (
     <Pressable
@@ -15,7 +15,11 @@ const DoctorCard = ({ item, closeModal }) => {
       }}
     >
       <View style={styles.container}>
-        <View style={{ ...styles.card }}>
+        <View
+          style={{
+            ...styles.card,
+          }}
+        >
           <View style={styles.imageContainer}>
             <Image source={{ uri: item.pictureUrl }} style={styles.image} />
           </View>
@@ -26,7 +30,10 @@ const DoctorCard = ({ item, closeModal }) => {
           <Pressable
             style={styles.button}
             onPress={() => {
-              // Handle booking appointment action
+              closeModal();
+              navigation.navigate("BookingScreen", {
+                item: item,
+              });
             }}
           >
             <Text style={styles.buttonText}>Book Appointment</Text>
@@ -43,10 +50,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    padding: 8,
   },
   card: {
-    backgroundColor: lightTheme.colors.primaryCard,
     borderRadius: 8,
     shadowColor: "#000",
     shadowOffset: {
@@ -56,10 +61,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    marginBottom: 10,
     padding: 10,
+
     flexDirection: "row", // Ensure the image, text, and button are in a row
     width: "100%",
+    backgroundColor: "#FFF",
   },
   imageContainer: {
     flex: 1, // Take up one third of the card width

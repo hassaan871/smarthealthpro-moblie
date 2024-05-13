@@ -45,7 +45,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   card: {
-    backgroundColor: lightTheme.colors.primaryCard,
+    // backgroundColor: lightTheme.colors.primaryCard,
+    backgroundColor: "#F0F8FF",
     borderRadius: 8,
     shadowColor: "#000",
     shadowOffset: {
@@ -69,13 +70,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "900",
     textAlign: "center",
-    color: lightTheme.colors.primaryText,
+    // color: lightTheme.colors.primaryText,
+    color: "#007fff",
   },
   specialty: {
     fontSize: 12,
     textAlign: "center",
     fontWeight: "400",
-    color: lightTheme.colors.primaryText,
+    // color: lightTheme.colors.primaryText,
+    color: "gray",
   },
 });
 

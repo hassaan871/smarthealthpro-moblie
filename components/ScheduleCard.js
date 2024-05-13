@@ -7,21 +7,18 @@ const ScheduleCard = ({ item }) => {
   console.log(item);
   return (
     <Card style={styles.card}>
-      <Card.Cover source={{ uri: pictureUrl }} style={styles.image} />
-      <Card.Content>
+       <Card.Cover source={{ uri: pictureUrl }} style={styles.image} />
+      <Card.Content style={{flex:1}}>
+     
         <Text style={{ textAlign: "center", color: "gray", marginBottom: 4 }}>
           Dr. Xyz
         </Text>
         <Title style={styles.title}>{name}</Title>
-        <Paragraph style={styles.text}>
-          {time} {date}
-        </Paragraph>
+        <Paragraph style={styles.text}>{time} {date}</Paragraph>
         <Paragraph style={styles.text}>{location}</Paragraph>
         <Paragraph style={styles.text}>Fee: ${fee}</Paragraph>
         <Paragraph style={styles.text}>Fee Status: pending</Paragraph>
-        <Paragraph style={styles.text}>
-          this is some dummy description
-        </Paragraph>
+        {/* <Paragraph style={styles.text}>this is some dummy description</Paragraph> */}
       </Card.Content>
     </Card>
   );
@@ -29,26 +26,27 @@ const ScheduleCard = ({ item }) => {
 
 const styles = StyleSheet.create({
   card: {
-    marginTop: 10,
-    marginHorizontal: 12,
+    margin: 12,
     borderRadius: 10,
     elevation: 4,
+    padding: 12,
+    backgroundColor: "#F0F8FF",
   },
   image: {
-    borderRadius: 30,
-    width: "25%",
-    height: "25%",
+    flex: 1,
+    // borderRadius: "50%",
+    width: "40%",
+    height: 100,
     alignSelf: "center",
-    marginVertical: 10,
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 5,
+    color:"#007fff",
   },
   text: {
     fontSize: 16,
-    marginBottom: 5,
+    color: "gray",
   },
 });
 

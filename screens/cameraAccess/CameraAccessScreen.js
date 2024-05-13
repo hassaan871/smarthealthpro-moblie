@@ -73,7 +73,7 @@ const CameraAccessScreen = () => {
           />
         ) : (
           <View>
-            <MaterialIcons name="cloud-upload" size={50} color="#fff" />
+            <MaterialIcons name="cloud-upload" size={50} color="#007fff" />
             <Text style={styles.imagePlaceholder}>Upload</Text>
           </View>
         )}
@@ -102,11 +102,11 @@ const CameraAccessScreen = () => {
 
       <View style={styles.buttonContainer}>
         <Pressable style={styles.button} onPress={handleUpload}>
-          <MaterialIcons name="photo-library" size={28} color="white" />
+          <MaterialIcons name="photo-library" size={28} color="#007fff" />
           <Text style={styles.buttonText}>Upload</Text>
         </Pressable>
         <Pressable style={styles.button} onPress={handleCapture}>
-          <MaterialIcons name="camera-alt" size={28} color="white" />
+          <MaterialIcons name="camera-alt" size={28} color="#007fff" />
           <Text style={styles.buttonText}>Capture</Text>
         </Pressable>
       </View>
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "#CDE8E5",
+    backgroundColor: "#007fff",
   },
   headerText: {
     fontSize: 24,
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     borderColor: "#fff",
     borderWidth: 4,
     borderRadius: 10,
-    backgroundColor: "#CDE8E5",
+    backgroundColor: "#F0F8FF",
     elevation: 3,
     shadowOffset: { width: 1, height: 1 },
     shadowColor: "#666",
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   imagePlaceholder: {
-    color: "#fff",
+    color: "#007fff",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
   button: {
     flexDirection: "row",
-    backgroundColor: "#7AB2B2",
+    backgroundColor: "#F0F8FF",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 25,
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     marginLeft: 10,
-    color: "white",
+    color: "#007fff",
     fontSize: 18,
     fontWeight: "500",
   },

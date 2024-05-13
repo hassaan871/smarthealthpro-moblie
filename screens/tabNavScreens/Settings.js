@@ -13,6 +13,7 @@ import {
   Image,
   Dimensions,
   SafeAreaView,
+  ImageBackground
 } from "react-native";
 import { Avatar, Divider, Switch } from "react-native-paper";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
@@ -143,7 +144,9 @@ const SettingScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} >
+
+    <ImageBackground source={require("../../assets/bg.png")} style={{ flex: 1 }}>
       <Alert
         visible={showAlert}
         onDismiss={handleDismissAlert}
@@ -161,6 +164,7 @@ const SettingScreen = () => {
         ref={bottomSheetRef}
         onChange={handleSheetChanges}
         snapPoints={snapPoints}
+        // style={{backgroundColor:"red"}}
       >
         <BottomSheetView style={styles.contentContainer}>
           {/* <TouchableOpacity style={styles.item} onPress={handleProfile}>
@@ -274,6 +278,7 @@ const SettingScreen = () => {
           onDelete={() => {}}
         />
       )}
+    </ImageBackground>
     </SafeAreaView>
   );
 };
@@ -289,7 +294,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     padding: 12,
-    // backgroundColor:"#CDF5FD"
+    // backgroundColor:"red"
   },
   item: {
     flexDirection: "row",

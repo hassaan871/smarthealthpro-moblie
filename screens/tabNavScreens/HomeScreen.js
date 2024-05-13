@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  Image,
   Pressable,
   Platform,
   StatusBar,
@@ -12,7 +11,7 @@ import {
   Modal,
   FlatList,
   ScrollView,
-  ImageBackground,
+  ImageBackground
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from react-native-vector-icons
 import Icon2 from "react-native-vector-icons/Feather";
@@ -141,156 +140,144 @@ const HomeScreen = () => {
 
   return (
     // <View style={styles.container}>
-    <ImageBackground
-      source={require("../../assets/bg.png")}
-      style={{ width: "100%", height: "100%" }}
-    >
-      <SafeAreaView style={styles.container}>
-        <ScrollView>
-          {/* <StatusBar barStyle="dark-content" /> */}
-          <View style={styles.header}>
-            <Text style={styles.welcomeText}>Welcome back, Samantha</Text>
-            <Text style={styles.headerTitle}>Keep Healthy!</Text>
-          </View>
-          <View style={styles.searchContainer}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search for doctors"
-              placeholderTextColor="#999"
-              onFocus={openModal}
-            />
+    <ImageBackground source={require("../../assets/bg.png")} style={{width: '100%', height: '100%'}}>
+    <SafeAreaView style={styles.container}>
+      <ScrollView>
+        {/* <StatusBar barStyle="dark-content" /> */}
+        <View style={styles.header}>
+          <Text style={styles.welcomeText}>Welcome back, Samantha</Text>
+          <Text style={styles.headerTitle}>Keep Healthy!</Text>
+        </View>
+        <View style={styles.searchContainer}>
+          {/* <Icon name="search" size={24} color="#999" style={{}} /> */}
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search for doctors"
+            placeholderTextColor="#999"
+            onFocus={openModal}
+          />
+        </View>
+        <View style={styles.menuContainer}>
+          <Pressable
+            style={styles.menuItem}
+            onPress={() => {
+              alert("Results");
+            }}
+          >
             <Icon
-              name="search"
+              name="assessment"
               size={24}
-              color="#999"
-              style={{
-                position: "absolute",
-                left: 27,
-                top: 27,
-              }}
+              color={"#007fff"}
             />
-          </View>
-          <View style={styles.menuContainer}>
-            <Pressable
-              style={styles.menuItem}
-              onPress={() => {
-                alert("Results");
-              }}
-            >
-              <Icon
-                name="assessment"
-                size={24}
-                color={lightTheme.colors.primaryText}
-              />
-              <Text style={styles.menuText}>Results</Text>
-            </Pressable>
-            <Pressable
-              style={styles.menuItem}
-              onPress={() => {
-                navigation.navigate("CameraAccessScreen");
-              }}
-            >
-              <Icon
-                name="camera"
-                size={24}
-                color={lightTheme.colors.primaryText}
-              />
-              <Text style={styles.menuText}>Camera</Text>
-            </Pressable>
-          </View>
+            <Text style={styles.menuText}>Results</Text>
+          </Pressable>
+          <Pressable
+            style={styles.menuItem}
+            onPress={() => {
+              navigation.navigate("CameraAccessScreen");
+            }}
+          >
+            <Icon
+              name="camera"
+              size={24}
+              // color={lightTheme.colors.primaryText}
+              color={"#007fff"}
+            />
+            <Text style={styles.menuText}>Camera</Text>
+          </Pressable>
+        </View>
 
-          <View style={styles.scheduleContainer}>
-            <View style={styles.scheduleHeader}>
-              <Text style={styles.scheduleTitle}>Upcoming Schedule</Text>
-              <Pressable
-                onPress={() => {
-                  navigation.navigate("ViewAll", {
-                    data: upcomingSchedule,
-                    isPopular: false,
-                  }); // or false
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    color: "#1B2060",
-                  }}
-                >
-                  View All
-                </Text>
-              </Pressable>
-            </View>
-            <View
-              style={{
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.25,
-                shadowRadius: 12,
-                // elevation: 5,
-                margin: 2,
+        <View style={styles.scheduleContainer}>
+          <View style={styles.scheduleHeader}>
+            <Text style={styles.scheduleTitle}>Upcoming Schedule</Text>
+            <Pressable
+              onPress={() => {
+                navigation.navigate("ViewAll", {
+                  data: upcomingSchedule,
+                  isPopular: false,
+                }); // or false
               }}
             >
-              <ScheduleCard item={upcomingSchedule[0]} />
-            </View>
-          </View>
-          <View style={styles.scheduleContainer2}>
-            <View style={styles.scheduleHeader}>
-              <Text style={styles.scheduleTitle}>Popular Doctors</Text>
-              <Pressable
-                title="View All"
-                color={lightTheme.colors.homeViewBtnTextColor}
-                onPress={() => {
-                  navigation.navigate("ViewAll", {
-                    data: popularDoctors,
-                    isPopular: true,
-                  }); // or false
+              <Text
+                style={{
+                  fontSize: 16,
+                  color: "#1B2060",
                 }}
               >
-                <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
-              </Pressable>
-            </View>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
+                View All
+              </Text>
+            </Pressable>
+          </View>
+          <View style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 12,
+            // elevation: 5,
+            margin: 2,
+          }}>
+            <ScheduleCard item={upcomingSchedule[0]} />
+          </View>
+        </View>
+        <View style={styles.scheduleContainer2}>
+          <View style={styles.scheduleHeader}>
+            <Text style={styles.scheduleTitle}>Popular Doctors</Text>
+            <Pressable
+              title="View All"
+              color={lightTheme.colors.homeViewBtnTextColor}
+              onPress={() => {
+                navigation.navigate("ViewAll", {
+                  data: popularDoctors,
+                  isPopular: true,
+                }); // or false
               }}
             >
-              <View>
-                <PopularCard item={popularDoctors[0]} />
-              </View>
-              <View>
-                <PopularCard item={popularDoctors[1]} />
-              </View>
+              <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
+            </Pressable>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <View>
+              <PopularCard item={popularDoctors[0]} />
+            </View>
+            <View>
+              <PopularCard item={popularDoctors[1]} />
             </View>
           </View>
-          <Modal visible={modalVisible} animationType="slide">
-            <SafeAreaView style={styles.modalContainer}>
-              <View style={styles.modalHeader}>
-                <Pressable onPress={closeModal}>
-                  <Icon name="arrow-back" size={24} color="#000" />
-                </Pressable>
-                <TextInput
-                  ref={modalSearchInputRef}
-                  style={styles.modalSearchInput}
-                  placeholder="Search for doctors"
-                  placeholderTextColor="#999"
-                  onChangeText={handleSearch}
-                />
-              </View>
-              {searchResults.length > 0 && (
-                <FlatList
-                  data={searchResults}
-                  keyExtractor={(item) => item.id.toString()}
-                  renderItem={({ item }) => (
-                    <DoctorCard item={item} closeModal={closeModal} />
-                  )}
-                />
-              )}
-            </SafeAreaView>
-          </Modal>
-        </ScrollView>
-      </SafeAreaView>
+        </View>
+        <Modal visible={modalVisible} animationType="slide">
+          <SafeAreaView style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Pressable onPress={closeModal}>
+                <Icon name="arrow-back" size={24} color="#000" />
+              </Pressable>
+              <TextInput
+                ref={modalSearchInputRef}
+                style={styles.modalSearchInput}
+                placeholder="Search for doctors"
+                placeholderTextColor="#999"
+                onChangeText={handleSearch}
+              />
+            </View>
+            {searchResults.length > 0 && (
+              <FlatList
+                data={searchResults}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                  <DoctorCard item={item} closeModal={closeModal} />
+                )}
+              />
+            )}
+          </SafeAreaView>
+        </Modal>
+      </ScrollView>
+    </SafeAreaView>
     </ImageBackground>
+
   );
 };
 
@@ -306,13 +293,15 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   welcomeText: {
-    color: lightTheme.colors.homeWelcomeTextColor,
-    fontSize: 30,
+    // color: lightTheme.colors.homeWelcomeTextColor,
+    color:"#007fff",
+    fontSize: 26,
   },
   headerTitle: {
-    fontSize: 30,
+    fontSize: 26,
     fontWeight: "bold",
-    color: lightTheme.colors.homeWelcomeTextColor,
+    // color: lightTheme.colors.homeWelcomeTextColor,
+    color:"#007fff",
   },
   searchContainer: {
     padding: 16,
@@ -323,7 +312,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    paddingLeft: 40,
   },
   menuContainer: {
     flexDirection: "row",
@@ -334,21 +322,23 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: lightTheme.colors.primaryCard,
+    // backgroundColor: lightTheme.colors.primaryCard,
+    backgroundColor: "#F0F8FF",
     borderRadius: 12,
     margin: 5,
     padding: 10,
   },
   menuText: {
     marginTop: 4,
-    color: lightTheme.colors.primaryText,
+    // color: lightTheme.colors.primaryText,
+    color:"#007fff",
     fontSize: 14,
   },
   scheduleContainer: {
-    padding: 10,
+    paddingHorizontal: 10,
   },
   scheduleContainer2: {
-    padding: 10,
+    paddingHorizontal: 10,
   },
   scheduleHeader: {
     flexDirection: "row",
@@ -356,34 +346,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   scheduleTitle: {
-    fontSize: 23,
+    fontSize: 20,
     fontWeight: "bold",
-  },
-  cardContainer: {
-    borderRadius: 8,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    backgroundColor: lightTheme.colors.homeCardContainerMain,
-    top: 10,
-  },
-  headerContainer: {
-    backgroundColor: lightTheme.colors.homeCardContainerMain,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  image: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    color:"#007fff",
   },
   detailsContainer: {
-    flex: 1, // Take the remaining space after the image
-    marginLeft: 16, // Adds left margin for spacing between the image and text
+    flex: 1, 
+    marginLeft: 16, 
   },
   nameText: {
     fontSize: 18,

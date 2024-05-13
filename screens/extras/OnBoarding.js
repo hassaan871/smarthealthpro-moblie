@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, Image, Pressable } from "react-native";
+import { View, Text, Image, Pressable, ImageBackground } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+
 
 const items = [
   {
@@ -36,7 +37,7 @@ const OnBoardingScreen = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+    <ImageBackground source={require("../../assets/bg.png")} style={{ flex: 1}}>
       <View style={{ flex: 0.2 }}>
         <View
           style={{
@@ -112,7 +113,7 @@ const OnBoardingScreen = () => {
           </Text>
         </Pressable>
       </View>
-    </View>
+    </ImageBackground>
   );
 };
 

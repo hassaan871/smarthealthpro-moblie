@@ -215,7 +215,7 @@ const HomeScreen = () => {
             shadowOpacity: 0.25,
             shadowRadius: 12,
             // elevation: 5,
-            margin: 2,
+            // margin: 2,
           }}>
             <ScheduleCard item={upcomingSchedule[0]} />
           </View>
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // backgroundColor: lightTheme.colors.defaultBackground,
-    marginTop: Platform.OS === "android" ? 40 : 0,
+    // marginTop: Platform.OS === "android" ? 40 : 0,
     // backgroundColor:"#CAF4FF"
     backgroundColor:"#E0F4FF"
   },
@@ -299,6 +299,7 @@ const styles = StyleSheet.create({
     // color: lightTheme.colors.homeWelcomeTextColor,
     color:"#007fff",
     fontSize: 24,
+    paddingTop: 16,
   },
   headerTitle: {
     fontSize: 24,
@@ -354,6 +355,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color:"#007fff",
+    // paddingBottom: 10,
   },
   detailsContainer: {
     flex: 1, 

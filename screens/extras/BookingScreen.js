@@ -3,9 +3,16 @@ import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import DoctorCard from "../../components/DoctorCard";
+import ReusableModal from "../../components/ReusableModal";
+import checked from "../../assets/checked.png";
+import { useNavigation } from "@react-navigation/native";
 
-export default function BookingScreen({ route }) {
+export default function BookingScreen({ route, navigation }) {
   const [selected, setSelected] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const navigate = useNavigation();
+
   const item = route.params.item;
   return (
     <SafeAreaView style={{ marginHorizontal: 20 }}>
@@ -93,6 +100,7 @@ export default function BookingScreen({ route }) {
       <View style={{ padding: 20 }}>
         <TouchableOpacity
           style={{ backgroundColor: "#3498db", borderRadius: 10 }}
+          onPress={() => setModalVisible(true)}
         >
           <Text
             style={{
@@ -106,6 +114,16 @@ export default function BookingScreen({ route }) {
             Continue
           </Text>
         </TouchableOpacity>
+        <ReusableModal
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          title={"Sign Up Successful"}
+          message={
+            "You have successfully signed up for an account. Welcome aboard!"
+          }
+          imageSource={checked}
+          onClose={() => navigation.navigate("TabScreensContainer")}
+        />
       </View>
     </SafeAreaView>
   );

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { View, Text, Image, Pressable, ImageBackground } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-
 const items = [
   {
     title: "Your Health, Simplified!",
@@ -37,8 +36,10 @@ const OnBoardingScreen = () => {
   };
 
   return (
-    // <ImageBackground source={require("../../assets/bg.png")} style={{ flex: 1}}>
-    <View style={{ flex: 1, backgroundColor: "#CAF4FF" }}>
+    <ImageBackground
+      source={require("../../assets/bg.png")}
+      style={{ flex: 1 }}
+    >
       <View style={{ flex: 0.2 }}>
         <View
           style={{
@@ -114,8 +115,7 @@ const OnBoardingScreen = () => {
           </Text>
         </Pressable>
       </View>
-    {/* // </ImageBackground> */}
-    </View>
+    </ImageBackground>
   );
 };
 

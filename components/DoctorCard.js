@@ -5,6 +5,7 @@ import lightTheme from "../Themes/LightTheme";
 
 const DoctorCard = ({ item, closeModal, isBook }) => {
   const navigation = useNavigation();
+
   return (
     <Pressable
       onPress={() => {
@@ -15,11 +16,7 @@ const DoctorCard = ({ item, closeModal, isBook }) => {
       }}
     >
       <View style={styles.container}>
-        <View
-          style={{
-            ...styles.card,
-          }}
-        >
+        <View style={styles.card}>
           <View style={styles.imageContainer}>
             <Image source={{ uri: item.pictureUrl }} style={styles.image} />
           </View>
@@ -27,17 +24,21 @@ const DoctorCard = ({ item, closeModal, isBook }) => {
             <Text style={styles.name}>{item.name}</Text>
             <Text style={styles.specialty}>{item.specialty}</Text>
           </View>
-          <Pressable
-            style={styles.button}
-            onPress={() => {
-              closeModal();
-              navigation.navigate("BookingScreen", {
-                item: item,
-              });
-            }}
-          >
-            <Text style={styles.buttonText}>Book Appointment</Text>
-          </Pressable>
+          {isBook ? (
+            <Text style={styles.valueText}>$350</Text>
+          ) : (
+            <Pressable
+              style={styles.button}
+              onPress={() => {
+                closeModal();
+                navigation.navigate("BookingScreen", {
+                  item: item,
+                });
+              }}
+            >
+              <Text style={styles.buttonText}>Book Appointment</Text>
+            </Pressable>
+          )}
         </View>
       </View>
     </Pressable>
@@ -62,7 +63,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     padding: 10,
-
     flexDirection: "row", // Ensure the image, text, and button are in a row
     width: "100%",
     backgroundColor: "#FFF",
@@ -101,6 +101,12 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 12,
     fontWeight: "bold",
+  },
+  valueText: {
+    fontSize: 30,
+    fontWeight: "bold",
+    color: lightTheme.colors.secondaryBtn,
+    alignSelf: "center",
   },
 });
 

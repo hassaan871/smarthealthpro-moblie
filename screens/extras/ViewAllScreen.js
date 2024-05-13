@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, StyleSheet, TextInput , ImageBackground} from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TextInput,
+  ImageBackground,
+} from "react-native";
 import ScheduleCard from "../../components/ScheduleCard";
 import lightTheme from "../../Themes/LightTheme";
 import PopularCard from "../../components/PopularCard";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from react-native-vector-icons
 
 const ViewAllScreen = ({ route }) => {
   const [searchQuery, setSearchQuery] = useState(""); // State to store search query
@@ -49,34 +57,42 @@ const ViewAllScreen = ({ route }) => {
   };
 
   return (
-    // <ImageBackground style={{flex:1}} source = {require("../../assets/bg.png")}>
-    <SafeAreaView style={styles.container}>
-      {!route.params.isPopular && (
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search for doctors or anything"
-            placeholderTextColor="#999"
-            value={searchQuery}
-            onChangeText={setSearchQuery} // Update search query state on input change
-          />
-        </View>
-      )}
-      <FlatList
-        data={filteredData} // Render filtered data
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        numColumns={route.params.isPopular ? 2 : 1}
-      />
-    </SafeAreaView>
-    // </ImageBackground>
+    <ImageBackground
+      style={{ flex: 1 }}
+      source={require("../../assets/bg.png")}
+    >
+      <SafeAreaView style={styles.container}>
+        {!route.params.isPopular && (
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={{ ...styles.searchInput, paddingLeft: 40 }}
+              placeholder="Search for doctors or anything"
+              placeholderTextColor="#999"
+              value={searchQuery}
+              onChangeText={setSearchQuery} // Update search query state on input change
+            />
+            <Icon
+              name="search"
+              size={24}
+              color="#999"
+              style={{ position: "absolute", top: 27, left: 27 }}
+            />
+          </View>
+        )}
+        <FlatList
+          data={filteredData} // Render filtered data
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          numColumns={route.params.isPopular ? 2 : 1}
+        />
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:"#E0F4FF"
   },
   searchContainer: {
     padding: 16,

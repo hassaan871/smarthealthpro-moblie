@@ -11,7 +11,7 @@ import {
   Modal,
   FlatList,
   ScrollView,
-  ImageBackground
+  ImageBackground,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from react-native-vector-icons
 import Icon2 from "react-native-vector-icons/Feather";
@@ -140,145 +140,157 @@ const HomeScreen = () => {
 
   return (
     // <View style={styles.container}>
-    // <ImageBackground source={require("../../assets/bg.png")} style={{width: '100%', height: '100%'}}>
-    <SafeAreaView style={styles.container}>
-      <ScrollView>
-        {/* <StatusBar barStyle="dark-content" /> */}
-        <View style={styles.header}>
-          <Text style={styles.welcomeText}>Welcome back, Samantha</Text>
-          <Text style={styles.headerTitle}>Keep Healthy!</Text>
-        </View>
-        <View style={styles.searchContainer}>
-          {/* <Icon name="search" size={24} color="#999" style={{}} /> */}
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search for doctors"
-            placeholderTextColor="#999"
-            onFocus={openModal}
-          />
-        </View>
-        <View style={styles.menuContainer}>
-          <Pressable
-            style={styles.menuItem}
-            onPress={() => {
-              alert("Results");
-            }}
-          >
-            <Icon
-              name="assessment"
-              size={24}
-              color={"#007fff"}
+    <ImageBackground
+      source={require("../../assets/bg.png")}
+      style={{ width: "100%", height: "100%" }}
+    >
+      <SafeAreaView style={styles.container}>
+        <ScrollView>
+          {/* <StatusBar barStyle="dark-content" /> */}
+          <View style={styles.header}>
+            <Text style={styles.welcomeText}>Welcome back, Samantha</Text>
+            <Text style={styles.headerTitle}>Keep Healthy!</Text>
+          </View>
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={{ ...styles.searchInput, paddingLeft: 40 }}
+              placeholder="Search for doctors"
+              placeholderTextColor="#999"
+              onFocus={openModal}
             />
-            <Text style={styles.menuText}>Results</Text>
-          </Pressable>
-          <Pressable
-            style={styles.menuItem}
-            onPress={() => {
-              navigation.navigate("CameraAccessScreen");
-            }}
-          >
             <Icon
-              name="camera"
+              name="search"
               size={24}
-              // color={lightTheme.colors.primaryText}
-              color={"#007fff"}
+              color="#999"
+              style={{ position: "absolute", top: 27, left: 27 }}
             />
-            <Text style={styles.menuText}>Camera</Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.scheduleContainer}>
-          <View style={styles.scheduleHeader}>
-            <Text style={styles.scheduleTitle}>Upcoming Schedule</Text>
+          </View>
+          <View style={styles.menuContainer}>
             <Pressable
+              style={styles.menuItem}
               onPress={() => {
-                navigation.navigate("ViewAll", {
-                  data: upcomingSchedule,
-                  isPopular: false,
-                }); // or false
+                alert("Results");
               }}
             >
-              <Text
-                style={{
-                  fontSize: 16,
-                  // color: "#1B2060",
-                  color:"#007fff",
+              <Icon name="assessment" size={24} color={"#007fff"} />
+              <Text style={styles.menuText}>Results</Text>
+            </Pressable>
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => {
+                navigation.navigate("CameraAccessScreen");
+              }}
+            >
+              <Icon
+                name="camera"
+                size={24}
+                // color={lightTheme.colors.primaryText}
+                color={"#007fff"}
+              />
+              <Text style={styles.menuText}>Camera</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.scheduleContainer}>
+            <View style={styles.scheduleHeader}>
+              <Text style={styles.scheduleTitle}>Upcoming Schedule</Text>
+              <Pressable
+                onPress={() => {
+                  navigation.navigate("ViewAll", {
+                    data: upcomingSchedule,
+                    isPopular: false,
+                  }); // or false
                 }}
               >
-                View All
-              </Text>
-            </Pressable>
-          </View>
-          <View style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.25,
-            shadowRadius: 12,
-            // elevation: 5,
-            // margin: 2,
-          }}>
-            <ScheduleCard item={upcomingSchedule[0]} />
-          </View>
-        </View>
-        <View style={styles.scheduleContainer2}>
-          <View style={styles.scheduleHeader}>
-            <Text style={styles.scheduleTitle}>Popular Doctors</Text>
-            <Pressable
-              title="View All"
-              color={lightTheme.colors.homeViewBtnTextColor}
-              onPress={() => {
-                navigation.navigate("ViewAll", {
-                  data: popularDoctors,
-                  isPopular: true,
-                }); // or false
+                <Text
+                  style={{
+                    fontSize: 16,
+                    color: "#1B2060",
+                  }}
+                >
+                  View All
+                </Text>
+              </Pressable>
+            </View>
+            <View
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 12,
+                // elevation: 5,
+                margin: 2,
               }}
             >
-              <Text style={{ fontSize: 16, color:"#007fff" }}>View All</Text>
-            </Pressable>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
-            <View>
-              <PopularCard item={popularDoctors[0]} />
-            </View>
-            <View>
-              <PopularCard item={popularDoctors[1]} />
+              <ScheduleCard item={upcomingSchedule[0]} />
             </View>
           </View>
-        </View>
-        <Modal visible={modalVisible} animationType="slide">
-          <SafeAreaView style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Pressable onPress={closeModal}>
-                <Icon name="arrow-back" size={24} color="#000" />
+          <View style={styles.scheduleContainer2}>
+            <View style={styles.scheduleHeader}>
+              <Text style={styles.scheduleTitle}>Popular Doctors</Text>
+              <Pressable
+                title="View All"
+                color={lightTheme.colors.homeViewBtnTextColor}
+                onPress={() => {
+                  navigation.navigate("ViewAll", {
+                    data: popularDoctors,
+                    isPopular: true,
+                  }); // or false
+                }}
+              >
+                <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
               </Pressable>
-              <TextInput
-                ref={modalSearchInputRef}
-                style={styles.modalSearchInput}
-                placeholder="Search for doctors"
-                placeholderTextColor="#999"
-                onChangeText={handleSearch}
-              />
             </View>
-            {searchResults.length > 0 && (
-              <FlatList
-                data={searchResults}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                  <DoctorCard item={item} closeModal={closeModal} />
-                )}
-              />
-            )}
-          </SafeAreaView>
-        </Modal>
-      </ScrollView>
-    </SafeAreaView>
-    // </ImageBackground>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <View>
+                <PopularCard item={popularDoctors[0]} />
+              </View>
+              <View>
+                <PopularCard item={popularDoctors[1]} />
+              </View>
+            </View>
+          </View>
+          <Modal visible={modalVisible} animationType="slide">
+            <SafeAreaView style={styles.modalContainer}>
+              <View style={styles.modalHeader}>
+                <Pressable onPress={closeModal}>
+                  <Icon name="arrow-back" size={24} color="#000" />
+                </Pressable>
 
+                <TextInput
+                  ref={modalSearchInputRef}
+                  style={{ ...styles.modalSearchInput, paddingLeft: 40 }}
+                  placeholder="Search for doctors"
+                  placeholderTextColor="#999"
+                  onChangeText={handleSearch}
+                />
+                <Icon
+                  name="search"
+                  size={24}
+                  color="#718096"
+                  style={{ position: "absolute", left: 60 }}
+                />
+              </View>
+
+              {searchResults.length > 0 && (
+                <FlatList
+                  data={searchResults}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={({ item }) => (
+                    <DoctorCard item={item} closeModal={closeModal} />
+                  )}
+                />
+              )}
+            </SafeAreaView>
+          </Modal>
+        </ScrollView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
@@ -286,9 +298,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // backgroundColor: lightTheme.colors.defaultBackground,
-    // marginTop: Platform.OS === "android" ? 40 : 0,
-    // backgroundColor:"#CAF4FF"
-    backgroundColor:"#E0F4FF"
+    marginTop: Platform.OS === "android" ? 40 : 0,
   },
   header: {
     // backgroundColor: lightTheme.colors.defaultBackground,
@@ -297,24 +307,21 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     // color: lightTheme.colors.homeWelcomeTextColor,
-    color:"#007fff",
-    fontSize: 24,
-    paddingTop: 16,
+    color: "#007fff",
+    fontSize: 26,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
     // color: lightTheme.colors.homeWelcomeTextColor,
-    color:"#007fff",
+    color: "#007fff",
   },
   searchContainer: {
     padding: 16,
   },
   searchInput: {
     height: 48,
-    // backgroundColor: lightTheme.colors.homeSearchInputColor,
-    backgroundColor: "#F0F8FF",
-
+    backgroundColor: lightTheme.colors.homeSearchInputColor,
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
@@ -337,7 +344,7 @@ const styles = StyleSheet.create({
   menuText: {
     marginTop: 4,
     // color: lightTheme.colors.primaryText,
-    color:"#007fff",
+    color: "#007fff",
     fontSize: 14,
   },
   scheduleContainer: {
@@ -354,12 +361,11 @@ const styles = StyleSheet.create({
   scheduleTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color:"#007fff",
-    // paddingBottom: 10,
+    color: "#007fff",
   },
   detailsContainer: {
-    flex: 1, 
-    marginLeft: 16, 
+    flex: 1,
+    marginLeft: 16,
   },
   nameText: {
     fontSize: 18,
@@ -401,9 +407,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    // backgroundColor: "#fff",
-    backgroundColor:"#E0F4FF",
-    
+    backgroundColor: "#fff",
   },
   modalHeader: {
     flexDirection: "row",
@@ -411,13 +415,11 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
-    // backgroundColor: "#fff",
   },
   modalSearchInput: {
     flex: 1,
     height: 40,
-    // backgroundColor: lightTheme.colors.homeSearchInputColor,
-    backgroundColor:"#F0F8FF",
+    backgroundColor: lightTheme.colors.homeSearchInputColor,
     borderRadius: 8,
     paddingHorizontal: 16,
     fontSize: 16,

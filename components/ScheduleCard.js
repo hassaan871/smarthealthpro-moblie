@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 4,
     padding: 12,
+    backgroundColor: "#F0F8FF",
   },
   image: {
     flex: 1,
@@ -39,11 +40,13 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
+    color:"#007fff",
   },
   text: {
     fontSize: 16,
+    color: "gray",
   },
 });
 

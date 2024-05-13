@@ -164,6 +164,7 @@ const SettingScreen = () => {
         ref={bottomSheetRef}
         onChange={handleSheetChanges}
         snapPoints={snapPoints}
+        // style={{backgroundColor:"red"}}
       >
         <BottomSheetView style={styles.contentContainer}>
           {/* <TouchableOpacity style={styles.item} onPress={handleProfile}>
@@ -293,7 +294,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     padding: 12,
-    // backgroundColor:"#CDF5FD"
+    // backgroundColor:"red"
   },
   item: {
     flexDirection: "row",

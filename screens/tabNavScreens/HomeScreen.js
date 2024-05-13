@@ -167,7 +167,7 @@ const HomeScreen = () => {
             <Icon
               name="assessment"
               size={24}
-              color={lightTheme.colors.primaryText}
+              color={"#007fff"}
             />
             <Text style={styles.menuText}>Results</Text>
           </Pressable>
@@ -180,7 +180,8 @@ const HomeScreen = () => {
             <Icon
               name="camera"
               size={24}
-              color={lightTheme.colors.primaryText}
+              // color={lightTheme.colors.primaryText}
+              color={"#007fff"}
             />
             <Text style={styles.menuText}>Camera</Text>
           </Pressable>
@@ -292,13 +293,15 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   welcomeText: {
-    color: lightTheme.colors.homeWelcomeTextColor,
-    fontSize: 30,
+    // color: lightTheme.colors.homeWelcomeTextColor,
+    color:"#007fff",
+    fontSize: 26,
   },
   headerTitle: {
-    fontSize: 30,
+    fontSize: 26,
     fontWeight: "bold",
-    color: lightTheme.colors.homeWelcomeTextColor,
+    // color: lightTheme.colors.homeWelcomeTextColor,
+    color:"#007fff",
   },
   searchContainer: {
     padding: 16,
@@ -319,14 +322,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: lightTheme.colors.primaryCard,
+    // backgroundColor: lightTheme.colors.primaryCard,
+    backgroundColor: "#F0F8FF",
     borderRadius: 12,
     margin: 5,
     padding: 10,
   },
   menuText: {
     marginTop: 4,
-    color: lightTheme.colors.primaryText,
+    // color: lightTheme.colors.primaryText,
+    color:"#007fff",
     fontSize: 14,
   },
   scheduleContainer: {
@@ -341,8 +346,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   scheduleTitle: {
-    fontSize: 23,
+    fontSize: 20,
     fontWeight: "bold",
+    color:"#007fff",
   },
   detailsContainer: {
     flex: 1, 

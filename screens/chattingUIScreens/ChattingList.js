@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     margin: 16,
   },
   itemContainer: {
-    backgroundColor: "#f7fafc",
+    backgroundColor: "#F0F8FF",
     flexDirection: "row",
     borderRadius: 12,
     marginHorizontal: 12,

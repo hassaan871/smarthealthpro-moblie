@@ -8,6 +8,7 @@ import {
   Pressable,
   ScrollView,
   TextInput,
+  ImageBackground
 } from "react-native";
 import loginLogo from "../../assets/loginLogo.jpg";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -53,6 +54,7 @@ const ChatList = () => {
   ];
 
   return (
+    <ImageBackground style={{flex:1}} source = {require("../../assets/bg.png")}>
     <SafeAreaView>
       {/* <ChatHeader icons={false} title={"dummy title"} /> */}
       <Text style={styles.text}> Chat Room </Text>
@@ -88,6 +90,7 @@ const ChatList = () => {
         />
       </ScrollView>
     </SafeAreaView>
+    </ImageBackground>
   );
 };
 
@@ -99,7 +102,7 @@ const styles = StyleSheet.create({
     margin: 16,
   },
   itemContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: "#f7fafc",
     flexDirection: "row",
     borderRadius: 12,
     marginHorizontal: 12,

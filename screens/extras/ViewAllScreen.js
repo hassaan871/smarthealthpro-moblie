@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, StyleSheet, TextInput } from "react-native";
+import { View, Text, FlatList, StyleSheet, TextInput , ImageBackground} from "react-native";
 import ScheduleCard from "../../components/ScheduleCard";
 import lightTheme from "../../Themes/LightTheme";
 import PopularCard from "../../components/PopularCard";
@@ -49,6 +49,7 @@ const ViewAllScreen = ({ route }) => {
   };
 
   return (
+    <ImageBackground style={{flex:1}} source = {require("../../assets/bg.png")}>
     <SafeAreaView style={styles.container}>
       {!route.params.isPopular && (
         <View style={styles.searchContainer}>
@@ -68,6 +69,7 @@ const ViewAllScreen = ({ route }) => {
         numColumns={route.params.isPopular ? 2 : 1}
       />
     </SafeAreaView>
+    </ImageBackground>
   );
 };
 

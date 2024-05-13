@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import ChatHeader from "./components/ChatHeader";
 import lightTheme from "../../Themes/LightTheme";
+import { ImageBackground } from "react-native";
 
 const uuidv4 = () => {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {

@@ -7,7 +7,8 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
-  Text
+  Text,
+  ImageBackground
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import loginLogo from "../../assets/loginLogo.jpg";

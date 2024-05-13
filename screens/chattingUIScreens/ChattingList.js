@@ -44,6 +44,8 @@ const ChatList = () => {
     { id: "2", name: "Jane", lastMessage: "How are you?", time: "11:30 AM" },
     { id: "3", name: "John", lastMessage: "Hey there!", time: "10:00 AM" },
     { id: "4", name: "Jane", lastMessage: "How are you?", time: "11:30 AM" },
+    { id: "5", name: "John", lastMessage: "Hey there!", time: "10:00 AM" },
+    { id: "6", name: "Jane", lastMessage: "How are you?", time: "11:30 AM" },
     // Add more data as needed
   ];
   const avatarsOnly = [
@@ -54,8 +56,7 @@ const ChatList = () => {
   ];
 
   return (
-    <ImageBackground style={{flex:1}} source = {require("../../assets/bg.png")}>
-    <SafeAreaView>
+    <SafeAreaView style={{ backgroundColor:"#E0F4FF"}}>
       {/* <ChatHeader icons={false} title={"dummy title"} /> */}
       <Text style={styles.text}> Chat Room </Text>
       <TextInput
@@ -90,7 +91,7 @@ const ChatList = () => {
         />
       </ScrollView>
     </SafeAreaView>
-    </ImageBackground>
+    // </ImageBackground>
   );
 };
 
@@ -98,14 +99,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "700",
+    
     // marginLeft: 16,
     margin: 16,
   },
   itemContainer: {
     backgroundColor: "#F0F8FF",
+    // backgroundColor:"#CAF4FF",
+    // backgroundColor:"#E0F4FF",
     flexDirection: "row",
     borderRadius: 12,
-    marginHorizontal: 12,
+    margin: 12,
     padding: 12,
   },
   avatarContainer: {
@@ -128,6 +132,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: "600",
+    color:"#007fff",
   },
   time: {
     // paddingRight: 16,
@@ -144,7 +149,8 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     height: 48,
-    backgroundColor: lightTheme.colors.homeSearchInputColor,
+    // backgroundColor: lightTheme.colors.homeSearchInputColor,
+    backgroundColor: "#F0F8FF",
     alignSelf: "center",
     borderRadius: 12,
     margin: 8,
@@ -159,10 +165,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     margin: 16,
     alignSelf: "center",
+    color:"#007fff"
   },
   onlineAvatarsContainser: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    // paddingVertical: 8,
   },
 });
 

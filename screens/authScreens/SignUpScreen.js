@@ -231,10 +231,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#E7ECF3",
+    // backgroundColor: "#E7ECF3",
+    backgroundColor:"#E0F4FF"
   },
   card: {
-    backgroundColor: "#fff",
+    // backgroundColor: "#fff",
+    backgroundColor:"#E0F4FF",
     padding: 16,
     borderRadius: 8,
     shadowOpacity: 0.1,
@@ -268,7 +270,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   input: {
-    backgroundColor: "#edf2f7",
+    // backgroundColor: "#edf2f7",
+    backgroundColor: "#F0F8FF",
     borderColor: "#cbd5e0",
     borderWidth: 1,
     borderRadius: 8,

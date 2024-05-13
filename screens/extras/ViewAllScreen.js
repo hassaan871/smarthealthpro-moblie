@@ -49,7 +49,7 @@ const ViewAllScreen = ({ route }) => {
   };
 
   return (
-    <ImageBackground style={{flex:1}} source = {require("../../assets/bg.png")}>
+    // <ImageBackground style={{flex:1}} source = {require("../../assets/bg.png")}>
     <SafeAreaView style={styles.container}>
       {!route.params.isPopular && (
         <View style={styles.searchContainer}>
@@ -69,13 +69,14 @@ const ViewAllScreen = ({ route }) => {
         numColumns={route.params.isPopular ? 2 : 1}
       />
     </SafeAreaView>
-    </ImageBackground>
+    // </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor:"#E0F4FF"
   },
   searchContainer: {
     padding: 16,

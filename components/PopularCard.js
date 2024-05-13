@@ -39,7 +39,7 @@ const PopularCard = ({ item }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 4,
+    marginTop: 12,
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",

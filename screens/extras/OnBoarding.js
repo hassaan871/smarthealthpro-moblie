@@ -37,7 +37,8 @@ const OnBoardingScreen = () => {
   };
 
   return (
-    <ImageBackground source={require("../../assets/bg.png")} style={{ flex: 1}}>
+    // <ImageBackground source={require("../../assets/bg.png")} style={{ flex: 1}}>
+    <View style={{ flex: 1, backgroundColor: "#CAF4FF" }}>
       <View style={{ flex: 0.2 }}>
         <View
           style={{
@@ -113,7 +114,8 @@ const OnBoardingScreen = () => {
           </Text>
         </Pressable>
       </View>
-    </ImageBackground>
+    {/* // </ImageBackground> */}
+    </View>
   );
 };
 

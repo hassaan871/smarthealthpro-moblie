@@ -140,7 +140,7 @@ const HomeScreen = () => {
 
   return (
     // <View style={styles.container}>
-    <ImageBackground source={require("../../assets/bg.png")} style={{width: '100%', height: '100%'}}>
+    // <ImageBackground source={require("../../assets/bg.png")} style={{width: '100%', height: '100%'}}>
     <SafeAreaView style={styles.container}>
       <ScrollView>
         {/* <StatusBar barStyle="dark-content" /> */}
@@ -201,7 +201,8 @@ const HomeScreen = () => {
               <Text
                 style={{
                   fontSize: 16,
-                  color: "#1B2060",
+                  // color: "#1B2060",
+                  color:"#007fff",
                 }}
               >
                 View All
@@ -232,7 +233,7 @@ const HomeScreen = () => {
                 }); // or false
               }}
             >
-              <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
+              <Text style={{ fontSize: 16, color:"#007fff" }}>View All</Text>
             </Pressable>
           </View>
           <View
@@ -276,7 +277,7 @@ const HomeScreen = () => {
         </Modal>
       </ScrollView>
     </SafeAreaView>
-    </ImageBackground>
+    // </ImageBackground>
 
   );
 };
@@ -286,6 +287,8 @@ const styles = StyleSheet.create({
     flex: 1,
     // backgroundColor: lightTheme.colors.defaultBackground,
     marginTop: Platform.OS === "android" ? 40 : 0,
+    // backgroundColor:"#CAF4FF"
+    backgroundColor:"#E0F4FF"
   },
   header: {
     // backgroundColor: lightTheme.colors.defaultBackground,
@@ -295,10 +298,10 @@ const styles = StyleSheet.create({
   welcomeText: {
     // color: lightTheme.colors.homeWelcomeTextColor,
     color:"#007fff",
-    fontSize: 26,
+    fontSize: 24,
   },
   headerTitle: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: "bold",
     // color: lightTheme.colors.homeWelcomeTextColor,
     color:"#007fff",
@@ -308,7 +311,9 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     height: 48,
-    backgroundColor: lightTheme.colors.homeSearchInputColor,
+    // backgroundColor: lightTheme.colors.homeSearchInputColor,
+    backgroundColor: "#F0F8FF",
+
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
@@ -394,7 +399,9 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: "#fff",
+    // backgroundColor: "#fff",
+    backgroundColor:"#E0F4FF",
+    
   },
   modalHeader: {
     flexDirection: "row",
@@ -402,11 +409,13 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
+    // backgroundColor: "#fff",
   },
   modalSearchInput: {
     flex: 1,
     height: 40,
-    backgroundColor: lightTheme.colors.homeSearchInputColor,
+    // backgroundColor: lightTheme.colors.homeSearchInputColor,
+    backgroundColor:"#F0F8FF",
     borderRadius: 8,
     paddingHorizontal: 16,
     fontSize: 16,

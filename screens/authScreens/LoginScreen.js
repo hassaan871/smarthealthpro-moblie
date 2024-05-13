@@ -171,10 +171,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f0f4f8",
+    backgroundColor:"#E0F4FF"
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor:"#E0F4FF",
     padding: 16,
     borderRadius: 8,
     shadowOpacity: 0.1,
@@ -216,6 +216,7 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 16,
     color: "#2d3748",
+    backgroundColor: "#F0F8FF",
   },
   iconButton: {
     position: "absolute",

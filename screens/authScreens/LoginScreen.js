@@ -1,26 +1,80 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
 import {
   View,
-  Text,
   TextInput,
   StyleSheet,
   Image,
   Pressable,
   KeyboardAvoidingView,
   Platform,
+  Text,
+  ImageBackground
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import loginLogo from "../../assets/loginLogo.jpg";
 import { Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import axios from "axios";
+import Icon from "react-native-vector-icons/AntDesign";
+// import CookieManager from 'react-native-cookies';
+import Context from "../../Helper/context";
+import lightTheme from "../../Themes/LightTheme";
+import Alert from "../../components/Alert";
+import showAlertMessage from "../../Helper/AlertHelper";
 
 const LoginScreen = () => {
+  const { setToken,setUserName,setEmailGlobal,setAvatar,setId } = useContext(Context);
+
   const navigation = useNavigation();
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
+
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("success"); // success or error
+
+  const handleDismissAlert = () => {
+    setShowAlert(false);
+  };
 
   const navigateToHomeTab = () => {
     navigation.navigate("TabScreensContainer");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post("http://192.168.100.81/user/login", {
+        email,
+        password,
+      });
+      // console.log("red", res);
+      if (res.status === 200) {
+        const data = res.data;
+        const {name, token, email, role, avatar, id} = data;
+
+        setId(id);
+        setEmailGlobal(email);
+        setToken(token);
+        setUserName(name);
+        setAvatar(avatar);
+
+        showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Login Success", "success");
+
+        if (res.data.role === "doctor") {
+          // await navigate('/admin');
+          await navigateToHomeTab();
+        } else if (res.data.role === "patient") {
+          // await navigate('/');
+          await navigateToHomeTab();
+        }
+      }
+    } catch (error) {
+      // alert(error.response.data.error);
+      showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Login failed. Please try again.", "error");
+    }
   };
 
   return (
@@ -38,6 +92,7 @@ const LoginScreen = () => {
             style={styles.input}
             placeholder="Enter your email"
             autoCapitalize="none"
+            onChangeText={(text) => setEmail(text)}
           />
         </View>
         <View style={styles.inputContainer}>
@@ -47,6 +102,7 @@ const LoginScreen = () => {
               secureTextEntry={!passwordVisible}
               placeholder="Enter your password"
               autoCapitalize="none"
+              onChangeText={(text) => setPassword(text)}
             />
             <Pressable
               onPress={() => setPasswordVisible(!passwordVisible)}
@@ -67,13 +123,15 @@ const LoginScreen = () => {
             </Pressable>
           </View>
         </View>
-        <Pressable
-          style={styles.loginButton}
-          onPress={() => navigateToHomeTab()}
-        >
+
+        <Alert visible={showAlert} onDismiss={handleDismissAlert} message={alertMessage} type={alertType} />
+        
+        <Pressable style={styles.loginButton} onPress={handleSubmit}>
           <Text style={styles.loginText}>Login</Text>
         </Pressable>
-        <Text style={styles.orText}>Or, login with</Text>
+        <Pressable onPress={() => navigateToHomeTab()}>
+          <Text style={styles.orText}>Or, login with</Text>
+        </Pressable>
         <View style={styles.socialButtons}>
           <Pressable style={styles.socialButton}>
             <Image
@@ -113,10 +171,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f0f4f8",
+    backgroundColor:"#E0F4FF"
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor:"#E0F4FF",
     padding: 16,
     borderRadius: 8,
     shadowOpacity: 0.1,
@@ -158,6 +216,7 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 16,
     color: "#2d3748",
+    backgroundColor: "#F0F8FF",
   },
   iconButton: {
     position: "absolute",
@@ -170,7 +229,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loginButton: {
-    backgroundColor: "#1B2060",
+    backgroundColor: lightTheme.colors.primaryBtn,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,

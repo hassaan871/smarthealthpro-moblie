@@ -5,9 +5,10 @@ import {
   Text,
   Image,
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   ScrollView,
   TextInput,
+  ImageBackground,
 } from "react-native";
 import loginLogo from "../../assets/loginLogo.jpg";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,7 +19,7 @@ import lightTheme from "../../Themes/LightTheme";
 const ChatListItem = ({ name, lastMessage, time }) => {
   const navigation = useNavigation();
   return (
-    <TouchableOpacity onPress={() => navigation.navigate("BotChattingScreen")}>
+    <Pressable onPress={() => navigation.navigate("BotChattingScreen")}>
       <View style={[styles.itemContainer, { marginBottom: 8 }]}>
         <View style={styles.avatarContainer}>
           <Image source={loginLogo} style={styles.avatar} />
@@ -33,7 +34,7 @@ const ChatListItem = ({ name, lastMessage, time }) => {
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -53,41 +54,46 @@ const ChatList = () => {
   ];
 
   return (
-    <SafeAreaView>
-      {/* <ChatHeader icons={false} title={"dummy title"} /> */}
-      <Text style={styles.text}> Chat Room </Text>
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Search for conversations"
-        placeholderTextColor="#999"
-      />
-      <FlatList
-        data={avatarsOnly}
-        keyExtractor={(item) => item.avatar}
-        horizontal
-        renderItem={({ item }) => (
-          <View style={styles.onlineAvatarsContainser}>
-            <Image source={item.avatar} style={styles.avatar} />
-          </View>
-        )}
-      />
-      {/* <Text style={styles.title}>Messages</Text> */}
-
-      <ScrollView>
+    <ImageBackground
+      style={{ flex: 1 }}
+      source={require("../../assets/bg.png")}
+    >
+      <SafeAreaView>
+        {/* <ChatHeader icons={false} title={"dummy title"} /> */}
+        <Text style={styles.text}> Chat Room </Text>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search for conversations"
+          placeholderTextColor="#999"
+        />
         <FlatList
-          data={data}
-          keyExtractor={(item) => item.id}
-          scrollEnabled={false}
+          data={avatarsOnly}
+          keyExtractor={(item) => item.avatar}
+          horizontal
           renderItem={({ item }) => (
-            <ChatListItem
-              name={item.name}
-              lastMessage={item.lastMessage}
-              time={item.time}
-            />
+            <View style={styles.onlineAvatarsContainser}>
+              <Image source={item.avatar} style={styles.avatar} />
+            </View>
           )}
         />
-      </ScrollView>
-    </SafeAreaView>
+        {/* <Text style={styles.title}>Messages</Text> */}
+
+        <ScrollView>
+          <FlatList
+            data={data}
+            keyExtractor={(item) => item.id}
+            scrollEnabled={false}
+            renderItem={({ item }) => (
+              <ChatListItem
+                name={item.name}
+                lastMessage={item.lastMessage}
+                time={item.time}
+              />
+            )}
+          />
+        </ScrollView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
@@ -99,7 +105,7 @@ const styles = StyleSheet.create({
     margin: 16,
   },
   itemContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: "#F0F8FF",
     flexDirection: "row",
     borderRadius: 12,
     marginHorizontal: 12,

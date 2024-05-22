@@ -1,133 +1,320 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
-  Image,
-  TouchableOpacity,
+  Pressable,
   Platform,
+  StatusBar,
+  SafeAreaView,
+  Modal,
+  FlatList,
+  ScrollView,
+  ImageBackground,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from react-native-vector-icons
-import Icon2 from "react-native-vector-icons/FontAwesome5";
+import Icon2 from "react-native-vector-icons/Feather";
+import Icon3 from "react-native-vector-icons/FontAwesome";
+import Icon4 from "react-native-vector-icons/MaterialCommunityIcons";
+import ScheduleCard from "../../components/ScheduleCard";
+import PopularCard from "../../components/PopularCard";
+import DoctorCard from "../../components/DoctorCard";
 
 import favicon from "../../assets/favicon.png";
 import lightTheme from "../../Themes/LightTheme";
 
+import { useNavigation, useRoute } from "@react-navigation/native";
+
 const HomeScreen = () => {
   const [activeTab, setActiveTab] = useState("home");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const modalSearchInputRef = useRef(null);
+
+  const [upcomingSchedule, setUpcomingSchedule] = useState([
+    {
+      id: "1",
+      name: "Appointment 1",
+      date: "May 10, 2024",
+      time: "10:00 AM",
+      detail: "Regular checkup",
+      location: "Hospital A",
+      fees: "50",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    {
+      id: "2",
+      name: "Appointment 2",
+      date: "May 12, 2024",
+      time: "11:30 AM",
+      detail: "Dental checkup",
+      location: "Dental Clinic B",
+      fees: "80",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    {
+      id: "3",
+      name: "Appointment 1",
+      date: "May 10, 2024",
+      time: "10:00 AM",
+      detail: "Regular checkup",
+      location: "Hospital A",
+      fees: "50",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    {
+      id: "4",
+      name: "Appointment 2",
+      date: "May 12, 2024",
+      time: "11:30 AM",
+      detail: "Dental checkup",
+      location: "Dental Clinic B",
+      fees: "80",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    // Add more upcoming schedule items as needed
+  ]);
+
+  const [popularDoctors, setPopularDoctors] = useState([
+    {
+      id: "1",
+      name: "Dr. John Doe",
+      specialty: "Cardiologist",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    {
+      id: "2",
+      name: "Dr. Jane Smith",
+      specialty: "Pediatrician",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    {
+      id: "3",
+      name: "Dr. John Doe",
+      specialty: "Cardiologist",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    {
+      id: "4",
+      name: "Dr. Jane Smith",
+      specialty: "Pediatrician",
+      pictureUrl: "https://placeholder.co/64x64",
+    },
+    // Add more popular doctors as needed
+  ]);
+
+  const navigation = useNavigation();
+
+  const openModal = () => {
+    setModalVisible(true);
+    setTimeout(() => {
+      modalSearchInputRef.current.focus();
+    }, 200); // Delay focusing to ensure modal animation is complete
+  };
+
+  const closeModal = () => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setModalVisible(false);
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    // Perform search based on query
+    const filteredResults = popularDoctors.filter((item) => {
+      // Convert each object's values to lowercase strings
+      const values = Object.entries(item).map(([key, value]) => {
+        // Check if the key is pictureUrl or id, if so, return an empty string
+        // Otherwise, return the lowercase string value
+        return key !== "pictureUrl" && key !== "id"
+          ? value.toString().toLowerCase()
+          : "";
+      });
+      // Check if any value (excluding pictureUrl and id) includes the search query
+      return values.some((val) => val.includes(searchQuery.toLowerCase()));
+    });
+    setSearchResults(filteredResults);
+  };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.welcomeText}>Welcome back, Samantha</Text>
-        <Text style={styles.headerTitle}>Keep Healthy!</Text>
-      </View>
-      <View style={styles.searchContainer}>
-        {/* <Icon name="search" size={24} color="#999" style={{}} /> */}
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search for doctors or anything"
-          placeholderTextColor="#999"
-        />
-      </View>
-      <View style={styles.menuContainer}>
-        <View style={styles.menuItem}>
-          <Icon
-            name="assessment"
-            size={24}
-            color={lightTheme.colors.homeIconColor}
-          />
-          <Text style={styles.menuText}>Results</Text>
-        </View>
-        <View style={styles.menuItem}>
-          <Icon
-            name="event-note"
-            size={24}
-            color={lightTheme.colors.homeIconColor}
-          />
-          <Text style={styles.menuText}>Booking</Text>
-        </View>
-        <View style={styles.menuItem}>
-          <Icon
-            name="local-hospital"
-            size={24}
-            color={lightTheme.colors.homeIconColor}
-          />
-          <Text style={styles.menuText}>Doctors</Text>
-        </View>
-      </View>
-      <View style={styles.scheduleContainer}>
-        <View style={styles.scheduleHeader}>
-          <Text style={styles.scheduleTitle}>Upcoming Schedule</Text>
-          <TouchableOpacity
-            title="View All"
-            color={lightTheme.colors.homeViewBtnTextColor}
-          >
-            <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.cardContainer}>
-          <View style={styles.headerContainer}>
-            <Image source={favicon} style={styles.image} />
-            <View style={styles.detailsContainer}>
-              <Text style={styles.nameText}>Dr. Emily Davis</Text>
-              <Text style={styles.specialtyText}>Dermatologist</Text>
+    // <View style={styles.container}>
+    <ImageBackground
+      source={require("../../assets/bg.png")}
+      style={{ width: "100%", height: "100%" }}
+    >
+      <SafeAreaView style={styles.container}>
+        <ScrollView>
+          {/* <StatusBar barStyle="dark-content" /> */}
+          <View style={styles.header}>
+            <Text style={styles.welcomeText}>Welcome back, Samantha</Text>
+            <Text style={styles.headerTitle}>Keep Healthy!</Text>
+          </View>
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={{ ...styles.searchInput, paddingLeft: 40 }}
+              placeholder="Search for doctors"
+              placeholderTextColor="#999"
+              onFocus={openModal}
+            />
+            <Icon
+              name="search"
+              size={24}
+              color="#999"
+              style={{ position: "absolute", top: 27, left: 27 }}
+            />
+          </View>
+          <View style={styles.menuContainer}>
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => {
+                alert("Results");
+              }}
+            >
+              <Icon name="assessment" size={24} color={"#007fff"} />
+              <Text style={styles.menuText}>Results</Text>
+            </Pressable>
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => {
+                navigation.navigate("CameraAccessScreen");
+              }}
+            >
+              <Icon
+                name="camera"
+                size={24}
+                // color={lightTheme.colors.primaryText}
+                color={"#007fff"}
+              />
+              <Text style={styles.menuText}>Camera</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.scheduleContainer}>
+            <View style={styles.scheduleHeader}>
+              <Text style={styles.scheduleTitle}>Upcoming Schedule</Text>
+              <Pressable
+                onPress={() => {
+                  navigation.navigate("ViewAll", {
+                    data: upcomingSchedule,
+                    isPopular: false,
+                  }); // or false
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 16,
+                    color: "#1B2060",
+                  }}
+                >
+                  View All
+                </Text>
+              </Pressable>
+            </View>
+            <View
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 12,
+                // elevation: 5,
+                margin: 2,
+              }}
+            >
+              <ScheduleCard item={upcomingSchedule[0]} />
             </View>
           </View>
-          <View style={styles.appointmentContainer}>
-            <Text style={styles.appointmentText}>
-              Thu, May 18, 09:00 am - 10:00 am
-            </Text>
-          </View>
-        </View>
-      </View>
-      <View style={styles.scheduleContainer}>
-        <View style={styles.scheduleHeader}>
-          <Text style={styles.scheduleTitle}>Popular Doctors</Text>
-          <TouchableOpacity
-            title="View All"
-            color={lightTheme.colors.homeViewBtnTextColor}
-          >
-            <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.cardContainer}>
-          <View style={styles.headerContainer}>
-            <Image source={favicon} style={styles.image} />
-            <View style={styles.detailsContainer}>
-              <Text style={styles.nameText}>Dr. Emily Davis</Text>
-              <Text style={styles.specialtyText}>Dermatologist</Text>
+          <View style={styles.scheduleContainer2}>
+            <View style={styles.scheduleHeader}>
+              <Text style={styles.scheduleTitle}>Popular Doctors</Text>
+              <Pressable
+                title="View All"
+                color={lightTheme.colors.homeViewBtnTextColor}
+                onPress={() => {
+                  navigation.navigate("ViewAll", {
+                    data: popularDoctors,
+                    isPopular: true,
+                  }); // or false
+                }}
+              >
+                <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
+              </Pressable>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <View>
+                <PopularCard item={popularDoctors[0]} />
+              </View>
+              <View>
+                <PopularCard item={popularDoctors[1]} />
+              </View>
             </View>
           </View>
-          <View style={styles.appointmentContainer}>
-            <Text style={styles.appointmentText}>
-              Thu, May 18, 09:00 am - 10:00 am
-            </Text>
-          </View>
-        </View>
-      </View>
-    </View>
+          <Modal visible={modalVisible} animationType="slide">
+            <SafeAreaView style={styles.modalContainer}>
+              <View style={styles.modalHeader}>
+                <Pressable onPress={closeModal}>
+                  <Icon name="arrow-back" size={24} color="#000" />
+                </Pressable>
+
+                <TextInput
+                  ref={modalSearchInputRef}
+                  style={{ ...styles.modalSearchInput, paddingLeft: 40 }}
+                  placeholder="Search for doctors"
+                  placeholderTextColor="#999"
+                  onChangeText={handleSearch}
+                />
+                <Icon
+                  name="search"
+                  size={24}
+                  color="#718096"
+                  style={{ position: "absolute", left: 60 }}
+                />
+              </View>
+
+              {searchResults.length > 0 && (
+                <FlatList
+                  data={searchResults}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={({ item }) => (
+                    <DoctorCard item={item} closeModal={closeModal} />
+                  )}
+                />
+              )}
+            </SafeAreaView>
+          </Modal>
+        </ScrollView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: lightTheme.colors.homeBackground,
+    // backgroundColor: lightTheme.colors.defaultBackground,
+    marginTop: Platform.OS === "android" ? 40 : 0,
   },
   header: {
-    backgroundColor: lightTheme.colors.homeBackground,
+    // backgroundColor: lightTheme.colors.defaultBackground,
     paddingTop: Platform.OS === "ios" ? 40 : 0,
     padding: 16,
   },
   welcomeText: {
-    color: lightTheme.colors.homeWelcomeTextColor,
-    fontSize: 30,
+    // color: lightTheme.colors.homeWelcomeTextColor,
+    color: "#007fff",
+    fontSize: 26,
   },
   headerTitle: {
-    fontSize: 30,
+    fontSize: 26,
     fontWeight: "bold",
-    color: lightTheme.colors.homeWelcomeTextColor,
+    // color: lightTheme.colors.homeWelcomeTextColor,
+    color: "#007fff",
   },
   searchContainer: {
     padding: 16,
@@ -136,68 +323,49 @@ const styles = StyleSheet.create({
     height: 48,
     backgroundColor: lightTheme.colors.homeSearchInputColor,
     borderRadius: 12,
-    paddingHorizontal: 16,
+    padding: 16,
     fontSize: 16,
   },
   menuContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 10,
     padding: 10,
   },
   menuItem: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: lightTheme.colors.homeMenuItemColor,
+    // backgroundColor: lightTheme.colors.primaryCard,
+    backgroundColor: "#F0F8FF",
     borderRadius: 12,
-    marginHorizontal: 5,
-    paddingVertical: 10,
+    margin: 5,
+    padding: 10,
   },
   menuText: {
     marginTop: 4,
-    color: lightTheme.colors.homeMenuText,
+    // color: lightTheme.colors.primaryText,
+    color: "#007fff",
     fontSize: 14,
   },
   scheduleContainer: {
-    flex: 1,
-    padding: 8,
+    paddingHorizontal: 10,
+  },
+  scheduleContainer2: {
+    paddingHorizontal: 10,
   },
   scheduleHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 1,
   },
   scheduleTitle: {
-    fontSize: 23,
+    fontSize: 20,
     fontWeight: "bold",
-  },
-  cardContainer: {
-    borderRadius: 8,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    backgroundColor: lightTheme.colors.homeCardContainerMain,
-    top: 10,
-  },
-  headerContainer: {
-    backgroundColor: lightTheme.colors.homeCardContainerMain,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  image: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    color: "#007fff",
   },
   detailsContainer: {
-    flex: 1, // Take the remaining space after the image
-    marginLeft: 16, // Adds left margin for spacing between the image and text
+    flex: 1,
+    marginLeft: 16,
   },
   nameText: {
     fontSize: 18,
@@ -209,16 +377,15 @@ const styles = StyleSheet.create({
     color: lightTheme.colors.homeCardContainerText,
   },
   appointmentContainer: {
-    backgroundColor: lightTheme.colors.homeCardContainerSecondry,
+    // backgroundColor: lightTheme.colors.homeCardContainerSecondry,
+    backgroundColor: "#007BFF",
     padding: 8,
     borderRadius: 4,
     marginHorizontal: 16,
-    marginBottom: 10,
   },
   appointmentText: {
-    fontSize: 14,
-    color: "#F0F0F0",
-    textAlign: "center",
+    fontSize: 12,
+    color: "#fff",
   },
   tabContainer: {
     flexDirection: "row",
@@ -237,6 +404,26 @@ const styles = StyleSheet.create({
   },
   activeTabText: {
     color: lightTheme.colors.homeActiveTabColor,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  modalSearchInput: {
+    flex: 1,
+    height: 40,
+    backgroundColor: lightTheme.colors.homeSearchInputColor,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    marginLeft: 10,
   },
 });
 

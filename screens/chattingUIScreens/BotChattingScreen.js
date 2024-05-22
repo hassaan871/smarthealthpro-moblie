@@ -1,7 +1,9 @@
 import { Chat, defaultTheme } from "@flyerhq/react-native-chat-ui";
 import React, { useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-// import ChatHeader from "./components/ChatHeader";
+import ChatHeader from "./components/ChatHeader";
+import lightTheme from "../../Themes/LightTheme";
+import { ImageBackground } from "react-native";
 
 const uuidv4 = () => {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
@@ -44,16 +46,16 @@ const BotChattingScreen = () => {
 
   return (
     <SafeAreaProvider>
-      {/* <ChatHeader icons={true} /> */}
+      <ChatHeader icons={true} />
       <Chat
         // change text message background
         theme={{
           ...defaultTheme,
           colors: {
             ...defaultTheme.colors,
-            primary: "#3182ce",
+            primary: lightTheme.colors.secondaryBtn,
             background: "#f7fafc",
-            inputBackground: "#3182ce",
+            inputBackground: lightTheme.colors.secondaryBtn,
           },
         }}
         messages={messages}

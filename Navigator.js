@@ -10,6 +10,7 @@ import OnBoardingScreen from "./screens/extras/OnBoarding";
 import ViewAllScreen from "./screens/extras/ViewAllScreen";
 import DoctorDetailPage from "./screens/extras/DoctorDetailPage";
 import BookingScreen from "./screens/extras/BookingScreen";
+import { ResultsScreen } from "./screens/extras/ResultsScreen";
 
 const Stack = createNativeStackNavigator();
 const AppNavigator = () => {
@@ -36,6 +37,11 @@ const AppNavigator = () => {
         name="TabScreensContainer"
         options={{ headerShown: false }}
         component={TabScreensContainer}
+      />
+      <Stack.Screen
+        name="ResultsScreen"
+        options={{ headerShown: false }}
+        component={ResultsScreen}
       />
       <Stack.Screen
         name="BookingScreen"

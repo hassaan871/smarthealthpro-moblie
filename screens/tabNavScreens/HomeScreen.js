@@ -169,7 +169,7 @@ const HomeScreen = () => {
             <Pressable
               style={styles.menuItem}
               onPress={() => {
-                alert("Results");
+                navigation.navigate("ResultsScreen");
               }}
             >
               <Icon name="assessment" size={24} color={"#007fff"} />

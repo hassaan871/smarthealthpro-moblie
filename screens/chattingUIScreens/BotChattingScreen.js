@@ -33,7 +33,8 @@ const BotChattingScreen = () => {
     addMessage(sentMessage);
 
     try {
-      const response = await axios.post('http://127.0.0.1:5000/chat', { message: message.text });
+      console.log("m",message.text)
+      const response = await axios.post('http://127.0.0.1:8081/chat', { message: message.text });
       const receivedMessage = {
         author: chatbot,
         createdAt: Date.now(),

@@ -37,7 +37,6 @@
     "react-native": "0.74.3",
     "react-native-blob-util": "^0.19.11",
     "react-native-calendars": "^1.1304.1",
-    "react-native-document-picker": "^9.3.0",
     "react-native-elements": "^3.4.3",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "~2.16.1",

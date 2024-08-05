@@ -4,6 +4,8 @@ import { Chat, defaultTheme } from '@flyerhq/react-native-chat-ui';
 import axios from 'axios';
 import ChatHeader from './components/ChatHeader';
 import lightTheme from '../../Themes/LightTheme';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
 
 const uuidv4 = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -33,7 +35,13 @@ const BotChattingScreen = () => {
     addMessage(sentMessage);
 
     try {
-      const response = await axios.post('http://127.0.0.1:8081/chat', { message: message.text });
+      const formData = new FormData();
+      formData.append('message', message.text);
+      const response = await axios.post('http://127.0.0.1:8081/chat', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       const receivedMessage = {
         author: chatbot,
         createdAt: Date.now(),
@@ -48,37 +56,50 @@ const BotChattingScreen = () => {
   };
 
   const handleFileSelection = async () => {
+    console.log("file");
     try {
       const response = await DocumentPicker.getDocumentAsync({
         type: '*/*',
       });
-
-      if (response.type === 'success') {
+  
+      console.log('DocumentPicker response:', response);
+  
+      if (response.assets && response.assets.length > 0 && !response.canceled) {
+        const file = response.assets[0];
         const fileMessage = {
           author: user,
           createdAt: Date.now(),
           id: uuidv4(),
-          mimeType: response.mimeType,
-          name: response.name,
-          size: response.size,
+          mimeType: file.mimeType,
+          name: file.name,
+          size: file.size,
           type: 'file',
-          uri: response.uri,
+          uri: file.uri,
         };
         addMessage(fileMessage);
-
+        console.log('File selected:', fileMessage);
+  
+        const fileUri = FileSystem.documentDirectory + file.name;
+        await FileSystem.copyAsync({
+          from: file.uri,
+          to: fileUri,
+        });
+        console.log('File copied to:', fileUri);
+  
         const formData = new FormData();
         formData.append('file', {
-          uri: response.uri,
-          type: response.mimeType,
-          name: response.name,
+          uri: fileUri,
+          type: file.mimeType,
+          name: file.name,
         });
-
+  
         const chatResponse = await axios.post('http://127.0.0.1:8081/chat', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
-
+        console.log('Backend response:', chatResponse.data);
+  
         const receivedMessage = {
           author: chatbot,
           createdAt: Date.now(),
@@ -87,12 +108,14 @@ const BotChattingScreen = () => {
           type: 'text',
         };
         addMessage(receivedMessage);
+      } else {
+        console.log('DocumentPicker cancelled or error:', response);
       }
     } catch (error) {
       console.error('Error selecting or uploading file:', error);
     }
   };
-
+  
   return (
     <SafeAreaProvider>
       <ChatHeader icons={true} />
@@ -110,6 +133,7 @@ const BotChattingScreen = () => {
         onSendPress={handleSendPress}
         user={user}
         inverted={true} // Ensure new messages appear at the bottom
+        onAttachmentPress={handleFileSelection}
       />
     </SafeAreaProvider>
   );

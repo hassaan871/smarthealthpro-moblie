@@ -11,6 +11,7 @@ import ViewAllScreen from "./screens/extras/ViewAllScreen";
 import DoctorDetailPage from "./screens/extras/DoctorDetailPage";
 import BookingScreen from "./screens/extras/BookingScreen";
 import { ResultsScreen } from "./screens/extras/ResultsScreen";
+import ChatRoom from "./screens/extras/ChatRoom";
 
 const Stack = createNativeStackNavigator();
 const AppNavigator = () => {
@@ -77,6 +78,12 @@ const AppNavigator = () => {
         name="CameraAccessScreen"
         options={{ headerShown: false }}
         component={CameraAccessScreen}
+      />
+
+      <Stack.Screen
+        name="ChatRoom"
+        options={{ headerShown: true }}
+        component={ChatRoom}
       />
     </Stack.Navigator>
   );

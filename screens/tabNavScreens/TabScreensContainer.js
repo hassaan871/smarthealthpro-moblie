@@ -8,6 +8,7 @@ import { Pressable, View } from "react-native";
 import ChattingList from "../chattingUIScreens/ChattingList";
 import CameraAccessScreen from "../cameraAccess/CameraAccessScreen";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import ChatsScreen from "../extras/ChatScreen2";
 
 const Tab = createBottomTabNavigator();
 
@@ -49,19 +50,18 @@ const TabScreensContainer = ({ navigation }) => {
             iconName = "settings";
           } else if (route.name === "Camera") {
             iconName = "camera";
+          } else if (route.name === "Chat2") {
+            iconName = "chat";
           }
 
-          if (route.name === "Chat") {
-            return <Icon name={iconName} size={size} color={color} />;
-          }
           return <Icon name={iconName} size={size} color={color} />;
         },
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Chat" component={ChattingList} />
-
       <Tab.Screen name="Settings" component={Settings} />
+      <Tab.Screen name="Chat2" component={ChatsScreen} />
       {/* <Tab.Screen name="Camera" component={CameraAccessScreen} /> */}
     </Tab.Navigator>
   );

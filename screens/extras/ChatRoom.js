@@ -63,7 +63,7 @@ const ChatRoom = () => {
 
   useEffect(() => {
     const fetchUserId = async () => {
-      setUserId(userInfo._id);
+      setUserId(userInfo?._id);
     };
 
     const fetchMessages = async () => {

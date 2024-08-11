@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Image, Pressable, ImageBackground } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const items = [
   {
@@ -34,6 +35,22 @@ const OnBoardingScreen = () => {
       navigation.navigate("Login");
     }
   };
+
+  useEffect(() => {
+    const checkUserToken = async () => {
+      const userToken = await AsyncStorage.getItem("userToken");
+      if (userToken) {
+        console.log("auto logging in: ", userToken);
+        navigation.navigate("TabScreensContainer");
+      } else {
+        console.log("no user token found");
+      }
+    };
+
+    console.log("entering useeffect");
+    checkUserToken();
+    console.log("exiting useeffect");
+  }, []);
 
   return (
     <ImageBackground

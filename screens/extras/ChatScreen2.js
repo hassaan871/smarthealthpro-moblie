@@ -70,18 +70,18 @@ const ChatsScreen = () => {
     const fetchChats = async () => {
       try {
         const response = await axios.get(
-          `http://192.168.18.124:5000/conversations/${userInfo._id}`
+          `http://192.168.18.124:5000/conversations/${userInfo?._id}`
         );
         console.log("fetched chats: ", response.data[0]);
 
-        const convoID = response.data[0]._id;
+        const convoID = response.data[0]?._id;
         console.log("res; ", response.data);
         console.log("convo id: ", convoID);
 
         // Map the response data to the desired format
         const formattedChats = response.data.map((chat) => {
           // Find the index of userInfo._id in the participants array
-          const participantIndex = chat.participants.indexOf(userInfo._id);
+          const participantIndex = chat.participants.indexOf(userInfo?._id);
           const avatar =
             participantIndex === 0 ? chat.avatar[1] : chat.avatar[0];
           const name = participantIndex === 0 ? chat.name[1] : chat.name[0];
@@ -104,7 +104,7 @@ const ChatsScreen = () => {
     };
 
     fetchChats();
-  }, [userInfo._id]);
+  }, [userInfo?._id]);
 
   useEffect(() => {
     // Fetch all doctors when the component mounts
@@ -117,7 +117,7 @@ const ChatsScreen = () => {
           numPatients: doctor.numPatients,
           rating: doctor.rating,
           specialization: doctor.specialization,
-          _id: doctor._id,
+          _id: doctor?._id,
           avatar: doctor.user?.avatar,
           name: doctor.user?.fullName,
         }));
@@ -237,7 +237,7 @@ const ChatsScreen = () => {
             (chats.length > 0 ? (
               <View>
                 {chats.map((item) => (
-                  <Chat item={item} key={item._id} isSearch={false} />
+                  <Chat item={item} key={item?._id} isSearch={false} />
                 ))}
               </View>
             ) : (
@@ -286,9 +286,9 @@ const ChatsScreen = () => {
           {searchResults.length > 0 && (
             <FlatList
               data={searchResults}
-              keyExtractor={(item) => item._id}
+              keyExtractor={(item) => item?._id}
               renderItem={({ item }) => (
-                <Chat item={item} key={item._id} isSearch={true} />
+                <Chat item={item} key={item?._id} isSearch={true} />
               )}
             />
           )}

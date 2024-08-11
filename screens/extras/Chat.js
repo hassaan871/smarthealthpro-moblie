@@ -59,8 +59,8 @@ const Chat = ({ item, isSearch }) => {
 
   const handleChatPress = async (item) => {
     try {
-      const currentUserId = userInfo._id;
-      const otherUserId = item._id;
+      const currentUserId = userInfo?._id;
+      const otherUserId = item?._id;
 
       console.log(`current user token ${currentUserId} `);
       console.log(`creating chat btw ${currentUserId} and ${otherUserId}`);
@@ -77,7 +77,7 @@ const Chat = ({ item, isSearch }) => {
         }
       );
 
-      const conversationId = response.data._id;
+      const conversationId = response.data?._id;
       console.log("convo created successfully with id: ", conversationId);
       // Navigate to the ChatScreen with the conversationId
       // navigation.navigate('ChatScreen', { conversationId });

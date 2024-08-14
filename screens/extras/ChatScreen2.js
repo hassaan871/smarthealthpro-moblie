@@ -86,12 +86,18 @@ const ChatsScreen = () => {
             participantIndex === 0 ? chat.avatar[1] : chat.avatar[0];
           const name = participantIndex === 0 ? chat.name[1] : chat.name[0];
 
+          const receiverID =
+            participantIndex === 0
+              ? chat.participants[1]
+              : chat.participants[0];
+
           // Return the formatted chat object
           return {
             convoID,
             name: name,
             lastMessage: chat.lastMessage,
             avatar: avatar,
+            receiverId: receiverID,
           };
         });
 
@@ -106,32 +112,32 @@ const ChatsScreen = () => {
     fetchChats();
   }, [userInfo?._id]);
 
-  useEffect(() => {
-    // Fetch all doctors when the component mounts
-    const fetchDoctors = async () => {
-      try {
-        const response = await axios.get(
-          "http://192.168.18.124:5000/user/getAllDoctors"
-        );
-        const doctorsData = response.data.doctors.map((doctor) => ({
-          numPatients: doctor.numPatients,
-          rating: doctor.rating,
-          specialization: doctor.specialization,
-          _id: doctor?._id,
-          avatar: doctor.user?.avatar,
-          name: doctor.user?.fullName,
-        }));
+  // useEffect(() => {
+  //   // Fetch all doctors when the component mounts
+  //   const fetchDoctors = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "http://192.168.18.124:5000/user/getAllDoctors"
+  //       );
+  //       const doctorsData = response.data.doctors.map((doctor) => ({
+  //         numPatients: doctor.numPatients,
+  //         rating: doctor.rating,
+  //         specialization: doctor.specialization,
+  //         _id: doctor.user?._id, // user id for the doctor rahter than doctor id
+  //         avatar: doctor.user?.avatar,
+  //         name: doctor.user?.fullName,
+  //       }));
 
-        console.log("all doctor: ", doctorsData);
-        setDoctors(doctorsData);
-        setSearchResults(doctorsData);
-      } catch (error) {
-        console.error("Error fetching doctors:", error);
-      }
-    };
+  //       console.log("all doctor: ", doctorsData[0]);
+  //       setDoctors(doctorsData);
+  //       setSearchResults(doctorsData);
+  //     } catch (error) {
+  //       console.error("Error fetching doctors:", error);
+  //     }
+  //   };
 
-    fetchDoctors();
-  }, []);
+  //   fetchDoctors();
+  // }, []);
 
   useEffect(() => {
     console.log("search results length: ", searchResults?.length);

@@ -62,7 +62,9 @@ const Chat = ({ item, isSearch }) => {
       const currentUserId = userInfo?._id;
       const otherUserId = item?._id;
 
-      console.log(`current user token ${currentUserId} `);
+      console.log("current user: ", userInfo);
+      console.log("other user: ", item);
+
       console.log(`creating chat btw ${currentUserId} and ${otherUserId}`);
       // Make a POST request to create or retrieve a conversation
       const response = await axios.post(
@@ -70,17 +72,21 @@ const Chat = ({ item, isSearch }) => {
         {
           currentUserId,
           otherUserId,
-          currentUserObjectIdAvatar: userInfo.avatar,
-          otherUserObjectIdAvatar: item.avatar,
-          currentUserObjectIdName: userInfo.fullName,
-          otherUserObjectIdName: item.name,
+          currentUserObjectIdAvatar: userInfo?.avatar,
+          otherUserObjectIdAvatar: item?.avatar,
+          currentUserObjectIdName: userInfo?.fullName,
+          otherUserObjectIdName: item?.name,
         }
       );
 
       const conversationId = response.data?._id;
       console.log("convo created successfully with id: ", conversationId);
       // Navigate to the ChatScreen with the conversationId
-      // navigation.navigate('ChatScreen', { conversationId });
+      navigation.navigate("ChatRoom", {
+        name: item?.name,
+        image: item?.avatar,
+        convoID: conversationId,
+      });
     } catch (error) {
       console.error("Error creating or retrieving conversation:", error);
     }
@@ -91,13 +97,17 @@ const Chat = ({ item, isSearch }) => {
 
   return (
     <Pressable
-      onPress={() =>
+      onPress={() => {
+        console.log("item clicked on: ", item);
+        console.log("item's recieverid: ", item.receiverId);
+
         navigation.navigate("ChatRoom", {
           name: item?.name,
           image: item?.avatar,
           convoID: item?.convoID,
-        })
-      }
+          receiverId: item.receiverId,
+        });
+      }}
       style={{ marginVertical: 15 }}
     >
       <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
@@ -111,9 +121,7 @@ const Chat = ({ item, isSearch }) => {
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 15, fontWeight: "500" }}>{item?.name}</Text>
           <Text style={{ marginTop: 4, color: "gray" }}>
-            {item.lastMessage
-              ? item.lastMessage
-              : `Start chat with ${item?.name}`}
+            {isSearch ? item.specialization : item.lastMessage}
           </Text>
         </View>
         {isSearch && (

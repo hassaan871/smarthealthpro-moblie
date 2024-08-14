@@ -17,6 +17,7 @@ import LoginScreen from "./screens/authScreens/LoginScreen";
 import { NavigationContainer } from "@react-navigation/native";
 import AppNavigator from "./Navigator"; // Import the AppNavigator
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SocketContextProvider } from "./SocketContext"; // Import your SocketContextProvider
 
 export default function App() {
   const [isThemeDark, setIsThemeDark] = useState(false);
@@ -63,27 +64,26 @@ export default function App() {
 
   return (
     <RootSiblingParent>
-        <ThemeContext.Provider value={preferences}>
-          <SafeAreaProvider>
-            <PaperProvider
-              settings={{
-                rippleEffectEnabled: true,
-              }}
-              theme={myTheme}
-            >
-              <MyContextProvider>
-                <NavigationContainer>
-                <GestureHandlerRootView style={{ flex: 1 }}>
-                <MyContextProvider>
-                  
-                  <AppNavigator navTheme={navTheme} />
-                </MyContextProvider>
-                </GestureHandlerRootView>
+      <ThemeContext.Provider value={preferences}>
+        <SafeAreaProvider>
+          <PaperProvider
+            settings={{
+              rippleEffectEnabled: true,
+            }}
+            theme={myTheme}
+          >
+            <MyContextProvider>
+              <SocketContextProvider>
+                <NavigationContainer theme={navTheme}>
+                  <GestureHandlerRootView style={{ flex: 1 }}>
+                    <AppNavigator />
+                  </GestureHandlerRootView>
                 </NavigationContainer>
-              </MyContextProvider>
-            </PaperProvider>
-          </SafeAreaProvider>
-        </ThemeContext.Provider>
+              </SocketContextProvider>
+            </MyContextProvider>
+          </PaperProvider>
+        </SafeAreaProvider>
+      </ThemeContext.Provider>
     </RootSiblingParent>
   );
 }

@@ -1,40 +1,32 @@
-import React, { useState, useEffect } from "react";
+// Update your existing file
+import React, { useState, useEffect } from 'react';
 import {
   View,
-  Text,
   FlatList,
   StyleSheet,
   TextInput,
   ImageBackground,
-} from "react-native";
-import ScheduleCard from "../../components/ScheduleCard";
-import lightTheme from "../../Themes/LightTheme";
-import PopularCard from "../../components/PopularCard";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from react-native-vector-icons
+  TouchableOpacity,
+} from 'react-native';
+import ScheduleCard from '../../components/ScheduleCard';
+import lightTheme from '../../Themes/LightTheme';
+import PopularCard from '../../components/PopularCard';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import DialogflowModal from '../../components/DialogFlowModal';
 
 const ViewAllScreen = ({ route }) => {
-  const [searchQuery, setSearchQuery] = useState(""); // State to store search query
-  const [filteredData, setFilteredData] = useState(route.params.data); // State to store filtered data
+  const [searchQuery, setSearchQuery] = useState(""); 
+  const [filteredData, setFilteredData] = useState(route.params.data); 
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    console.log("Navigation parameters:", route.params);
-    console.log("data: ", route.params.data[0]);
-    console.log("isPopular: ", route.params.isPopular);
-  }, []);
-
-  useEffect(() => {
-    // Filter data based on search query and all fields except pictureUrl and id
     const filtered = route.params.data.filter((item) => {
-      // Convert each object's values to lowercase strings
       const values = Object.entries(item).map(([key, value]) => {
-        // Check if the key is pictureUrl or id, if so, return an empty string
-        // Otherwise, return the lowercase string value
-        return key !== "pictureUrl" && key !== "id"
+        return key !== 'pictureUrl' && key !== 'id'
           ? value.toString().toLowerCase()
-          : "";
+          : '';
       });
-      // Check if any value (excluding pictureUrl and id) includes the search query
       return values.some((val) => val.includes(searchQuery.toLowerCase()));
     });
     setFilteredData(filtered);
@@ -59,31 +51,43 @@ const ViewAllScreen = ({ route }) => {
   return (
     <ImageBackground
       style={{ flex: 1 }}
-      source={require("../../assets/bg.png")}
+      source={require('../../assets/bg.png')}
     >
       <SafeAreaView style={styles.container}>
         {!route.params.isPopular && (
           <View style={styles.searchContainer}>
             <TextInput
               style={{ ...styles.searchInput, paddingLeft: 40 }}
-              placeholder="Search for doctors or anything"
+              placeholder="Search..."
               placeholderTextColor="#999"
               value={searchQuery}
-              onChangeText={setSearchQuery} // Update search query state on input change
+              onChangeText={setSearchQuery}
             />
             <Icon
               name="search"
               size={24}
               color="#999"
-              style={{ position: "absolute", top: 27, left: 27 }}
+              style={{ position: 'absolute', top: 27, left: 27 }}
             />
           </View>
         )}
         <FlatList
-          data={filteredData} // Render filtered data
+          data={filteredData}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           numColumns={route.params.isPopular ? 2 : 1}
+        />
+
+        <TouchableOpacity
+          style={styles.chatButton}
+          onPress={() => setModalVisible(true)}
+        >
+          <Icon name="chat" size={30} color="#fff" />
+        </TouchableOpacity>
+
+        <DialogflowModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
         />
       </SafeAreaView>
     </ImageBackground>
@@ -104,6 +108,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
+  },
+  chatButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#007bff',
+    borderRadius: 50,
+    padding: 10,
+    elevation: 5,
   },
 });
 

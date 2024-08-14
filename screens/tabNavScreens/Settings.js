@@ -13,7 +13,7 @@ import {
   Image,
   Dimensions,
   SafeAreaView,
-  ImageBackground
+  ImageBackground,
 } from "react-native";
 import { Avatar, Divider, Switch } from "react-native-paper";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
@@ -26,6 +26,7 @@ import Alert from "../../components/Alert";
 import showAlertMessage from "../../Helper/AlertHelper";
 import Alert2 from "../../components/Alert2";
 import lightTheme from "../../Themes/LightTheme";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SettingScreen = () => {
   const {
@@ -77,7 +78,7 @@ const SettingScreen = () => {
       };
 
       const response = await axios.delete(
-        `http://192.168.100.81/user/deleteUser/${id}`,
+        `http://192.168.18.124:5000/user/deleteUser/${id}`,
         config
       );
 
@@ -91,6 +92,7 @@ const SettingScreen = () => {
           "Account Deleted!",
           "success"
         );
+        await AsyncStorage.removeItem("userToken");
         navigation.navigate("SignUp");
         // Optionally, perform any additional actions after successful deletion
       } else {
@@ -108,9 +110,16 @@ const SettingScreen = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem("userToken");
+      console.log("User token deleted successfully");
+    } catch (error) {
+      console.error("Error deleting user token:", error);
+    }
+
     axios
-      .get("http://192.168.100.81/user/logout")
+      .get("http://192.168.18.124:5000/user/logout")
       .then((res) => {
         showAlertMessage(
           setShowAlert,
@@ -125,6 +134,7 @@ const SettingScreen = () => {
         setImage("");
         setToken("");
         setUserName("");
+
         navigation.navigate("Login");
       })
       .catch((error) => {
@@ -144,141 +154,143 @@ const SettingScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} >
-
-    <ImageBackground source={require("../../assets/bg.png")} style={{ flex: 1 }}>
-      <Alert
-        visible={showAlert}
-        onDismiss={handleDismissAlert}
-        message={alertMessage}
-        type={alertType}
-      />
-      <View style={{ alignItems: "center", top: 24 }}>
-        {/* <Avatar.Icon size={144} icon="" /> */}
-        <Image source={image} style={styles.Image} />
-
-        <Text style={styles.itemText}>{userName}</Text>
-        <Text style={styles.itemText}>{emailGlobal}</Text>
-      </View>
-      <BottomSheet
-        ref={bottomSheetRef}
-        onChange={handleSheetChanges}
-        snapPoints={snapPoints}
-        // style={{backgroundColor:"red"}}
+    <SafeAreaView style={styles.container}>
+      <ImageBackground
+        source={require("../../assets/bg.png")}
+        style={{ flex: 1 }}
       >
-        <BottomSheetView style={styles.contentContainer}>
-          {/* <TouchableOpacity style={styles.item} onPress={handleProfile}>
+        <Alert
+          visible={showAlert}
+          onDismiss={handleDismissAlert}
+          message={alertMessage}
+          type={alertType}
+        />
+        <View style={{ alignItems: "center", top: 24 }}>
+          {/* <Avatar.Icon size={144} icon="" /> */}
+          <Image source={image} style={styles.Image} />
+
+          <Text style={styles.itemText}>{userName}</Text>
+          <Text style={styles.itemText}>{emailGlobal}</Text>
+        </View>
+        <BottomSheet
+          ref={bottomSheetRef}
+          onChange={handleSheetChanges}
+          snapPoints={snapPoints}
+          // style={{backgroundColor:"red"}}
+        >
+          <BottomSheetView style={styles.contentContainer}>
+            {/* <TouchableOpacity style={styles.item} onPress={handleProfile}>
             <Ionicons name="person" size={32} color={lightTheme.colors.primaryBtn} />
             <Text style={styles.itemText}>Profile</Text>
           </TouchableOpacity> */}
-          {/* <Divider bold style={{ marginVertical: "4%" }} /> */}
-          {/* <TouchableOpacity style={styles.item} onPress={handleAppointments}>
+            {/* <Divider bold style={{ marginVertical: "4%" }} /> */}
+            {/* <TouchableOpacity style={styles.item} onPress={handleAppointments}>
             <Ionicons name="calendar" size={32} color={lightTheme.colors.primaryBtn} />
             <Text style={styles.itemText}>Appointments</Text>
           </TouchableOpacity> */}
-          {/* <Divider bold style={{ marginVertical: "4%" }} /> */}
-          <TouchableOpacity style={styles.item}>
-            <View
-              style={{
-                flex: 1,
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Ionicons
-                  name="notifications"
-                  size={32}
-                  color={lightTheme.colors.primaryBtn}
-                />
-                <Text style={styles.itemText}>Notifications</Text>
+            {/* <Divider bold style={{ marginVertical: "4%" }} /> */}
+            <TouchableOpacity style={styles.item}>
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Ionicons
+                    name="notifications"
+                    size={32}
+                    color={lightTheme.colors.primaryBtn}
+                  />
+                  <Text style={styles.itemText}>Notifications</Text>
+                </View>
+                <Switch />
               </View>
-              <Switch />
-            </View>
-          </TouchableOpacity>
-          <Divider bold style={{ marginVertical: "2%" }} />
-          {/* <TouchableOpacity style={styles.item} onPress={handleMessages}>
+            </TouchableOpacity>
+            <Divider bold style={{ marginVertical: "2%" }} />
+            {/* <TouchableOpacity style={styles.item} onPress={handleMessages}>
             <Ionicons name="mail" size={32} color={lightTheme.colors.primaryBtn} />
             <Text style={styles.itemText}>Messages</Text>
           </TouchableOpacity>
           <Divider bold style={{ marginVertical: "4%" }} /> */}
 
-          <TouchableOpacity style={styles.item} onPress={handleSettings}>
-            <View
-              style={{
-                flex: 1,
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
+            <TouchableOpacity style={styles.item} onPress={handleSettings}>
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Ionicons
+                    name="moon"
+                    size={32}
+                    color={lightTheme.colors.primaryBtn}
+                  />
+                  <Text style={styles.itemText}>Dark Mode</Text>
+                </View>
+                <Switch />
+              </View>
+            </TouchableOpacity>
+
+            <Divider bold style={{ marginVertical: "2%" }} />
+            <TouchableOpacity style={styles.item} onPress={handleLogout}>
+              <Ionicons
+                name="bag-remove"
+                size={32}
+                color={lightTheme.colors.primaryBtn}
+              />
+              <Text style={styles.itemText}>Clear Cache</Text>
+            </TouchableOpacity>
+
+            <Divider bold style={{ marginVertical: "2%" }} />
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => {
+                setModalVisible(true);
+                setButtonCLick("Logout");
+                handleLogout();
               }}
             >
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Ionicons
-                  name="moon"
-                  size={32}
-                  color={lightTheme.colors.primaryBtn}
-                />
-                <Text style={styles.itemText}>Dark Mode</Text>
-              </View>
-              <Switch />
-            </View>
-          </TouchableOpacity>
+              <Ionicons name="log-out" size={32} color="red" />
+              <Text style={styles.itemText}>Logout</Text>
+            </TouchableOpacity>
 
-          <Divider bold style={{ marginVertical: "2%" }} />
-          <TouchableOpacity style={styles.item} onPress={handleLogout}>
-            <Ionicons
-              name="bag-remove"
-              size={32}
-              color={lightTheme.colors.primaryBtn}
-            />
-            <Text style={styles.itemText}>Clear Cache</Text>
-          </TouchableOpacity>
-
-          <Divider bold style={{ marginVertical: "2%" }} />
-          <TouchableOpacity
-            style={styles.item}
-            onPress={() => {
-              setModalVisible(true);
-              setButtonCLick("Logout");
-              handleLogout();
-            }}
-          >
-            <Ionicons name="log-out" size={32} color="red" />
-            <Text style={styles.itemText}>Logout</Text>
-          </TouchableOpacity>
-
-          <Divider bold style={{ marginVertical: "2%" }} />
-          <TouchableOpacity
-            style={styles.item}
-            onPress={() => {
-              setModalVisible(true);
-              setButtonCLick("Delete");
-              handleDeleteAccount;
-            }}
-          >
-            <Ionicons name="trash" size={32} color="red" />
-            <Text style={styles.itemText}>Delete Account</Text>
-          </TouchableOpacity>
-        </BottomSheetView>
-      </BottomSheet>
-      {modalVisible && (
-        <Alert2
-          title={
-            buttonClicked === "Delete" ? "Confirm Delete" : "Confirm Logout"
-          }
-          message={
-            buttonClicked === "Delete"
-              ? "Are you sure you want to delete yout account"
-              : "Are you sure you want to log out?"
-          }
-          btnClicked={buttonClicked}
-          modalVisible={modalVisible}
-          setModalVisible={setModalVisible}
-          onDelete={() => {}}
-        />
-      )}
-    </ImageBackground>
+            <Divider bold style={{ marginVertical: "2%" }} />
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => {
+                setModalVisible(true);
+                setButtonCLick("Delete");
+                handleDeleteAccount;
+              }}
+            >
+              <Ionicons name="trash" size={32} color="red" />
+              <Text style={styles.itemText}>Delete Account</Text>
+            </TouchableOpacity>
+          </BottomSheetView>
+        </BottomSheet>
+        {modalVisible && (
+          <Alert2
+            title={
+              buttonClicked === "Delete" ? "Confirm Delete" : "Confirm Logout"
+            }
+            message={
+              buttonClicked === "Delete"
+                ? "Are you sure you want to delete yout account"
+                : "Are you sure you want to log out?"
+            }
+            btnClicked={buttonClicked}
+            modalVisible={modalVisible}
+            setModalVisible={setModalVisible}
+            onDelete={() => {}}
+          />
+        )}
+      </ImageBackground>
     </SafeAreaView>
   );
 };

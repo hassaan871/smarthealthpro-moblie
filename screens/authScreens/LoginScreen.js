@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
 import {
   View,
   TextInput,
@@ -8,7 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Text,
-  ImageBackground
+  ImageBackground,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import loginLogo from "../../assets/loginLogo.jpg";
@@ -22,9 +22,11 @@ import Context from "../../Helper/context";
 import lightTheme from "../../Themes/LightTheme";
 import Alert from "../../components/Alert";
 import showAlertMessage from "../../Helper/AlertHelper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen = () => {
-  const { setToken,setUserName,setEmailGlobal,setAvatar,setId } = useContext(Context);
+  const { setToken, setUserName, setEmailGlobal, setAvatar, setId } =
+    useContext(Context);
 
   const navigation = useNavigation();
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -40,20 +42,25 @@ const LoginScreen = () => {
   };
 
   const navigateToHomeTab = () => {
-    navigation.navigate("TabScreensContainer");
+    navigation.replace("TabScreensContainer");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Entering handle submit");
     try {
-      const res = await axios.post("http://192.168.100.81/user/login", {
+      const res = await axios.post("http://192.168.18.124:5000/user/login", {
         email,
         password,
       });
-      // console.log("red", res);
+      console.log("red", res.data);
       if (res.status === 200) {
         const data = res.data;
-        const {name, token, email, role, avatar, id} = data;
+        const { name, token, email, role, avatar, id } = data;
+
+        // Save token to AsyncStorage
+        await AsyncStorage.setItem("userToken", id);
+        console.log("user token: ", id);
 
         setId(id);
         setEmailGlobal(email);
@@ -61,7 +68,13 @@ const LoginScreen = () => {
         setUserName(name);
         setAvatar(avatar);
 
-        showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Login Success", "success");
+        showAlertMessage(
+          setShowAlert,
+          setAlertMessage,
+          setAlertType,
+          "Login Success",
+          "success"
+        );
 
         if (res.data.role === "doctor") {
           // await navigate('/admin');
@@ -73,7 +86,13 @@ const LoginScreen = () => {
       }
     } catch (error) {
       // alert(error.response.data.error);
-      showAlertMessage(setShowAlert, setAlertMessage, setAlertType, "Login failed. Please try again.", "error");
+      showAlertMessage(
+        setShowAlert,
+        setAlertMessage,
+        setAlertType,
+        "Login failed. Please try again.",
+        "error"
+      );
     }
   };
 
@@ -124,8 +143,13 @@ const LoginScreen = () => {
           </View>
         </View>
 
-        <Alert visible={showAlert} onDismiss={handleDismissAlert} message={alertMessage} type={alertType} />
-        
+        <Alert
+          visible={showAlert}
+          onDismiss={handleDismissAlert}
+          message={alertMessage}
+          type={alertType}
+        />
+
         <Pressable style={styles.loginButton} onPress={handleSubmit}>
           <Text style={styles.loginText}>Login</Text>
         </Pressable>
@@ -171,10 +195,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor:"#E0F4FF"
+    backgroundColor: "#E0F4FF",
   },
   card: {
-    backgroundColor:"#E0F4FF",
+    backgroundColor: "#E0F4FF",
     padding: 16,
     borderRadius: 8,
     shadowOpacity: 0.1,

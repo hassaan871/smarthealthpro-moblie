@@ -27,8 +27,8 @@ const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [confirmPassword, setConfirmPassword] = useState();
-  const [dateOfBirth, setdateOfBirth] = useState(12);
-  const [bloodType, setBloodType] = useState("B+");
+  const [dateOfBirth, setdateOfBirth] = useState("");
+  const [bloodType, setBloodType] = useState("");
   const [role, setRole] = useState("patient");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [passwordVisible2, setPasswordVisible2] = useState(false);
@@ -56,15 +56,24 @@ const SignUpScreen = ({ navigation }) => {
       );
       return;
     }
+
+    if (password.length < 8) {
+      showAlertMessage(
+        setShowAlert,
+        setAlertMessage,
+        setAlertType,
+        "Password should be at least 8 characters",
+        "error"
+      );
+      return;
+    }
     console.log("Form data:", { name, email, password, role });
 
     axios
-      .post("http://192.168.100.81/user/register", {
-        name,
+      .post("http://192.168.18.124:5000/user/register", {
+        fullName: name,
         email,
         password,
-        dateOfBirth,
-        bloodType,
         role,
       })
       .then((res) => {
@@ -173,11 +182,7 @@ const SignUpScreen = ({ navigation }) => {
           type={alertType}
         />
 
-        <Pressable
-          onPress={() => setModalVisible(true)}
-          // onPress={handleSubmit}
-          style={styles.loginButton}
-        >
+        <Pressable onPress={handleSubmit} style={styles.loginButton}>
           <Text style={styles.loginText}>Sign Up</Text>
         </Pressable>
         <Text style={styles.orText}>Or, sign up with</Text>
@@ -232,11 +237,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     // backgroundColor: "#E7ECF3",
-    backgroundColor:"#E0F4FF"
+    backgroundColor: "#E0F4FF",
   },
   card: {
     // backgroundColor: "#fff",
-    backgroundColor:"#E0F4FF",
+    backgroundColor: "#E0F4FF",
     padding: 16,
     borderRadius: 8,
     shadowOpacity: 0.1,

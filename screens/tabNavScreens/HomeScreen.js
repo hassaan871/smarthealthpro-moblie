@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -25,6 +25,10 @@ import favicon from "../../assets/favicon.png";
 import lightTheme from "../../Themes/LightTheme";
 
 import { useNavigation, useRoute } from "@react-navigation/native";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+export let userInfo;
 
 const HomeScreen = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -32,6 +36,26 @@ const HomeScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const modalSearchInputRef = useRef(null);
+
+  useEffect(() => {
+    console.log("use effect from homesceen ");
+    const fetchUser = async () => {
+      const userID = await AsyncStorage.getItem("userToken");
+      console.log("user id is from async: ", userID);
+      if (userID !== null) {
+        const response = await axios.get(
+          `http://192.168.18.124:5000/user/getUserInfo/${userID}`
+        );
+
+        console.log("response 44: ", response.data.user);
+        userInfo = response.data.user;
+      } else {
+        console.log("User token not available");
+      }
+    };
+
+    fetchUser();
+  });
 
   const [upcomingSchedule, setUpcomingSchedule] = useState([
     {

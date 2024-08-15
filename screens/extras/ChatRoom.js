@@ -15,32 +15,81 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import Entypo from "react-native-vector-icons/Entypo";
 import Feather from "react-native-vector-icons/Feather";
 import axios from "axios";
-import io from "socket.io-client";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useSocketContext } from "../../SocketContext";
 import { userInfo } from "../tabNavScreens/HomeScreen";
 
-/* Things to do
-- get conversation id
-- 
-*/
-
-const socket = io("http://192.168.18.124:5000");
-
-const ChatRoom = () => {
+const ChatRoom = ({ route }) => {
+  const { name, image, convoID, receiverId } = route.params;
   const navigation = useNavigation();
-  const route = useRoute();
   const [userId, setUserId] = useState("");
-  const [recipientId, setRecipientId] = useState(route.params?.recipientId);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [convoID, setConvoID] = useState("");
+  const { socket } = useSocketContext();
+
   const scrollViewRef = useRef();
 
+  console.log("Receiver ID:", receiverId);
+
+  const listeMessages = () => {
+    const { socket } = useSocketContext();
+
+    useEffect(() => {
+      socket?.on("newMessage", (newMessage) => {
+        newMessage.shouldShake = true;
+        setMessages([...messages, newMessage]);
+      });
+
+      // Scroll to the bottom when a new message arrives
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+
+      return () => socket?.off("newMessage");
+    }, [socket, messages, setMessages]);
+  };
+  listeMessages();
+
+  const fetchMessages = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
+      );
+      setMessages(response.data);
+    } catch (error) {
+      console.log("No conversation found: ", error);
+    } finally {
+      setLoading(false);
+      // Scroll to the bottom after messages are loaded
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  };
+
   useEffect(() => {
-    console.log("Convo id from room: ", route?.params);
-    setConvoID(route?.params?.convoID);
-  });
+    const fetchUserId = async () => {
+      setUserId(userInfo._id);
+    };
+
+    fetchUserId();
+    fetchMessages();
+  }, [convoID]);
+
+  useEffect(() => {
+    if (socket) {
+      const handleMessageReceive = (newMessage) => {
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+      };
+
+      socket.on("newMessage", handleMessageReceive);
+
+      return () => {
+        socket.off("newMessage", handleMessageReceive);
+      };
+    } else {
+      console.warn("Socket is not initialized.");
+    }
+  }, [socket]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -54,69 +103,52 @@ const ChatRoom = () => {
             onPress={() => navigation.goBack()}
           />
           <View>
-            <Text>{route?.params?.name}</Text>
+            <Text>{name}</Text>
           </View>
         </View>
       ),
     });
-  }, [navigation, route?.params?.name]);
-
-  useEffect(() => {
-    const fetchUserId = async () => {
-      setUserId(userInfo?._id);
-    };
-
-    const fetchMessages = async () => {
-      try {
-        const response = await axios.get(
-          `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
-        );
-        setLoading(true);
-        setMessages(response.data);
-      } catch (error) {
-        console.error("Error fetching messages 11:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserId();
-    fetchMessages();
-
-    socket.emit("joinRoom", convoID);
-
-    socket.on("message", (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
-    });
-
-    return () => {
-      socket.off("message");
-      socket.emit("leaveRoom", convoID);
-    };
-  }, [convoID]);
+  }, [navigation, name]);
 
   const sendMessage = async () => {
-    if (!message.trim()) return;
+    if (socket) {
+      if (!message.trim()) return;
 
-    const newMessage = {
-      content: message,
-      sender: userId,
-      conversationId: convoID,
-      timestamp: new Date(),
-    };
+      const newMessage = {
+        content: message,
+        sender: userInfo._id,
+        conversationId: convoID,
+        timestamp: new Date(),
+      };
 
-    setMessage(""); // Clear the input right after getting the message
-    setMessages((prevMessages) => [...prevMessages, newMessage]); // Optimistically update the UI
+      setMessage(""); // Clear the input right after sending the message
+      setMessages((prevMessages) => [...prevMessages, newMessage]); // Optimistically update the UI
 
-    try {
-      await axios.post(
-        `http://192.168.18.124:5000/conversations/${convoID}/messages`,
-        newMessage
-      );
-      socket.emit("message", newMessage);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      // Optionally remove the message from UI or show an error
+      // Scroll to the bottom after sending a message
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+
+      try {
+        await axios.post(
+          `http://192.168.18.124:5000/conversations/${convoID}/messages`,
+          {
+            content: newMessage.content,
+            sender: newMessage.sender,
+            receiverId: receiverId,
+          }
+        );
+        socket?.emit("sendMessage", { newMessage });
+
+        setTimeout(() => {
+          fetchMessages();
+        }, 100);
+      } catch (error) {
+        console.error("Error sending message:", error);
+        alert("Failed to send the message. Please try again.");
+      }
+    } else {
+      console.log("socket does not exist");
     }
   };
 
@@ -124,10 +156,6 @@ const ChatRoom = () => {
     const options = { hour: "numeric", minute: "numeric" };
     return new Date(time).toLocaleString("en-US", options);
   };
-
-  useEffect(() => {
-    scrollViewRef.current?.scrollToEnd({ animated: true });
-  }, [messages]);
 
   return (
     <KeyboardAvoidingView
@@ -137,7 +165,12 @@ const ChatRoom = () => {
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
       ) : (
-        <ScrollView ref={scrollViewRef}>
+        <ScrollView
+          ref={scrollViewRef} // Attach the ref to ScrollView
+          onContentSizeChange={() =>
+            scrollViewRef.current?.scrollToEnd({ animated: true })
+          }
+        >
           {messages.map((item, index) => (
             <Pressable
               key={index}
@@ -152,7 +185,7 @@ const ChatRoom = () => {
                 style={
                   item.sender === userId
                     ? styles.messageContent
-                    : styles.recievedMessageContent
+                    : styles.receivedMessageContent
                 }
               >
                 {item.content}
@@ -215,9 +248,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "white", // Text color for sent messages
   },
-  recievedMessageContent: {
+  receivedMessageContent: {
     fontSize: 13,
-    color: "black", // Text color for sent messages
+    color: "black", // Text color for received messages
   },
   messageTime: {
     textAlign: "right",

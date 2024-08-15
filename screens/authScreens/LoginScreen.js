@@ -59,6 +59,7 @@ const LoginScreen = () => {
         const { name, token, email, role, avatar, id } = data;
 
         // Save token to AsyncStorage
+        await AsyncStorage.setItem("authToken", token);
         await AsyncStorage.setItem("userToken", id);
         console.log("user token: ", id);
 

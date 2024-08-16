@@ -11,6 +11,8 @@ export const MyContextProvider = ({ children }) => {
   const [image, setImage] = useState(null);
   const [avatar, setAvatar] = useState("");
   const [id, setId] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
+  const [popularDoctors, setPopularDoctors] = useState([]);
 
   return (
     <Context.Provider
@@ -27,6 +29,10 @@ export const MyContextProvider = ({ children }) => {
         setAvatar,
         id,
         setId,
+        popularDoctors,
+        setPopularDoctors,
+        userInfo,
+        setUserInfo,
       }}
     >
       {children}

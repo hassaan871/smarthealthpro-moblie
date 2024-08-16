@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
   FlatList,
   ScrollView,
   ImageBackground,
+  TouchableOpacity,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from react-native-vector-icons
 import Icon2 from "react-native-vector-icons/Feather";
@@ -27,14 +28,19 @@ import lightTheme from "../../Themes/LightTheme";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-export let userInfo;
+import DialogflowModal from "../../components/DialogFlowModal";
+import Context from "../../Helper/context";
 
 const HomeScreen = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible2, setModalVisible2] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [upcomingSchedule, setUpcomingSchedule] = useState([]);
+  const { userInfo, setUserInfo, popularDoctors, setPopularDoctors } =
+    useContext(Context);
+
   const modalSearchInputRef = useRef(null);
 
   useEffect(() => {
@@ -47,87 +53,68 @@ const HomeScreen = () => {
           `http://192.168.18.124:5000/user/getUserInfo/${userID}`
         );
 
-        console.log("response 44: ", response.data.user);
-        userInfo = response.data.user;
+        console.log("response users data: ", response.data.user);
+        setUserInfo(response.data.user);
       } else {
         console.log("User token not available");
       }
     };
 
     fetchUser();
-  });
+  }, []);
 
-  const [upcomingSchedule, setUpcomingSchedule] = useState([
-    {
-      id: "1",
-      name: "Appointment 1",
-      date: "May 10, 2024",
-      time: "10:00 AM",
-      detail: "Regular checkup",
-      location: "Hospital A",
-      fees: "50",
-      pictureUrl: "https://placeholder.co/64x64",
-    },
-    {
-      id: "2",
-      name: "Appointment 2",
-      date: "May 12, 2024",
-      time: "11:30 AM",
-      detail: "Dental checkup",
-      location: "Dental Clinic B",
-      fees: "80",
-      pictureUrl: "https://placeholder.co/64x64",
-    },
-    {
-      id: "3",
-      name: "Appointment 1",
-      date: "May 10, 2024",
-      time: "10:00 AM",
-      detail: "Regular checkup",
-      location: "Hospital A",
-      fees: "50",
-      pictureUrl: "https://placeholder.co/64x64",
-    },
-    {
-      id: "4",
-      name: "Appointment 2",
-      date: "May 12, 2024",
-      time: "11:30 AM",
-      detail: "Dental checkup",
-      location: "Dental Clinic B",
-      fees: "80",
-      pictureUrl: "https://placeholder.co/64x64",
-    },
-    // Add more upcoming schedule items as needed
-  ]);
+  useEffect(() => {
+    const fetchAppointment = async () => {
+      const userID = await AsyncStorage.getItem("userToken");
+      console.log("user id is from async: ", userID);
+      if (userID !== null) {
+        const response = await axios.get(
+          `http://192.168.18.124:5000/appointment/getAllAppointments?PatientId=${userID}`
+        );
 
-  const [popularDoctors, setPopularDoctors] = useState([
-    {
-      id: "1",
-      name: "Dr. John Doe",
-      specialty: "Cardiologist",
-      pictureUrl: "https://placeholder.co/64x64",
-    },
-    {
-      id: "2",
-      name: "Dr. Jane Smith",
-      specialty: "Pediatrician",
-      pictureUrl: "https://placeholder.co/64x64",
-    },
-    {
-      id: "3",
-      name: "Dr. John Doe",
-      specialty: "Cardiologist",
-      pictureUrl: "https://placeholder.co/64x64",
-    },
-    {
-      id: "4",
-      name: "Dr. Jane Smith",
-      specialty: "Pediatrician",
-      pictureUrl: "https://placeholder.co/64x64",
-    },
-    // Add more popular doctors as needed
-  ]);
+        console.log("response appointment: ", response.data.appointments);
+        appointmentInfo = response.data.appointments;
+        setUpcomingSchedule(appointmentInfo);
+      } else {
+        console.log("User token not available");
+      }
+    };
+
+    fetchAppointment();
+  }, []);
+
+  useEffect(() => {
+    const fetchPopularDoctors = async () => {
+      try {
+        const response = await axios.get(
+          `http://192.168.18.124:5000/user/getDoctorsBySatisfaction`
+        );
+
+        console.log("response doctors: ", response.data.doctors);
+        const doctorsInfo = response.data.doctors;
+
+        // Fetch detailed info for the top 2 popular doctors
+        const popularDoctorIds = doctorsInfo.slice(0, 2); // Getting only the top 2
+        const popularDoctorsPromises = popularDoctorIds.map((doctor) =>
+          axios.get(
+            `http://192.168.18.124:5000/user/getDoctorById/${doctor.id}`
+          )
+        );
+
+        const doctorResponses = await Promise.all(popularDoctorsPromises);
+        const detailedDoctorsInfo = doctorResponses.map(
+          (response) => response.data
+        );
+        console.log("final popular doctor: ", detailedDoctorsInfo);
+        setPopularDoctors(detailedDoctorsInfo);
+        setSearchResults(detailedDoctorsInfo);
+      } catch (error) {
+        console.error("Error fetching popular doctors:", error);
+      }
+    };
+
+    fetchPopularDoctors();
+  }, []);
 
   const navigation = useNavigation();
 
@@ -146,28 +133,25 @@ const HomeScreen = () => {
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-    // Perform search based on query
+
     const filteredResults = popularDoctors.filter((item) => {
-      // Convert each object's values to lowercase strings
-      const values = Object.entries(item).map(([key, value]) => {
-        // Check if the key is pictureUrl or id, if so, return an empty string
-        // Otherwise, return the lowercase string value
-        return key !== "pictureUrl" && key !== "id"
-          ? value.toString().toLowerCase()
-          : "";
-      });
-      // Check if any value (excluding pictureUrl and id) includes the search query
-      return values.some((val) => val.includes(searchQuery.toLowerCase()));
+      // Convert the fullName and specialization to lowercase strings
+      const fullName = item.user.fullName.toLowerCase();
+      const specialization = item.specialization.toLowerCase();
+
+      // Check if either the fullName or specialization includes the search query
+      return (
+        fullName.includes(query.toLowerCase()) ||
+        specialization.includes(query.toLowerCase())
+      );
     });
+
     setSearchResults(filteredResults);
   };
 
   return (
     // <View style={styles.container}>
-    <ImageBackground
-      source={require("../../assets/bg.png")}
-      style={{ width: "100%", height: "100%" }}
-    >
+    <View style={{ width: "100%", height: "100%", backgroundColor: "white" }}>
       <SafeAreaView style={styles.container}>
         <ScrollView>
           {/* <StatusBar barStyle="dark-content" /> */}
@@ -196,7 +180,7 @@ const HomeScreen = () => {
                 navigation.navigate("ResultsScreen");
               }}
             >
-              <Icon name="assessment" size={24} color={"#007fff"} />
+              <Icon name="assessment" size={24} color={"black"} />
               <Text style={styles.menuText}>Results</Text>
             </Pressable>
             <Pressable
@@ -209,7 +193,7 @@ const HomeScreen = () => {
                 name="camera"
                 size={24}
                 // color={lightTheme.colors.primaryText}
-                color={"#007fff"}
+                color={"black"}
               />
               <Text style={styles.menuText}>Camera</Text>
             </Pressable>
@@ -252,19 +236,8 @@ const HomeScreen = () => {
           <View style={styles.scheduleContainer2}>
             <View style={styles.scheduleHeader}>
               <Text style={styles.scheduleTitle}>Popular Doctors</Text>
-              <Pressable
-                title="View All"
-                color={lightTheme.colors.homeViewBtnTextColor}
-                onPress={() => {
-                  navigation.navigate("ViewAll", {
-                    data: popularDoctors,
-                    isPopular: true,
-                  }); // or false
-                }}
-              >
-                <Text style={{ fontSize: 16, color: "#1B2060" }}>View All</Text>
-              </Pressable>
             </View>
+
             <View
               style={{
                 flexDirection: "row",
@@ -300,21 +273,28 @@ const HomeScreen = () => {
                   style={{ position: "absolute", left: 60 }}
                 />
               </View>
-
-              {searchResults.length > 0 && (
-                <FlatList
-                  data={searchResults}
-                  keyExtractor={(item) => item.id.toString()}
-                  renderItem={({ item }) => (
-                    <DoctorCard item={item} closeModal={closeModal} />
-                  )}
-                />
-              )}
+              <FlatList
+                data={searchResults}
+                keyExtractor={(item) => item._id}
+                renderItem={({ item }) => (
+                  <DoctorCard item={item} closeModal={closeModal} />
+                )}
+              />
             </SafeAreaView>
           </Modal>
         </ScrollView>
+        <TouchableOpacity
+          style={styles.chatButton}
+          onPress={() => setModalVisible2(true)}
+        >
+          <Icon name="chat" size={30} color="#fff" />
+        </TouchableOpacity>
+        <DialogflowModal
+          visible={modalVisible2}
+          onClose={() => setModalVisible2(false)}
+        />
       </SafeAreaView>
-    </ImageBackground>
+    </View>
   );
 };
 
@@ -331,14 +311,14 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     // color: lightTheme.colors.homeWelcomeTextColor,
-    color: "#007fff",
+    color: "black",
     fontSize: 26,
   },
   headerTitle: {
     fontSize: 26,
     fontWeight: "bold",
     // color: lightTheme.colors.homeWelcomeTextColor,
-    color: "#007fff",
+    color: "black",
   },
   searchContainer: {
     padding: 16,
@@ -385,7 +365,7 @@ const styles = StyleSheet.create({
   scheduleTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#007fff",
+    color: "black",
   },
   detailsContainer: {
     flex: 1,
@@ -448,6 +428,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 16,
     marginLeft: 10,
+  },
+  chatButton: {
+    position: "absolute",
+    bottom: 25,
+    right: 25,
+    backgroundColor: "#007bff",
+    borderRadius: 50,
+    padding: 10,
+    elevation: 5,
   },
 });
 

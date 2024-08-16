@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, Image, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import lightTheme from "../Themes/LightTheme";
 
 const DoctorCard = ({ item, closeModal, isBook }) => {
   const navigation = useNavigation();
+
+  useEffect(() => {
+    console.log("Data from doctor card: ", item);
+  });
 
   return (
     <Pressable
@@ -18,11 +22,11 @@ const DoctorCard = ({ item, closeModal, isBook }) => {
       <View style={styles.container}>
         <View style={styles.card}>
           <View style={styles.imageContainer}>
-            <Image source={{ uri: item.pictureUrl }} style={styles.image} />
+            <Image source={{ uri: item?.user?.avatar }} style={styles.image} />
           </View>
           <View style={styles.textContainer}>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.specialty}>{item.specialty}</Text>
+            <Text style={styles.name}>{item.user.fullName}</Text>
+            <Text style={styles.specialty}>{item.specialization}</Text>
           </View>
           {isBook ? (
             <Text style={styles.valueText}>$350</Text>

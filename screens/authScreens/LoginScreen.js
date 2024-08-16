@@ -8,7 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Text,
-  ImageBackground,
+  ActivityIndicator,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import loginLogo from "../../assets/loginLogo.jpg";
@@ -32,7 +32,7 @@ const LoginScreen = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-
+  const [loading, setLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success"); // success or error
@@ -47,6 +47,7 @@ const LoginScreen = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     console.log("Entering handle submit");
     try {
       const res = await axios.post("http://192.168.18.124:5000/user/login", {
@@ -94,6 +95,8 @@ const LoginScreen = () => {
         "Login failed. Please try again.",
         "error"
       );
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -151,9 +154,18 @@ const LoginScreen = () => {
           type={alertType}
         />
 
-        <Pressable style={styles.loginButton} onPress={handleSubmit}>
-          <Text style={styles.loginText}>Login</Text>
+        <Pressable
+          style={styles.loginButton}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color="#ffffff" />
+          ) : (
+            <Text style={styles.loginText}>Login</Text>
+          )}
         </Pressable>
+
         <Pressable onPress={() => navigateToHomeTab()}>
           <Text style={styles.orText}>Or, login with</Text>
         </Pressable>

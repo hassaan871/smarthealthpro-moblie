@@ -1,5 +1,5 @@
 // Update your existing file
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   FlatList,
@@ -7,25 +7,25 @@ import {
   TextInput,
   ImageBackground,
   TouchableOpacity,
-} from 'react-native';
-import ScheduleCard from '../../components/ScheduleCard';
-import lightTheme from '../../Themes/LightTheme';
-import PopularCard from '../../components/PopularCard';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import DialogflowModal from '../../components/DialogFlowModal';
+} from "react-native";
+import ScheduleCard from "../../components/ScheduleCard";
+import lightTheme from "../../Themes/LightTheme";
+import PopularCard from "../../components/PopularCard";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import DialogflowModal from "../../components/DialogFlowModal";
 
 const ViewAllScreen = ({ route }) => {
-  const [searchQuery, setSearchQuery] = useState(""); 
-  const [filteredData, setFilteredData] = useState(route.params.data); 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredData, setFilteredData] = useState(route.params.data);
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const filtered = route.params.data.filter((item) => {
       const values = Object.entries(item).map(([key, value]) => {
-        return key !== 'pictureUrl' && key !== 'id'
+        return key !== "pictureUrl" && key !== "id"
           ? value.toString().toLowerCase()
-          : '';
+          : "";
       });
       return values.some((val) => val.includes(searchQuery.toLowerCase()));
     });
@@ -49,10 +49,7 @@ const ViewAllScreen = ({ route }) => {
   };
 
   return (
-    <ImageBackground
-      style={{ flex: 1 }}
-      source={require('../../assets/bg.png')}
-    >
+    <View style={{ flex: 1, backgroundColor: "white" }}>
       <SafeAreaView style={styles.container}>
         {!route.params.isPopular && (
           <View style={styles.searchContainer}>
@@ -67,7 +64,7 @@ const ViewAllScreen = ({ route }) => {
               name="search"
               size={24}
               color="#999"
-              style={{ position: 'absolute', top: 27, left: 27 }}
+              style={{ position: "absolute", top: 27, left: 27 }}
             />
           </View>
         )}
@@ -90,7 +87,7 @@ const ViewAllScreen = ({ route }) => {
           onClose={() => setModalVisible(false)}
         />
       </SafeAreaView>
-    </ImageBackground>
+    </View>
   );
 };
 
@@ -110,10 +107,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   chatButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
     right: 20,
-    backgroundColor: '#007bff',
+    backgroundColor: "#007bff",
     borderRadius: 50,
     padding: 10,
     elevation: 5,

@@ -1,13 +1,14 @@
 import { StyleSheet, Text, View, Pressable, Image } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { userInfo } from "../tabNavScreens/HomeScreen";
+import Context from "../../Helper/context";
 
-const Chat = ({ item, isSearch }) => {
+const Chat = ({ item, isSearch, isBotChat }) => {
   const navigation = useNavigation();
   const [messages, setMessages] = useState([]);
+  const { userInfo } = useContext(Context);
 
   // useEffect(() => {
   //   const fetchUser = async () => {
@@ -92,21 +93,26 @@ const Chat = ({ item, isSearch }) => {
     }
   };
   useEffect(() => {
-    console.log("item from chats: ", item);
+    console.log("item from chats234: ", item);
   }, [item]);
 
   return (
     <Pressable
       onPress={() => {
         console.log("item clicked on: ", item);
-        console.log("item's recieverid: ", item.receiverId);
+        console.log("item's recieverid: ", item?.receiverId);
 
-        navigation.navigate("ChatRoom", {
-          name: item?.name,
-          image: item?.avatar,
-          convoID: item?.convoID,
-          receiverId: item.receiverId,
-        });
+        if (isBotChat) {
+          console.log("Entering bot chat");
+          navigation.navigate("BotChattingScreen");
+        } else {
+          navigation.navigate("ChatRoom", {
+            name: item?.name,
+            image: item?.avatar,
+            convoID: item?.convoID,
+            receiverId: item?.receiverId,
+          });
+        }
       }}
       style={{ marginVertical: 15 }}
     >
@@ -130,11 +136,6 @@ const Chat = ({ item, isSearch }) => {
             onPress={() => {
               console.log("item clicked on: ", item);
               handleChatPress(item);
-              // navigation.navigate("ChatRoom", {
-              //   name: item?.name,
-              //   receiverId: item?._id,
-              //   image: item?.image,
-              // })
             }}
           >
             <Text style={styles.chatButtonText}>Chat</Text>

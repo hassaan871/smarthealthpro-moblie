@@ -1,4 +1,10 @@
-import React, { useEffect, useLayoutEffect, useState, useRef } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useState,
+  useRef,
+  useContext,
+} from "react";
 import {
   Pressable,
   ScrollView,
@@ -16,7 +22,7 @@ import Entypo from "react-native-vector-icons/Entypo";
 import Feather from "react-native-vector-icons/Feather";
 import axios from "axios";
 import { useSocketContext } from "../../SocketContext";
-import { userInfo } from "../tabNavScreens/HomeScreen";
+import Context from "../../Helper/context";
 
 const ChatRoom = ({ route }) => {
   const { name, image, convoID, receiverId } = route.params;
@@ -26,6 +32,7 @@ const ChatRoom = ({ route }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const { socket } = useSocketContext();
+  const { userInfo } = useContext(Context);
 
   const scrollViewRef = useRef();
 

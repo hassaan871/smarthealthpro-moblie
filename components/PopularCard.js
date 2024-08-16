@@ -28,9 +28,9 @@ const PopularCard = ({ item }) => {
     >
       <View style={styles.container}>
         <View style={{ ...styles.card, width: cardWidth }}>
-          <Image source={{ uri: item.pictureUrl }} style={styles.image} />
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.specialty}>{item.specialty}</Text>
+          <Image source={{ uri: item?.user?.avatar }} style={styles.image} />
+          <Text style={styles.name}>{item?.user?.fullName}</Text>
+          <Text style={styles.specialty}>{item?.specialization}</Text>
         </View>
       </View>
     </Pressable>
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     textAlign: "center",
     // color: lightTheme.colors.primaryText,
-    color: "#007fff",
+    color: "black",
   },
   specialty: {
     fontSize: 12,

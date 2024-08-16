@@ -44,13 +44,15 @@ const TabScreensContainer = ({ navigation }) => {
           let iconName;
           if (route.name === "Home") {
             iconName = "home";
-          } else if (route.name === "Chat") {
-            iconName = "chat";
-          } else if (route.name === "Settings") {
+          }
+          // else if (route.name === "Chat") {
+          //   iconName = "chat";
+          // }
+          else if (route.name === "Settings") {
             iconName = "settings";
           } else if (route.name === "Camera") {
             iconName = "camera";
-          } else if (route.name === "Chat2") {
+          } else if (route.name === "Chat") {
             iconName = "chat";
           }
 
@@ -59,9 +61,9 @@ const TabScreensContainer = ({ navigation }) => {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Chat" component={ChattingList} />
+      {/* <Tab.Screen name="Chat" component={ChattingList} /> */}
       <Tab.Screen name="Settings" component={Settings} />
-      <Tab.Screen name="Chat2" component={ChatsScreen} />
+      <Tab.Screen name="Chat" component={ChatsScreen} />
       {/* <Tab.Screen name="Camera" component={CameraAccessScreen} /> */}
     </Tab.Navigator>
   );

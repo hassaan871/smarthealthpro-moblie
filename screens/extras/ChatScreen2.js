@@ -8,8 +8,9 @@ import {
   View,
   Modal,
   FlatList,
+  ImageBackground,
 } from "react-native";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Entypo from "react-native-vector-icons/Entypo";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -19,7 +20,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import lightTheme from "../../Themes/LightTheme";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { userInfo } from "../tabNavScreens/HomeScreen";
+import Context from "../../Helper/context";
 
 const ChatsScreen = () => {
   const [options, setOptions] = useState(["Chats"]);
@@ -29,7 +30,23 @@ const ChatsScreen = () => {
   const [doctors, setDoctors] = useState([]);
   const [chats, setChats] = useState([]);
   const modalSearchInputRef = useRef(null);
+  const { userInfo, popularDoctors } = useContext(Context);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    console.log("running: ", popularDoctors[0]);
+    const formattedDoctors = popularDoctors.map((doctor) => ({
+      _id: doctor._id,
+      avatar: doctor.user.avatar,
+      name: doctor.user.fullName,
+      numPatients: doctor.numPatients,
+      rating: doctor.rating,
+      specialization: doctor.specialization,
+    }));
+
+    console.log("1st popular formatted: ", formattedDoctors[0]);
+    setSearchResults(formattedDoctors);
+  }, [modalVisible || searchQuery.length === 0]);
 
   // useEffect(() => {
   //   const fetchChats = async () => {
@@ -112,37 +129,31 @@ const ChatsScreen = () => {
     fetchChats();
   }, [userInfo?._id]);
 
-  // useEffect(() => {
-  //   // Fetch all doctors when the component mounts
-  //   const fetchDoctors = async () => {
-  //     try {
-  //       const response = await axios.get(
-  //         "http://192.168.18.124:5000/user/getAllDoctors"
-  //       );
-  //       const doctorsData = response.data.doctors.map((doctor) => ({
-  //         numPatients: doctor.numPatients,
-  //         rating: doctor.rating,
-  //         specialization: doctor.specialization,
-  //         _id: doctor.user?._id, // user id for the doctor rahter than doctor id
-  //         avatar: doctor.user?.avatar,
-  //         name: doctor.user?.fullName,
-  //       }));
-
-  //       console.log("all doctor: ", doctorsData[0]);
-  //       setDoctors(doctorsData);
-  //       setSearchResults(doctorsData);
-  //     } catch (error) {
-  //       console.error("Error fetching doctors:", error);
-  //     }
-  //   };
-
-  //   fetchDoctors();
-  // }, []);
-
   useEffect(() => {
-    console.log("search results length: ", searchResults?.length);
-    console.log("search results: ", searchResults);
-  }, [searchResults]);
+    // Fetch all doctors when the component mounts
+    const fetchDoctors = async () => {
+      try {
+        const response = await axios.get(
+          "http://192.168.18.124:5000/user/getAllDoctors"
+        );
+        const doctorsData = response.data.map((doctor) => ({
+          numPatients: doctor.numPatients,
+          rating: doctor.rating,
+          specialization: doctor.specialization,
+          _id: doctor.user?._id, // user id for the doctor rahter than doctor id
+          avatar: doctor.user?.avatar,
+          name: doctor.user?.fullName,
+        }));
+
+        console.log("all doctor: ", doctorsData[0]);
+        setDoctors(doctorsData);
+      } catch (error) {
+        console.error("Error fetching doctors:", error);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
 
   const chooseOption = (option) => {
     if (options.includes(option)) {
@@ -161,22 +172,35 @@ const ChatsScreen = () => {
 
   const closeModal = () => {
     setSearchQuery("");
-    setSearchResults([]);
     setModalVisible(false);
   };
 
   const handleSearch = (query) => {
     setSearchQuery(query);
+
+    console.log("doctor ka 0th: ", doctors[0]);
     // Perform search based on query
     const filteredResults = doctors.filter((item) => {
-      // Convert the name to lowercase and check if it includes the search query
+      // Convert the fullName to lowercase and check if it includes the search query
       return item?.name?.toLowerCase()?.includes(query?.toLowerCase());
     });
+    console.log("search result ka 0th: ", filteredResults[0]);
+    //   .map((item) => {
+    //     // Return the formatted object
+    //     return {
+    //       name: item?.name,
+    //       image: item?.avatar,
+    //       convoID: "", // This can be updated with actual data if available
+    //       receiverId: item?._id,
+    //       specialization: item?.specialization,
+    //     };
+    //   });
+    console.log("filtered result ka pura: ", filteredResults);
     setSearchResults(filteredResults);
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+    <View style={{ flex: 1, backgroundColor: "white" }}>
       <View
         style={{
           padding: 10,
@@ -239,6 +263,18 @@ const ChatsScreen = () => {
         </Pressable>
 
         <View>
+          <View>
+            <Chat
+              item={{
+                name: "Chatbot",
+                avatar:
+                  "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+                lastMessage: "Chat with bot",
+              }}
+              isSearch={false}
+              isBotChat={true}
+            />
+          </View>
           {options?.includes("Chats") &&
             (chats.length > 0 ? (
               <View>
@@ -300,7 +336,7 @@ const ChatsScreen = () => {
           )}
         </SafeAreaView>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 };
 

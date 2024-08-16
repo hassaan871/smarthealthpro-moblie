@@ -155,10 +155,7 @@ const SettingScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ImageBackground
-        source={require("../../assets/bg.png")}
-        style={{ flex: 1 }}
-      >
+      <View style={{ flex: 1, backgroundColor: "white" }}>
         <Alert
           visible={showAlert}
           onDismiss={handleDismissAlert}
@@ -290,7 +287,7 @@ const SettingScreen = () => {
             onDelete={() => {}}
           />
         )}
-      </ImageBackground>
+      </View>
     </SafeAreaView>
   );
 };

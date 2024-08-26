@@ -117,12 +117,12 @@ export default function BookingScreen({ route, navigation }) {
         <ReusableModal
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
-          title={"Sign Up Successful"}
+          title={"Appointment Booked"}
           message={
-            "You have successfully signed up for an account. Welcome aboard!"
+            "You have successfully booked your appointment, by default your priority is low if you think you have a high prority case kindly chat with our ChatBot"
           }
           imageSource={checked}
-          onClose={() => navigation.navigate("TabScreensContainer")}
+          onClose={() => navigation.navigate("HomeScreen")}
         />
       </View>
     </SafeAreaView>

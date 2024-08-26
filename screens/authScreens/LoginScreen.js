@@ -14,7 +14,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import loginLogo from "../../assets/loginLogo.jpg";
 import { Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import Icon from "react-native-vector-icons/AntDesign";
 // import CookieManager from 'react-native-cookies';
@@ -42,7 +42,7 @@ const LoginScreen = () => {
   };
 
   const navigateToHomeTab = () => {
-    navigation.replace("TabScreensContainer");
+    navigation.replace("HomeScreen");
   };
 
   const handleSubmit = async (e) => {
@@ -54,7 +54,7 @@ const LoginScreen = () => {
         email,
         password,
       });
-      console.log("red", res.data);
+      // console.log("red", res.data);
       if (res.status === 200) {
         const data = res.data;
         const { name, token, email, role, avatar, id } = data;

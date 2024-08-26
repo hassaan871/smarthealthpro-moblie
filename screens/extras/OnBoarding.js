@@ -41,7 +41,7 @@ const OnBoardingScreen = () => {
       const userToken = await AsyncStorage.getItem("userToken");
       if (userToken) {
         console.log("auto logging in: ", userToken);
-        navigation.navigate("TabScreensContainer");
+        navigation.navigate("HomeScreen");
       } else {
         console.log("no user token found");
       }

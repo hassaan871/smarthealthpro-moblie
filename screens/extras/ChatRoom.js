@@ -36,7 +36,7 @@ const ChatRoom = ({ route }) => {
 
   const scrollViewRef = useRef();
 
-  console.log("Receiver ID:", receiverId);
+  // console.log("Receiver ID:", receiverId);
 
   const listeMessages = () => {
     const { socket } = useSocketContext();
@@ -106,14 +106,25 @@ const ChatRoom = ({ route }) => {
           <Ionicons
             name="arrow-back"
             size={24}
-            color="black"
+            color="white"
             onPress={() => navigation.goBack()}
+            style={styles.backIcon}
           />
-          <View>
-            <Text>{name}</Text>
+          <View style={styles.profileImageContainer}>
+            {/* Placeholder for the profile image */}
+            <View style={styles.profileImage} />
+          </View>
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.headerName}>{name}</Text>
+            <Text style={styles.headerSubtext}>Online</Text>
           </View>
         </View>
       ),
+      headerStyle: {
+        backgroundColor: "#1f1f1f",
+        elevation: 0,
+        shadowOpacity: 0,
+      },
     });
   }, [navigation, name]);
 
@@ -228,77 +239,94 @@ const ChatRoom = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#121212",
   },
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: "#1f1f1f",
+  },
+  backIcon: {
+    marginRight: 15,
+  },
+  profileImageContainer: {
+    marginRight: 10,
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#cccccc", // Placeholder color
+  },
+  headerTextContainer: {
+    justifyContent: "center",
+  },
+  headerName: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  headerSubtext: {
+    color: "#aaaaaa",
+    fontSize: 14,
   },
   message: {
-    padding: 8,
-    margin: 10,
-    borderRadius: 7,
-    maxWidth: "60%",
+    padding: 10,
+    marginVertical: 5,
+    marginHorizontal: 10,
+    borderRadius: 20,
+    maxWidth: "75%",
   },
   sentMessage: {
     alignSelf: "flex-end",
-    backgroundColor: "#007bff", // Blue color for sent messages
-    alignItems: "flex-end",
+    backgroundColor: "#3777f0",
   },
   receivedMessage: {
     alignSelf: "flex-start",
-    backgroundColor: "lightgrey", // White color for received messages
-    alignItems: "flex-start",
+    backgroundColor: "#2e2e2e",
   },
   messageContent: {
-    fontSize: 13,
-    color: "white", // Text color for sent messages
+    fontSize: 15,
+    color: "white",
   },
   receivedMessageContent: {
-    fontSize: 13,
-    color: "black", // Text color for received messages
+    fontSize: 15,
+    color: "white",
   },
   messageTime: {
     textAlign: "right",
-    fontSize: 9,
-    color: "black",
+    fontSize: 11,
+    color: "#b0b0b0",
     marginTop: 4,
   },
   inputContainer: {
-    backgroundColor: "white",
+    backgroundColor: "#1f1f1f",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: "#dddddd",
-    marginBottom: 20,
+    borderTopColor: "#333333",
   },
   textInput: {
     flex: 1,
     height: 40,
-    borderWidth: 1,
-    borderColor: "#dddddd",
+    borderWidth: 0,
+    borderColor: "transparent",
     borderRadius: 20,
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
+    backgroundColor: "#333333",
+    color: "white",
     marginLeft: 10,
   },
-  iconContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginHorizontal: 8,
-  },
   sendButton: {
-    backgroundColor: "#0066b2",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    backgroundColor: "#3777f0",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
     borderRadius: 20,
-  },
-  sendButtonText: {
-    textAlign: "center",
-    color: "white",
+    marginLeft: 10,
   },
   loader: {
     flex: 1,

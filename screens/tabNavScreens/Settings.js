@@ -1,327 +1,154 @@
-import React, {
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-  useContext,
-} from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
-  StyleSheet,
   Image,
-  Dimensions,
+  StyleSheet,
   SafeAreaView,
-  ImageBackground,
+  ScrollView,
+  TouchableOpacity,
+  Switch,
 } from "react-native";
-import { Avatar, Divider, Switch } from "react-native-paper";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import { Ionicons } from "@expo/vector-icons"; // assuming you're using expo
-import signupLogo from "../../assets/signupLogo.jpg";
-import axios from "axios";
-import { useNavigation } from "@react-navigation/native";
+import Icon from "react-native-vector-icons/Ionicons";
+import CutomBottomBar from "./CutomBottomBar";
 import Context from "../../Helper/context";
-import Alert from "../../components/Alert";
-import showAlertMessage from "../../Helper/AlertHelper";
-import Alert2 from "../../components/Alert2";
-import lightTheme from "../../Themes/LightTheme";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const SettingScreen = () => {
-  const {
-    token,
-    setToken,
-    userName,
-    setUserName,
-    emailGlobal,
-    setEmailGlobal,
-    image,
-    setImage,
-    avatar,
-    setAvatar,
-    id,
-    setId,
-  } = useContext(Context);
+const SettingsScreen = () => {
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const { userInfo } = useContext(Context);
 
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("success"); // success or error
-  const [buttonClicked, setButtonCLick] = useState("");
-  const [modalVisible, setModalVisible] = useState(false);
-
-  const navigation = useNavigation();
-  const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() => ["40%", "55%"], []);
-  const handleSheetChanges = useCallback((index) => {
-    // console.log('handleSheetChanges', index);
-  }, []);
-
-  // State for light/dark mode
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode((prevMode) => !prevMode);
-    // Additional logic to toggle app theme to dark/light mode
-  };
-
-  const handleDismissAlert = () => {
-    setShowAlert(false);
-  };
-
-  const handleDeleteAccount = async () => {
-    try {
-      const config = {
-        headers: {
-          token: token,
-        },
-      };
-
-      const response = await axios.delete(
-        `http://192.168.18.124:5000/user/deleteUser/${id}`,
-        config
-      );
-
-      // Check if the delete request was successful
-      if (response.status === 200) {
-        console.log("User account deleted successfully");
-        showAlertMessage(
-          setShowAlert,
-          setAlertMessage,
-          setAlertType,
-          "Account Deleted!",
-          "success"
-        );
-        await AsyncStorage.removeItem("userToken");
-        navigation.navigate("SignUp");
-        // Optionally, perform any additional actions after successful deletion
-      } else {
-        console.error("Failed to delete user account");
-      }
-    } catch (error) {
-      console.error("Error deleting user account:", error.message);
-      showAlertMessage(
-        setShowAlert,
-        setAlertMessage,
-        setAlertType,
-        "Deletion failed. Please try again.",
-        "error"
-      );
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem("userToken");
-      console.log("User token deleted successfully");
-    } catch (error) {
-      console.error("Error deleting user token:", error);
-    }
-
-    axios
-      .get("http://192.168.18.124:5000/user/logout")
-      .then((res) => {
-        showAlertMessage(
-          setShowAlert,
-          setAlertMessage,
-          setAlertType,
-          "Logout Success",
-          "success"
-        );
-        setAvatar("");
-        setEmailGlobal("");
-        setId("");
-        setImage("");
-        setToken("");
-        setUserName("");
-
-        navigation.navigate("Login");
-      })
-      .catch((error) => {
-        // console.error('Logout error:', error);
-        showAlertMessage(
-          setShowAlert,
-          setAlertMessage,
-          setAlertType,
-          "Logout failed. Please try again.",
-          "error"
-        );
-      });
-  };
-
-  const handleSettings = () => {
-    // Logic to navigate to the settings screen
-  };
+  useEffect(() => {
+    console.log("user from setting: ", userInfo);
+  });
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{ flex: 1, backgroundColor: "white" }}>
-        <Alert
-          visible={showAlert}
-          onDismiss={handleDismissAlert}
-          message={alertMessage}
-          type={alertType}
-        />
-        <View style={{ alignItems: "center", top: 24 }}>
-          {/* <Avatar.Icon size={144} icon="" /> */}
-          <Image source={image} style={styles.Image} />
-
-          <Text style={styles.itemText}>{userName}</Text>
-          <Text style={styles.itemText}>{emailGlobal}</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Settings</Text>
         </View>
-        <BottomSheet
-          ref={bottomSheetRef}
-          onChange={handleSheetChanges}
-          snapPoints={snapPoints}
-          // style={{backgroundColor:"red"}}
-        >
-          <BottomSheetView style={styles.contentContainer}>
-            {/* <TouchableOpacity style={styles.item} onPress={handleProfile}>
-            <Ionicons name="person" size={32} color={lightTheme.colors.primaryBtn} />
-            <Text style={styles.itemText}>Profile</Text>
-          </TouchableOpacity> */}
-            {/* <Divider bold style={{ marginVertical: "4%" }} /> */}
-            {/* <TouchableOpacity style={styles.item} onPress={handleAppointments}>
-            <Ionicons name="calendar" size={32} color={lightTheme.colors.primaryBtn} />
-            <Text style={styles.itemText}>Appointments</Text>
-          </TouchableOpacity> */}
-            {/* <Divider bold style={{ marginVertical: "4%" }} /> */}
-            <TouchableOpacity style={styles.item}>
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Ionicons
-                    name="notifications"
-                    size={32}
-                    color={lightTheme.colors.primaryBtn}
-                  />
-                  <Text style={styles.itemText}>Notifications</Text>
-                </View>
-                <Switch />
-              </View>
-            </TouchableOpacity>
-            <Divider bold style={{ marginVertical: "2%" }} />
-            {/* <TouchableOpacity style={styles.item} onPress={handleMessages}>
-            <Ionicons name="mail" size={32} color={lightTheme.colors.primaryBtn} />
-            <Text style={styles.itemText}>Messages</Text>
+
+        <View style={styles.userInfo}>
+          <Image source={{ uri: userInfo.avatar }} style={styles.userImage} />
+          <Text style={styles.userName}>{userInfo.fullName}</Text>
+          <Text style={styles.userEmail}>{userInfo.email}</Text>
+        </View>
+
+        <View style={styles.settingsSection}>
+          <View style={styles.settingItem}>
+            <View style={styles.settingLeft}>
+              <Icon name="notifications-outline" size={24} color="#4A90E2" />
+              <Text style={styles.settingText}>Notifications</Text>
+            </View>
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={setNotificationsEnabled}
+              trackColor={{ false: "#767577", true: "#4A90E2" }}
+              thumbColor={notificationsEnabled ? "#f4f3f4" : "#f4f3f4"}
+            />
+          </View>
+
+          <TouchableOpacity style={styles.settingItem}>
+            <View style={styles.settingLeft}>
+              <Icon name="trash-outline" size={24} color="#4A90E2" />
+              <Text style={styles.settingText}>Clear Cache</Text>
+            </View>
+            <Icon name="chevron-forward" size={24} color="#B0B0B0" />
           </TouchableOpacity>
-          <Divider bold style={{ marginVertical: "4%" }} /> */}
 
-            <TouchableOpacity style={styles.item} onPress={handleSettings}>
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Ionicons
-                    name="moon"
-                    size={32}
-                    color={lightTheme.colors.primaryBtn}
-                  />
-                  <Text style={styles.itemText}>Dark Mode</Text>
-                </View>
-                <Switch />
-              </View>
-            </TouchableOpacity>
+          <TouchableOpacity style={styles.settingItem}>
+            <View style={styles.settingLeft}>
+              <Icon name="log-out-outline" size={24} color="#4A90E2" />
+              <Text style={styles.settingText}>Logout</Text>
+            </View>
+            <Icon name="chevron-forward" size={24} color="#B0B0B0" />
+          </TouchableOpacity>
 
-            <Divider bold style={{ marginVertical: "2%" }} />
-            <TouchableOpacity style={styles.item} onPress={handleLogout}>
-              <Ionicons
-                name="bag-remove"
-                size={32}
-                color={lightTheme.colors.primaryBtn}
-              />
-              <Text style={styles.itemText}>Clear Cache</Text>
-            </TouchableOpacity>
+          <TouchableOpacity style={styles.settingItem}>
+            <View style={styles.settingLeft}>
+              <Icon name="trash-bin-outline" size={24} color="#E74C3C" />
+              <Text style={[styles.settingText, styles.deleteAccountText]}>
+                Delete Account
+              </Text>
+            </View>
+            <Icon name="chevron-forward" size={24} color="#B0B0B0" />
+          </TouchableOpacity>
+        </View>
 
-            <Divider bold style={{ marginVertical: "2%" }} />
-            <TouchableOpacity
-              style={styles.item}
-              onPress={() => {
-                setModalVisible(true);
-                setButtonCLick("Logout");
-                handleLogout();
-              }}
-            >
-              <Ionicons name="log-out" size={32} color="red" />
-              <Text style={styles.itemText}>Logout</Text>
-            </TouchableOpacity>
-
-            <Divider bold style={{ marginVertical: "2%" }} />
-            <TouchableOpacity
-              style={styles.item}
-              onPress={() => {
-                setModalVisible(true);
-                setButtonCLick("Delete");
-                handleDeleteAccount;
-              }}
-            >
-              <Ionicons name="trash" size={32} color="red" />
-              <Text style={styles.itemText}>Delete Account</Text>
-            </TouchableOpacity>
-          </BottomSheetView>
-        </BottomSheet>
-        {modalVisible && (
-          <Alert2
-            title={
-              buttonClicked === "Delete" ? "Confirm Delete" : "Confirm Logout"
-            }
-            message={
-              buttonClicked === "Delete"
-                ? "Are you sure you want to delete yout account"
-                : "Are you sure you want to log out?"
-            }
-            btnClicked={buttonClicked}
-            modalVisible={modalVisible}
-            setModalVisible={setModalVisible}
-            onDelete={() => {}}
-          />
-        )}
-      </View>
+        <Text style={styles.versionText}>Version 1.0.0</Text>
+      </ScrollView>
+      <CutomBottomBar active={"setting"} />
     </SafeAreaView>
   );
 };
 
-export default SettingScreen;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // padding: 24,
-    backgroundColor: "grey",
+    backgroundColor: "#1E1E1E",
   },
-  contentContainer: {
-    flex: 1,
-    padding: 12,
-    // backgroundColor:"red"
+  scrollContent: {
+    padding: 20,
   },
-  item: {
+  header: {
+    marginBottom: 20,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  userInfo: {
+    alignItems: "center",
+    marginBottom: 30,
+  },
+  userImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 15,
+  },
+  userName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 5,
+  },
+  userEmail: {
+    fontSize: 16,
+    color: "#B0B0B0",
+  },
+  settingsSection: {
+    backgroundColor: "#2C2C2E",
+    borderRadius: 10,
+    overflow: "hidden",
+    marginBottom: 20,
+  },
+  settingItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#3C3C3E",
+  },
+  settingLeft: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 15,
-    borderBottomColor: "#CCCCCC",
   },
-  itemText: {
-    paddingLeft: 12,
-    fontSize: 20,
+  settingText: {
+    marginLeft: 15,
+    fontSize: 16,
+    color: "#fff",
   },
-  Image: {
-    width: 200,
-    height: 200,
-    borderRadius: 100 / 2,
-    overflow: "hidden",
-    borderWidth: 3,
-    borderColor: "black",
-    margin: 12,
+  deleteAccountText: {
+    color: "#E74C3C",
+  },
+  versionText: {
+    textAlign: "center",
+    color: "#B0B0B0",
+    marginTop: 20,
   },
 });
+
+export default SettingsScreen;

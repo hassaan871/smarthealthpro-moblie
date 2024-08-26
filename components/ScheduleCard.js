@@ -1,80 +1,102 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import { Card, Title, Paragraph, Text } from "react-native-paper";
+import React, { useEffect } from "react";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
 
 const ScheduleCard = ({ item }) => {
-  console.log(item);
+  // useEffect(() => {
+  //   console.log("item from schedule: ", item);
+  // });
 
-  const formatDateTime = (dateTime) => {
+  function formatDateAndTime(isoString) {
     const options = {
-      year: "numeric",
       month: "long",
       day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
+      year: "numeric",
     };
-    return new Date(dateTime).toLocaleString("en-US", options);
-  };
 
+    const date = new Date(isoString);
+    return date.toLocaleString("en-US", options);
+  }
   return (
-    <Card style={styles.card}>
-      <Card.Cover source={{ uri: item?.doctor?.avatar }} style={styles.image} />
-      <Card.Content style={{ flex: 1 }}>
-        <Text
-          style={{
-            textAlign: "center",
-            color: "gray",
-            marginBottom: 4,
-            fontWeight: "bold",
-            fontSize: 18,
-          }}
-        >
-          Dr. {item?.doctor?.name}
-        </Text>
-        {/* captalizating first words */}
-        <Title style={styles.title}>
-          Description:{" "}
-          {item?.description?.replace(/\b\w/g, (char) => char.toUpperCase())}
-        </Title>
-
-        <Paragraph style={styles.text}>
-          Time: {formatDateTime(item?.date)}
-        </Paragraph>
-        <Paragraph style={styles.text}>
-          Status: {item?.appointmentStatus}
-        </Paragraph>
-        <Paragraph style={styles.text}>{item?.location}</Paragraph>
-      </Card.Content>
-    </Card>
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>Upcoming Schedule</Text>
+      <View style={styles.scheduleCard}>
+        <Image
+          source={{ uri: item?.doctor?.avatar }}
+          style={styles.doctorImage}
+        />
+        <View style={styles.scheduleInfo}>
+          <Text style={styles.doctorName}>{item?.doctor?.name}</Text>
+          <Text style={styles.doctorSpecialty}>
+            {item?.doctor?.specialization}
+          </Text>
+          <View style={styles.scheduleTimeContainer}>
+            <Icon name="calendar-outline" size={16} color="#4A90E2" />
+            <Text style={styles.scheduleTime}>
+              {formatDateAndTime(item?.date) + " at " + item?.selectedTimeSlot}
+            </Text>
+          </View>
+        </View>
+        <TouchableOpacity style={styles.addButton}>
+          <Icon name="add" size={24} color="#fff" />
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
-    margin: 12,
-    borderRadius: 10,
-    elevation: 4,
-    padding: 12,
-    // backgroundColor: "#1a3555",
-    // backgroundColor: "#141b35",
-    // backgroundColor: "#46466E",
-    backgroundColor: "#04284B",
+  section: {
+    marginBottom: 20,
   },
-  image: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    alignSelf: "center",
-  },
-  title: {
+  sectionTitle: {
     fontSize: 18,
-    fontWeight: "900",
-    color: "gray",
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 10,
   },
-  text: {
+  scheduleCard: {
+    flexDirection: "row",
+    backgroundColor: "#4A90E2",
+    borderRadius: 10,
+    padding: 15,
+    alignItems: "center",
+  },
+  doctorImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
+  },
+  scheduleInfo: {
+    flex: 1,
+  },
+  doctorName: {
     fontSize: 16,
-    color: "gray",
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  doctorSpecialty: {
+    fontSize: 14,
+    color: "#E0E0E0",
+  },
+  scheduleTimeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 5,
+  },
+  scheduleTime: {
+    fontSize: 12,
+    color: "#E0E0E0",
+    marginLeft: 5,
+  },
+  addButton: {
+    backgroundColor: "#2980B9",
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

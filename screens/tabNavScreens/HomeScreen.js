@@ -22,7 +22,6 @@ import CutomBottomBar from "./CutomBottomBar";
 import DoctorCard from "../../components/DoctorCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ScheduleCard from "../../components/ScheduleCard";
-import baseUrl from "../../baseUrl";
 
 const HomeScreen = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -45,7 +44,7 @@ const HomeScreen = () => {
       console.log("user id is from async: ", userID);
       if (userID !== null) {
         const response = await axios.get(
-          `${baseUrl}/user/getUserInfo/${userID}`
+          `http://192.168.18.124:5000/user/getUserInfo/${userID}`
         );
 
         console.log("response users data: ", response.data.user);
@@ -64,7 +63,7 @@ const HomeScreen = () => {
       console.log("user id is from async: ", userID);
       if (userID !== null) {
         const response = await axios.get(
-          `${baseUrl}/appointment/getAllAppointments?PatientId=${userID}`
+          `http://192.168.18.124:5000/appointment/getAllAppointments?PatientId=${userID}`
         );
 
         console.log("response appointment: ", response.data.appointments);
@@ -83,7 +82,7 @@ const HomeScreen = () => {
       console.log("Fetching popular doctor");
       try {
         const response = await axios.get(
-          `${baseUrl}/user/getDoctorsBySatisfaction`
+          `http://192.168.18.124:5000/user/getDoctorsBySatisfaction`
         );
 
         console.log("response doctors: ", response.data[0]);

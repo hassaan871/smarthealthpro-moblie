@@ -23,7 +23,6 @@ import lightTheme from "../../Themes/LightTheme";
 import Alert from "../../components/Alert";
 import showAlertMessage from "../../Helper/AlertHelper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import baseUrl from "../../baseUrl";
 
 const LoginScreen = () => {
   const { setToken, setUserName, setEmailGlobal, setAvatar, setId } =
@@ -51,7 +50,7 @@ const LoginScreen = () => {
     setLoading(true);
     console.log("Entering handle submit");
     try {
-      const res = await axios.post(`${baseUrl}/user/login`, {
+      const res = await axios.post("http://192.168.18.124:5000/user/login", {
         email,
         password,
       });

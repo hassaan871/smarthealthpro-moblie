@@ -22,7 +22,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Context from "../../Helper/context";
 import CutomBottomBar from "../tabNavScreens/CutomBottomBar";
 import DialogflowModal from "../../components/DialogFlowModal";
-import baseUrl from "../../baseUrl";
 
 const ChatsScreen = () => {
   const [options, setOptions] = useState(["Chats"]);
@@ -43,7 +42,7 @@ const ChatsScreen = () => {
       console.log("userinfo id: ", userInfo);
       try {
         const response = await axios.get(
-          `${baseUrl}/conversations/${userInfo?._id}`
+          `http://192.168.18.124:5000/conversations/${userInfo?._id}`
         );
         console.log("fetched chats 2332: ", response.data);
 

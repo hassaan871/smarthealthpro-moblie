@@ -1,10 +1,9 @@
 import axios from 'axios';
-import baseUrl from '../../baseUrl';
 
 const sendQueryToFlask = async (query) => {
   try {
     console.log("queru",query.text)
-    const response = await axios.post(`${baseUrl}/query`, { query:query.text });
+    const response = await axios.post('http://192.168.100.109/query', { query:query.text });
     console.log('Response:', response.data.answer);
     // console.log(response)
     return response.data.answer;
@@ -16,7 +15,7 @@ const sendQueryToFlask = async (query) => {
 
 const getFlaskResponse = async () => {
   try {
-      const response = await axios.get(baseUrl);
+      const response = await axios.get("http://192.168.100.222");
       console.log("Response:", response.data);
       return response.data;
   } catch(error) {

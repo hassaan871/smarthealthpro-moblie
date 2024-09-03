@@ -23,7 +23,6 @@ import Feather from "react-native-vector-icons/Feather";
 import axios from "axios";
 import { useSocketContext } from "../../SocketContext";
 import Context from "../../Helper/context";
-import baseUrl from "../../baseUrl";
 
 const ChatRoom = ({ route }) => {
   const { name, image, convoID, receiverId } = route.params;
@@ -60,7 +59,7 @@ const ChatRoom = ({ route }) => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${baseUrl}/conversations/getMessages/${convoID}`
+        `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
       );
       setMessages(response.data);
     } catch (error) {
@@ -150,7 +149,7 @@ const ChatRoom = ({ route }) => {
 
       try {
         await axios.post(
-          `${baseUrl}/conversations/${convoID}/messages`,
+          `http://192.168.18.124:5000/conversations/${convoID}/messages`,
           {
             content: newMessage.content,
             sender: newMessage.sender,

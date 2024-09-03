@@ -19,7 +19,6 @@ import Alert from "../../components/Alert";
 import showAlertMessage from "../../Helper/AlertHelper";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import ReusableModal from "../../components/ReusableModal";
-import baseUrl from "../../baseUrl";
 
 const SignUpScreen = ({ navigation }) => {
   // const { setToken, setUser } = useContext(Context);
@@ -71,7 +70,7 @@ const SignUpScreen = ({ navigation }) => {
     console.log("Form data:", { name, email, password, role });
 
     axios
-      .post(`${baseUrl}/user/register`, {
+      .post("http://192.168.18.124:5000/user/register", {
         fullName: name,
         email,
         password,

@@ -11,7 +11,6 @@ import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/Ionicons";
 import Context from "../Helper/context";
 import axios from "axios";
-import baseUrl from "../baseUrl";
 
 const DoctorCard = ({ item }) => {
   const navigation = useNavigation();
@@ -84,7 +83,7 @@ const DoctorCard = ({ item }) => {
 
       // Make a POST request to create or retrieve a conversation
       const response = await axios.post(
-        `${baseUrl}/conversations`,
+        "http://192.168.18.124:5000/conversations",
         {
           currentUserId,
           otherUserId,

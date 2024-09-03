@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import io from "socket.io-client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import baseUrl from "./baseUrl";
 
 const SocketContext = createContext();
 
@@ -18,7 +19,7 @@ export const SocketContextProvider = ({ children }) => {
         const userId = await AsyncStorage.getItem("userToken");
 
         if (userId) {
-          const socket = io("http://192.168.18.124:5000", {
+          const socket = io( baseUrl, {
             query: { userId: userId },
           });
 

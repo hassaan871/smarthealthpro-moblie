@@ -32,6 +32,7 @@ const DialogflowModal = ({ visible, onClose }) => {
         )}
       </View>
     </Modal>
+    
   );
 };
 

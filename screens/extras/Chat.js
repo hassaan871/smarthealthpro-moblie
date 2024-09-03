@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Context from "../../Helper/context";
+import baseUrl from "../../baseUrl";
 
 const Chat = ({ item, isBotChat }) => {
   const navigation = useNavigation();
@@ -69,7 +70,7 @@ const Chat = ({ item, isBotChat }) => {
       console.log(`creating chat btw ${currentUserId} and ${otherUserId}`);
       // Make a POST request to create or retrieve a conversation
       const response = await axios.post(
-        "http://192.168.18.124:5000/conversations",
+        `${baseUrl}/conversations`,
         {
           currentUserId,
           otherUserId,

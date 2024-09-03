@@ -1,0 +1,1 @@
+export default baseUrl = "http://192.168.18.124:5000"

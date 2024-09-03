@@ -7,6 +7,7 @@ import { MyContextProvider } from "./Helper/context";
 import { PaperProvider, adaptNavigationTheme } from "react-native-paper";
 import darkTheme from "./Themes/DarkTheme";
 import lightTheme from "./Themes/LightTheme";
+
 import {
   DarkTheme as NavigationDarkTheme,
   DefaultTheme as NavigationDefaultTheme,

@@ -17,6 +17,7 @@ import axios from "axios";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import { useNavigation } from "@react-navigation/native";
+import baseUrl from "../../baseUrl";
 
 const uuidv4 = () => {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
@@ -60,7 +61,7 @@ const BotChattingScreen = ({ route }) => {
       const formData = new FormData();
       formData.append("message", message);
       const response = await axios.post(
-        "http://127.0.0.1:8081/chat",
+        `${baseUrl}/chat`,
         formData,
         {
           headers: {
@@ -115,7 +116,7 @@ const BotChattingScreen = ({ route }) => {
         });
 
         const chatResponse = await axios.post(
-          "http://127.0.0.1:8081/chat",
+          `${baseUrl}/chat`,
           formData,
           {
             headers: {

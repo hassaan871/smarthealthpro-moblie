@@ -139,7 +139,12 @@ const BotChattingScreen = ({ route }) => {
   };
 
   const formatTime = (time) => {
-    const options = { hour: "numeric", minute: "numeric" };
+    const options = {
+      hour: "numeric",
+      minute: "numeric",
+      timeZone: "Asia/Karachi",
+      hour12: true,
+    };
     return new Date(time).toLocaleString("en-US", options);
   };
 

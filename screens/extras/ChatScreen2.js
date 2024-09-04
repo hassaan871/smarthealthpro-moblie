@@ -60,11 +60,11 @@ const ChatsScreen = () => {
           const formattedTime = new Date(chat.updatedAt).toLocaleString(
             "en-US",
             {
+              timeZone: "Asia/Karachi",
+              hour12: true,
               hour: "2-digit",
               minute: "2-digit",
               second: "2-digit",
-              hour12: true,
-              timeZone: "UTC",
             }
           );
 
@@ -154,6 +154,18 @@ const ChatsScreen = () => {
             style={styles.searchIcon}
           />
         </View>
+        {isBottomBarVisible && (
+          <Chat
+            item={{
+              name: "ChatBot",
+              avatar:
+                "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+              lastMessage: "Chat with bot",
+            }}
+            isSearch={false}
+            isBotChat={true}
+          />
+        )}
 
         <View style={styles.contentContainer}>
           <Pressable
@@ -165,19 +177,6 @@ const ChatsScreen = () => {
           </Pressable>
 
           <View>
-            {isBottomBarVisible && (
-              <Chat
-                item={{
-                  name: "ChatBot",
-                  avatar:
-                    "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
-                  lastMessage: "Chat with bot",
-                }}
-                isSearch={false}
-                isBotChat={true}
-              />
-            )}
-
             {options?.includes("Chats") && (
               <View>
                 {chats.length > 0 ? (

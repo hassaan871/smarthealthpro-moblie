@@ -12,7 +12,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import Context from "../Helper/context";
 import axios from "axios";
 
-const DoctorCard = ({ item }) => {
+const DoctorCard = ({ item, isBook }) => {
   const navigation = useNavigation();
   const { userInfo } = useContext(Context);
 
@@ -83,7 +83,7 @@ const DoctorCard = ({ item }) => {
 
       // Make a POST request to create or retrieve a conversation
       const response = await axios.post(
-        "http://192.168.18.124:5000/conversations",
+        "http://10.135.88.149:5000/conversations",
         {
           currentUserId,
           otherUserId,
@@ -140,7 +140,13 @@ const DoctorCard = ({ item }) => {
             handleChatPress(item);
           }}
         >
-          <Icon name="chatbubble-ellipses-outline" size={24} color="#4A90E2" />
+          {!isBook && (
+            <Icon
+              name="chatbubble-ellipses-outline"
+              size={24}
+              color="#4A90E2"
+            />
+          )}
         </TouchableOpacity>
       </View>
     </Pressable>

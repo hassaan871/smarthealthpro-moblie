@@ -9,6 +9,8 @@ const ScheduleCard = ({ item }) => {
 
   function formatDateAndTime(isoString) {
     const options = {
+      timeZone: "Asia/Karachi",
+      hour12: true,
       month: "long",
       day: "numeric",
       year: "numeric",

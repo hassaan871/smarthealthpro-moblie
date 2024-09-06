@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Pressable,
   ScrollView,
@@ -17,6 +17,7 @@ import axios from "axios";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const uuidv4 = () => {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
@@ -26,14 +27,25 @@ const uuidv4 = () => {
   });
 };
 
-const BotChattingScreen = () => {
+const BotChattingScreen = ({ route }) => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const user = { id: "06c33e8b-e835-4736-80f4-63f44b66666c" };
+  const [patientId, setPatientId] = useState('');
+ 
   const chatbot = { id: "06c33e8b-e899-4736-80f4-63f44b66666c" };
   const scrollViewRef = useRef();
   const navigation = useNavigation();
+  // const { name, image, convoID, receiverId } = route.params;
+  useEffect(()=>{
+    const fetchUser = async () => {
+      const userID = await AsyncStorage.getItem("userToken");
+      setPatientId(userID)
+      console.log("user",patientId,userID)
+    }
+    fetchUser()
+  },[])
+ 
 
   const addMessage = (message) => {
     setMessages((prevMessages) => [...prevMessages, message]);
@@ -46,7 +58,7 @@ const BotChattingScreen = () => {
     if (!message.trim()) return;
 
     const sentMessage = {
-      author: user,
+      author: patientId,
       createdAt: Date.now(),
       id: uuidv4(),
       text: message,
@@ -58,8 +70,10 @@ const BotChattingScreen = () => {
     try {
       const formData = new FormData();
       formData.append("message", message);
+      formData.append("patient_id", patientId);
+      console.log(patientId)
       const response = await axios.post(
-        "http://127.0.0.1:8081/chat",
+        "http://192.168.100.132:8082/chat",
         formData,
         {
           headers: {
@@ -89,18 +103,18 @@ const BotChattingScreen = () => {
       if (response.assets && response.assets.length > 0 && !response.canceled) {
         const file = response.assets[0];
         const fileMessage = {
-          author: user,
+          author: patientId,
           createdAt: Date.now(),
           id: uuidv4(),
           mimeType: file.mimeType,
-          name: file.name,
+          name: file?.name,
           size: file.size,
           type: "file",
           uri: file.uri,
         };
         addMessage(fileMessage);
 
-        const fileUri = FileSystem.documentDirectory + file.name;
+        const fileUri = FileSystem.documentDirectory + file?.name;
         await FileSystem.copyAsync({
           from: file.uri,
           to: fileUri,
@@ -110,11 +124,11 @@ const BotChattingScreen = () => {
         formData.append("file", {
           uri: fileUri,
           type: file.mimeType,
-          name: file.name,
+          name: file?.name,
         });
 
         const chatResponse = await axios.post(
-          "http://127.0.0.1:8081/chat",
+          "http://127.0.0.1:8082/chat",
           formData,
           {
             headers: {
@@ -138,7 +152,12 @@ const BotChattingScreen = () => {
   };
 
   const formatTime = (time) => {
-    const options = { hour: "numeric", minute: "numeric" };
+    const options = {
+      hour: "numeric",
+      minute: "numeric",
+      timeZone: "Asia/Karachi",
+      hour12: true,
+    };
     return new Date(time).toLocaleString("en-US", options);
   };
 
@@ -151,14 +170,17 @@ const BotChattingScreen = () => {
         <Ionicons
           name="arrow-back"
           size={24}
-          color="black"
-          onPress={() => {
-            console.log("Going back");
-            navigation.goBack();
-          }} // Replace with navigation logic if needed
+          color="white"
+          onPress={() => navigation.goBack()}
+          style={styles.backIcon}
         />
-        <View>
-          <Text>Chatbot</Text>
+        <View style={styles.profileImageContainer}>
+          {/* Placeholder for the profile image */}
+          <View style={styles.profileImage} />
+        </View>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.headerName}>ChatBot</Text>
+          <Text style={styles.headerSubtext}>Online</Text>
         </View>
       </View>
 
@@ -176,22 +198,22 @@ const BotChattingScreen = () => {
               key={index}
               style={[
                 styles.message,
-                item.author.id === user.id
+                item?.author === patientId
                   ? styles.sentMessage
                   : styles.receivedMessage,
               ]}
             >
               <Text
                 style={
-                  item.author.id === user.id
+                  item?.author === patientId
                     ? styles.messageContent
                     : styles.receivedMessageContent
                 }
               >
-                {item.text}
+                {item?.text}
               </Text>
               <Text style={styles.messageTime}>
-                {formatTime(item.createdAt)}
+                {formatTime(item?.createdAt)}
               </Text>
             </Pressable>
           ))}
@@ -202,6 +224,7 @@ const BotChattingScreen = () => {
         <Entypo name="emoji-happy" size={24} color="gray" />
         <TextInput
           placeholder="Type your message..."
+          placeholderTextColor="#aaaaaa"
           value={message}
           onChangeText={setMessage}
           style={styles.textInput}
@@ -226,62 +249,86 @@ const BotChattingScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#121212",
   },
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    padding: 10,
-    backgroundColor: "#f7fafc",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: "#1f1f1f",
+  },
+  backIcon: {
+    marginRight: 15,
+  },
+  profileImageContainer: {
+    marginRight: 10,
+  },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#cccccc", // Placeholder color
+  },
+  headerTextContainer: {
+    justifyContent: "center",
+  },
+  headerName: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  headerSubtext: {
+    color: "#aaaaaa",
+    fontSize: 14,
   },
   message: {
-    padding: 8,
-    margin: 10,
-    borderRadius: 7,
-    maxWidth: "70%",
+    padding: 10,
+    marginVertical: 5,
+    marginHorizontal: 10,
+    borderRadius: 20,
+    maxWidth: "75%",
   },
   sentMessage: {
     alignSelf: "flex-end",
-    backgroundColor: "#007bff",
-    alignItems: "flex-end",
+    backgroundColor: "#3777f0",
   },
   receivedMessage: {
     alignSelf: "flex-start",
-    backgroundColor: "lightgrey",
-    alignItems: "flex-start",
+    backgroundColor: "#2e2e2e",
   },
   messageContent: {
-    fontSize: 14,
+    fontSize: 15,
     color: "white",
   },
   receivedMessageContent: {
-    fontSize: 14,
-    color: "black",
+    fontSize: 15,
+    color: "white",
   },
   messageTime: {
     textAlign: "right",
-    fontSize: 9,
-    color: "black",
+    fontSize: 11,
+    color: "#b0b0b0",
     marginTop: 4,
   },
   inputContainer: {
-    backgroundColor: "white",
+    backgroundColor: "#1f1f1f",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: "#dddddd",
-    marginBottom: 20,
+    borderTopColor: "#333333",
   },
   textInput: {
     flex: 1,
     height: 40,
-    borderWidth: 1,
-    borderColor: "#dddddd",
+    borderWidth: 0,
+    borderColor: "transparent",
     borderRadius: 20,
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
+    backgroundColor: "#333333",
+    color: "white",
     marginLeft: 10,
   },
   iconContainer: {
@@ -291,10 +338,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   sendButton: {
-    backgroundColor: "#0066b2",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    backgroundColor: "#3777f0",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
     borderRadius: 20,
+    marginLeft: 10,
   },
   sendButtonText: {
     textAlign: "center",

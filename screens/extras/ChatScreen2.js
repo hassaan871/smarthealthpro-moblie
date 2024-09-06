@@ -8,7 +8,7 @@ import {
   View,
   Modal,
   FlatList,
-  ImageBackground,
+  TouchableOpacity,
 } from "react-native";
 import React, { useState, useRef, useEffect, useContext } from "react";
 import AntDesign from "react-native-vector-icons/AntDesign";
@@ -17,87 +17,36 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
 import Chat from "./Chat";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import lightTheme from "../../Themes/LightTheme";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Context from "../../Helper/context";
+import CutomBottomBar from "../tabNavScreens/CutomBottomBar";
+import DialogflowModal from "../../components/DialogFlowModal";
 
 const ChatsScreen = () => {
   const [options, setOptions] = useState(["Chats"]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible2, setModalVisible2] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [doctors, setDoctors] = useState([]);
   const [chats, setChats] = useState([]);
+  const [isBottomBarVisible, setIsBottomBarVisible] = useState(true);
   const modalSearchInputRef = useRef(null);
-  const { userInfo, popularDoctors } = useContext(Context);
+  const { userInfo } = useContext(Context);
   const navigation = useNavigation();
-
-  useEffect(() => {
-    console.log("running: ", popularDoctors[0]);
-    const formattedDoctors = popularDoctors.map((doctor) => ({
-      _id: doctor._id,
-      avatar: doctor.user.avatar,
-      name: doctor.user.fullName,
-      numPatients: doctor.numPatients,
-      rating: doctor.rating,
-      specialization: doctor.specialization,
-    }));
-
-    console.log("1st popular formatted: ", formattedDoctors[0]);
-    setSearchResults(formattedDoctors);
-  }, [modalVisible || searchQuery.length === 0]);
-
-  // useEffect(() => {
-  //   const fetchChats = async () => {
-  //     try {
-  //       const userId = await AsyncStorage.getItem("userToken");
-  //       const response = await axios.get(
-  //         `http://192.168.18.124:5000/chats/chats/user/${userId}`
-  //       );
-  //       const transformedChats = response.data.map((chat) => {
-  //         const receiverId = chat.users[1];
-  //         // console.log("reciever id: ", receiverId);
-  //         // console.log("chat id: ", chat._id);
-  //         // console.log("reciever avatar: ", chat.recieverAvatar);
-  //         // console.log("receiver Name: ", chat.receiverName);
-  //         // console.log("lastMessage: ", chat.lastMessage);
-  //         // console.log("updatedAt: ", chat.updatedAt);
-  //         return {
-  //           chatId: chat._id,
-  //           receiverId,
-  //           receiverName: chat.receiverName,
-  //           recieverAvatar: chat.recieverAvatar,
-  //           lastMessage: chat.lastMessage,
-  //           updatedAt: chat.updatedAt,
-  //         };
-  //       });
-  //       setChats(transformedChats);
-  //     } catch (error) {
-  //       console.error("Error fetching chats:", error);
-  //     }
-  //   };
-
-  //   fetchChats();
-  // }, []);
 
   useEffect(() => {
     console.log("fetch chats");
 
     const fetchChats = async () => {
+      console.log("userinfo id: ", userInfo);
       try {
         const response = await axios.get(
-          `http://192.168.18.124:5000/conversations/${userInfo?._id}`
+          `http://192.168.100.132:5000/conversations/${userInfo?._id}`
         );
-        console.log("fetched chats: ", response.data[0]);
+        console.log("fetched chats 2332: ", response.data);
 
-        const convoID = response.data[0]?._id;
-        console.log("res; ", response.data);
-        console.log("convo id: ", convoID);
-
-        // Map the response data to the desired format
         const formattedChats = response.data.map((chat) => {
-          // Find the index of userInfo._id in the participants array
           const participantIndex = chat.participants.indexOf(userInfo?._id);
           const avatar =
             participantIndex === 0 ? chat.avatar[1] : chat.avatar[0];
@@ -108,19 +57,32 @@ const ChatsScreen = () => {
               ? chat.participants[1]
               : chat.participants[0];
 
-          // Return the formatted chat object
+          const formattedTime = new Date(chat.updatedAt).toLocaleString(
+            "en-US",
+            {
+              timeZone: "Asia/Karachi",
+              hour12: true,
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            }
+          );
+
+          console.log("formatted time: ", formattedTime);
+
           return {
-            convoID,
+            convoID: chat._id,
             name: name,
             lastMessage: chat.lastMessage,
             avatar: avatar,
             receiverId: receiverID,
+            time: formattedTime,
           };
         });
 
-        // Now set the formatted data to state
-        console.log("for 0: ", formattedChats[0]);
+        console.log("for 0: ", formattedChats);
         setChats(formattedChats);
+        setSearchResults(formattedChats);
       } catch (error) {
         console.log("error fetching chat: ", error);
       }
@@ -128,32 +90,6 @@ const ChatsScreen = () => {
 
     fetchChats();
   }, [userInfo?._id]);
-
-  useEffect(() => {
-    // Fetch all doctors when the component mounts
-    const fetchDoctors = async () => {
-      try {
-        const response = await axios.get(
-          "http://192.168.18.124:5000/user/getAllDoctors"
-        );
-        const doctorsData = response.data.map((doctor) => ({
-          numPatients: doctor.numPatients,
-          rating: doctor.rating,
-          specialization: doctor.specialization,
-          _id: doctor.user?._id, // user id for the doctor rahter than doctor id
-          avatar: doctor.user?.avatar,
-          name: doctor.user?.fullName,
-        }));
-
-        console.log("all doctor: ", doctorsData[0]);
-        setDoctors(doctorsData);
-      } catch (error) {
-        console.error("Error fetching doctors:", error);
-      }
-    };
-
-    fetchDoctors();
-  }, []);
 
   const chooseOption = (option) => {
     if (options.includes(option)) {
@@ -163,214 +99,228 @@ const ChatsScreen = () => {
     }
   };
 
-  const openModal = () => {
-    setModalVisible(true);
-    setTimeout(() => {
-      modalSearchInputRef.current.focus();
-    }, 200); // Delay focusing to ensure modal animation is complete
-  };
-
-  const closeModal = () => {
-    setSearchQuery("");
-    setModalVisible(false);
-  };
-
   const handleSearch = (query) => {
     setSearchQuery(query);
 
-    console.log("doctor ka 0th: ", doctors[0]);
-    // Perform search based on query
-    const filteredResults = doctors.filter((item) => {
-      // Convert the fullName to lowercase and check if it includes the search query
+    console.log("chat ka 0th: ", chats[0]);
+    const filteredResults = chats.filter((item) => {
       return item?.name?.toLowerCase()?.includes(query?.toLowerCase());
     });
     console.log("search result ka 0th: ", filteredResults[0]);
-    //   .map((item) => {
-    //     // Return the formatted object
-    //     return {
-    //       name: item?.name,
-    //       image: item?.avatar,
-    //       convoID: "", // This can be updated with actual data if available
-    //       receiverId: item?._id,
-    //       specialization: item?.specialization,
-    //     };
-    //   });
     console.log("filtered result ka pura: ", filteredResults);
     setSearchResults(filteredResults);
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "white" }}>
-      <View
-        style={{
-          padding: 10,
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 10,
-          justifyContent: "space-between",
-        }}
-      >
-        <Pressable>
-          <Image
-            style={{ width: 30, height: 30, borderRadius: 15 }}
-            source={{
-              uri: "https://lh3.googleusercontent.com/ogw/AF2bZyi09EC0vkA0pKVqrtBq0Y-SLxZc0ynGmNrVKjvV66i3Yg=s64-c-mo",
-            }}
-          />
-        </Pressable>
+    <View style={{ flex: 1 }}>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Pressable>
+            <Image
+              style={styles.avatar}
+              source={{
+                uri: "https://lh3.googleusercontent.com/ogw/AF2bZyi09EC0vkA0pKVqrtBq0Y-SLxZc0ynGmNrVKjvV66i3Yg=s64-c-mo",
+              }}
+            />
+          </Pressable>
 
-        <Text style={{ fontSize: 15, fontWeight: "500" }}>Chats</Text>
+          <Text style={styles.headerTitle}>Chats</Text>
 
-        <View>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-            <AntDesign name="camerao" size={26} color="black" />
+          <View style={styles.headerIcons}>
+            <AntDesign name="camerao" size={26} color="white" />
             <MaterialIcons
               onPress={() => navigation.navigate("People")}
               name="person-outline"
               size={26}
-              color="black"
+              color="white"
             />
           </View>
         </View>
-      </View>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={{ ...styles.searchInput, paddingLeft: 40 }}
-          placeholder="Search for doctors"
-          placeholderTextColor="#999"
-          onFocus={openModal}
-        />
-        <Icon
-          name="search"
-          size={24}
-          color="#999"
-          style={{ position: "absolute", top: 27, left: 27 }}
-        />
-      </View>
-      <View style={{ padding: 10 }}>
-        <Pressable
-          onPress={() => chooseOption("Chats")}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <View>
-            <Text>Chats</Text>
-          </View>
-          <Entypo name="chevron-small-down" size={26} color="black" />
-        </Pressable>
 
-        <View>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search for chats"
+            placeholderTextColor="#999"
+            onFocus={() => setIsBottomBarVisible(false)}
+            onBlur={() => setIsBottomBarVisible(true)}
+            onChangeText={handleSearch}
+          />
+
+          <Icon
+            name="search"
+            size={24}
+            color="#999"
+            style={styles.searchIcon}
+          />
+        </View>
+        {isBottomBarVisible && (
+          <Chat
+            item={{
+              name: "ChatBot",
+              avatar:
+                "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+              lastMessage: "Chat with bot",
+            }}
+            isSearch={false}
+            isBotChat={true}
+          />
+        )}
+
+        <View style={styles.contentContainer}>
+          <Pressable
+            onPress={() => chooseOption("Chats")}
+            style={styles.optionHeader}
+          >
+            <Text style={styles.optionText}>Chats</Text>
+            <Entypo name="chevron-small-down" size={26} color="white" />
+          </Pressable>
+
           <View>
-            <Chat
-              item={{
-                name: "Chatbot",
-                avatar:
-                  "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
-                lastMessage: "Chat with bot",
-              }}
-              isSearch={false}
-              isBotChat={true}
-            />
-          </View>
-          {options?.includes("Chats") &&
-            (chats.length > 0 ? (
+            {options?.includes("Chats") && (
               <View>
-                {chats.map((item) => (
-                  <Chat item={item} key={item?._id} isSearch={false} />
-                ))}
+                {chats.length > 0 ? (
+                  <FlatList
+                    data={searchResults}
+                    keyExtractor={(item) => item?._id}
+                    renderItem={({ item }) => (
+                      <Chat item={item} isSearch={false} />
+                    )}
+                    contentContainerStyle={{ paddingBottom: 20 }} // Optional padding
+                  />
+                ) : (
+                  <View style={styles.emptyChatsContainer}>
+                    <Text style={styles.emptyChatsText}>No Chats yet</Text>
+                    <Text style={styles.emptyChatsSubText}>
+                      Get started by messaging a friend
+                    </Text>
+                  </View>
+                )}
               </View>
-            ) : (
-              <View
-                style={{
-                  height: 300,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <View>
-                  <Text style={{ textAlign: "center", color: "gray" }}>
-                    No Chats yet
-                  </Text>
-                  <Text style={{ marginTop: 4, color: "gray" }}>
-                    Get started by messaging a friend
-                  </Text>
-                </View>
-              </View>
-            ))}
-        </View>
-      </View>
-      <Modal visible={modalVisible} animationType="slide">
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Pressable onPress={closeModal}>
-              <Icon name="arrow-back" size={24} color="#000" />
-            </Pressable>
-
-            <TextInput
-              ref={modalSearchInputRef}
-              style={{ ...styles.modalSearchInput, paddingLeft: 40 }}
-              placeholder="Search for doctors"
-              placeholderTextColor="#999"
-              value={searchQuery}
-              onChangeText={handleSearch}
-            />
-            <Icon
-              name="search"
-              size={24}
-              color="#718096"
-              style={{ position: "absolute", left: 60 }}
-            />
+            )}
           </View>
+        </View>
+        <TouchableOpacity
+          style={styles.chatButton}
+          onPress={() => setModalVisible2(true)}
+        >
+          <Icon name="chat" size={30} color="#fff" />
+        </TouchableOpacity>
 
-          {searchResults.length > 0 && (
-            <FlatList
-              data={searchResults}
-              keyExtractor={(item) => item?._id}
-              renderItem={({ item }) => (
-                <Chat item={item} key={item?._id} isSearch={true} />
-              )}
-            />
-          )}
-        </SafeAreaView>
-      </Modal>
+        <DialogflowModal
+          visible={modalVisible2}
+          onClose={() => setModalVisible2(false)}
+        />
+      </SafeAreaView>
+      {isBottomBarVisible && <CutomBottomBar active={"chat"} />}
     </View>
   );
 };
 
-export default ChatsScreen;
-
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#1E1E1E",
+  },
+  header: {
+    padding: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  avatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "500",
+    color: "white",
+  },
+  headerIcons: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
   searchContainer: {
     padding: 16,
+    position: "relative",
   },
   searchInput: {
     height: 48,
-    backgroundColor: lightTheme.colors.homeSearchInputColor,
+    backgroundColor: "#2C2C2E",
     borderRadius: 12,
     padding: 16,
+    paddingLeft: 40,
     fontSize: 16,
+    color: "white",
+  },
+  searchIcon: {
+    position: "absolute",
+    top: 27,
+    left: 27,
+  },
+  contentContainer: {
+    padding: 10,
+  },
+  optionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  optionText: {
+    color: "white",
+  },
+  emptyChatsContainer: {
+    height: 300,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyChatsText: {
+    textAlign: "center",
+    color: "gray",
+  },
+  emptyChatsSubText: {
+    marginTop: 4,
+    color: "gray",
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#1E1E1E",
   },
   modalHeader: {
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: "#2C2C2E",
   },
   modalSearchInput: {
     flex: 1,
     height: 40,
-    backgroundColor: lightTheme.colors.homeSearchInputColor,
+    backgroundColor: "#2C2C2E",
     borderRadius: 8,
     paddingHorizontal: 16,
+    paddingLeft: 40,
     fontSize: 16,
     marginLeft: 10,
+    color: "white",
+  },
+  modalSearchIcon: {
+    position: "absolute",
+    left: 60,
+  },
+  chatButton: {
+    position: "absolute",
+    bottom: 20,
+    right: 10,
+    backgroundColor: "#007bff",
+    borderRadius: 50,
+    padding: 10,
+    elevation: 5,
   },
 });
+
+export default ChatsScreen;

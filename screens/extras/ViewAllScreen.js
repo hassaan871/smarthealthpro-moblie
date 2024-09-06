@@ -24,7 +24,7 @@ const ViewAllScreen = ({ route }) => {
     const filtered = route.params.data.filter((item) => {
       const values = Object.entries(item).map(([key, value]) => {
         return key !== "pictureUrl" && key !== "id"
-          ? value.toString().toLowerCase()
+          ? value?.toString()?.toLowerCase()
           : "";
       });
       return values.some((val) => val.includes(searchQuery.toLowerCase()));

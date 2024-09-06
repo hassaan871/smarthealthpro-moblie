@@ -2,34 +2,26 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   View,
   Text,
-  TextInput,
+  Image,
   StyleSheet,
-  Pressable,
-  Platform,
-  StatusBar,
   SafeAreaView,
-  Modal,
-  FlatList,
-  ScrollView,
-  ImageBackground,
+  TextInput,
   TouchableOpacity,
+  ScrollView,
+  Modal,
+  Pressable,
+  FlatList,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons"; // Import Icon from react-native-vector-icons
-import Icon2 from "react-native-vector-icons/Feather";
-import Icon3 from "react-native-vector-icons/FontAwesome";
-import Icon4 from "react-native-vector-icons/MaterialCommunityIcons";
-import ScheduleCard from "../../components/ScheduleCard";
-import PopularCard from "../../components/PopularCard";
-import DoctorCard from "../../components/DoctorCard";
-
-import favicon from "../../assets/favicon.png";
-import lightTheme from "../../Themes/LightTheme";
-
-import { useNavigation, useRoute } from "@react-navigation/native";
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import Icon from "react-native-vector-icons/Ionicons";
+import Icon2 from "react-native-vector-icons/SimpleLineIcons";
 import DialogflowModal from "../../components/DialogFlowModal";
 import Context from "../../Helper/context";
+import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
+import CutomBottomBar from "./CutomBottomBar";
+import DoctorCard from "../../components/DoctorCard";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import ScheduleCard from "../../components/ScheduleCard";
 
 const HomeScreen = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -45,12 +37,14 @@ const HomeScreen = () => {
 
   useEffect(() => {
     console.log("use effect from homesceen ");
+
     const fetchUser = async () => {
+      console.log("entering fetchuser from homescreen ");
       const userID = await AsyncStorage.getItem("userToken");
       console.log("user id is from async: ", userID);
       if (userID !== null) {
         const response = await axios.get(
-          `http://192.168.18.124:5000/user/getUserInfo/${userID}`
+          `http://192.168.100.132:5000/user/getUserInfo/${userID}`
         );
 
         console.log("response users data: ", response.data.user);
@@ -69,7 +63,7 @@ const HomeScreen = () => {
       console.log("user id is from async: ", userID);
       if (userID !== null) {
         const response = await axios.get(
-          `http://192.168.18.124:5000/appointment/getAllAppointments?PatientId=${userID}`
+          `http://192.168.100.132:5000/appointment/getAllAppointments?PatientId=${userID}`
         );
 
         console.log("response appointment: ", response.data.appointments);
@@ -85,29 +79,18 @@ const HomeScreen = () => {
 
   useEffect(() => {
     const fetchPopularDoctors = async () => {
+      console.log("Fetching popular doctor");
       try {
         const response = await axios.get(
-          `http://192.168.18.124:5000/user/getDoctorsBySatisfaction`
+          `http://192.168.100.132:5000/user/getDoctorsBySatisfaction`
         );
 
-        console.log("response doctors: ", response.data.doctors);
-        const doctorsInfo = response.data.doctors;
+        console.log("response doctors: ", response.data[0]);
+        const doctorsInfo = response.data;
 
-        // Fetch detailed info for the top 2 popular doctors
-        const popularDoctorIds = doctorsInfo.slice(0, 2); // Getting only the top 2
-        const popularDoctorsPromises = popularDoctorIds.map((doctor) =>
-          axios.get(
-            `http://192.168.18.124:5000/user/getDoctorById/${doctor.id}`
-          )
-        );
-
-        const doctorResponses = await Promise.all(popularDoctorsPromises);
-        const detailedDoctorsInfo = doctorResponses.map(
-          (response) => response.data
-        );
-        console.log("final popular doctor: ", detailedDoctorsInfo);
-        setPopularDoctors(detailedDoctorsInfo);
-        setSearchResults(detailedDoctorsInfo);
+        setPopularDoctors(doctorsInfo);
+        setSearchResults(popularDoctors);
+        console.log("popular doctors: ", doctorsInfo);
       } catch (error) {
         console.error("Error fetching popular doctors:", error);
       }
@@ -115,6 +98,11 @@ const HomeScreen = () => {
 
     fetchPopularDoctors();
   }, []);
+
+  useEffect(() => {
+    console.log("popular doctor: ", popularDoctors[0]);
+    setSearchResults(popularDoctors);
+  }, [searchQuery.length === 0 || searchResults === null]);
 
   const navigation = useNavigation();
 
@@ -150,284 +138,266 @@ const HomeScreen = () => {
   };
 
   return (
-    // <View style={styles.container}>
-    <View style={{ width: "100%", height: "100%", backgroundColor: "white" }}>
-      <SafeAreaView style={styles.container}>
-        <ScrollView>
-          {/* <StatusBar barStyle="dark-content" /> */}
-          <View style={styles.header}>
-            <Text style={styles.welcomeText}>Welcome back, Samantha</Text>
-            <Text style={styles.headerTitle}>Keep Healthy!</Text>
-          </View>
-          <View style={styles.searchContainer}>
-            <TextInput
-              style={{ ...styles.searchInput, paddingLeft: 40 }}
-              placeholder="Search for doctors"
-              placeholderTextColor="#999"
-              onFocus={openModal}
-            />
-            <Icon
-              name="search"
-              size={24}
-              color="#999"
-              style={{ position: "absolute", top: 27, left: 27 }}
-            />
-          </View>
-          <View style={styles.menuContainer}>
-            <Pressable
-              style={styles.menuItem}
-              onPress={() => {
-                navigation.navigate("ResultsScreen");
-              }}
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Hello, {userInfo?.fullName} 👋</Text>
+        </View>
+
+        <View style={styles.searchBar}>
+          <Icon name="search-outline" size={20} color="#666" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search a doctor"
+            placeholderTextColor="#666"
+            onFocus={openModal}
+          />
+        </View>
+
+        <ScheduleCard item={upcomingSchedule[0]} />
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Talk to a Doctor</Text>
+          <View style={styles.categoryButtons}>
+            <TouchableOpacity
+              style={[styles.categoryButton, { backgroundColor: "#8E44AD" }]}
             >
-              <Icon name="assessment" size={24} color={"black"} />
-              <Text style={styles.menuText}>Results</Text>
-            </Pressable>
-            <Pressable
-              style={styles.menuItem}
-              onPress={() => {
-                navigation.navigate("CameraAccessScreen");
-              }}
+              <Icon name="call-outline" size={16} color="#fff" />
+              <Text style={styles.categoryButtonText}>All</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.categoryButton, { backgroundColor: "#E74C3C" }]}
             >
-              <Icon
-                name="camera"
-                size={24}
-                // color={lightTheme.colors.primaryText}
-                color={"black"}
-              />
-              <Text style={styles.menuText}>Camera</Text>
-            </Pressable>
+              <Icon2 name="drop" size={16} color="#fff" />
+              <Text style={styles.categoryButtonText}>Diabities</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.categoryButton, { backgroundColor: "#3498DB" }]}
+            >
+              <Icon name="pulse-outline" size={16} color="#fff" />
+              <Text style={styles.categoryButtonText}>Hypertension</Text>
+            </TouchableOpacity>
           </View>
 
-          <View style={styles.scheduleContainer}>
-            <View style={styles.scheduleHeader}>
-              <Text style={styles.scheduleTitle}>Upcoming Schedule</Text>
-              <Pressable
-                onPress={() => {
-                  navigation.navigate("ViewAll", {
-                    data: upcomingSchedule,
-                    isPopular: false,
-                  }); // or false
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 16,
-                    color: "#1B2060",
-                  }}
-                >
-                  View All
-                </Text>
+          <DoctorCard item={popularDoctors[0]} />
+          <DoctorCard item={popularDoctors[1]} />
+          <DoctorCard item={popularDoctors[2]} />
+          <DoctorCard item={popularDoctors[0]} />
+        </View>
+        <Modal visible={modalVisible} animationType="slide">
+          <SafeAreaView style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Pressable onPress={closeModal}>
+                <Icon name="arrow-back" size={24} color="#666" />
               </Pressable>
-            </View>
-            <View
-              style={{
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.25,
-                shadowRadius: 12,
-                // elevation: 5,
-                margin: 2,
-              }}
-            >
-              <ScheduleCard item={upcomingSchedule[0]} />
-            </View>
-          </View>
-          <View style={styles.scheduleContainer2}>
-            <View style={styles.scheduleHeader}>
-              <Text style={styles.scheduleTitle}>Popular Doctors</Text>
-            </View>
 
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-              }}
-            >
-              <View>
-                <PopularCard item={popularDoctors[0]} />
-              </View>
-              <View>
-                <PopularCard item={popularDoctors[1]} />
-              </View>
-            </View>
-          </View>
-          <Modal visible={modalVisible} animationType="slide">
-            <SafeAreaView style={styles.modalContainer}>
-              <View style={styles.modalHeader}>
-                <Pressable onPress={closeModal}>
-                  <Icon name="arrow-back" size={24} color="#000" />
-                </Pressable>
-
-                <TextInput
-                  ref={modalSearchInputRef}
-                  style={{ ...styles.modalSearchInput, paddingLeft: 40 }}
-                  placeholder="Search for doctors"
-                  placeholderTextColor="#999"
-                  onChangeText={handleSearch}
-                />
-                <Icon
-                  name="search"
-                  size={24}
-                  color="#718096"
-                  style={{ position: "absolute", left: 60 }}
-                />
-              </View>
-              <FlatList
-                data={searchResults}
-                keyExtractor={(item) => item._id}
-                renderItem={({ item }) => (
-                  <DoctorCard item={item} closeModal={closeModal} />
-                )}
+              <TextInput
+                ref={modalSearchInputRef}
+                style={{ ...styles.modalSearchInput, paddingLeft: 40 }}
+                placeholder="Search a doctor"
+                placeholderTextColor="#666"
+                onChangeText={handleSearch}
               />
-            </SafeAreaView>
-          </Modal>
-        </ScrollView>
-        <TouchableOpacity
-          style={styles.chatButton}
-          onPress={() => setModalVisible2(true)}
-        >
-          <Icon name="chat" size={30} color="#fff" />
-        </TouchableOpacity>
-        <DialogflowModal
-          visible={modalVisible2}
-          onClose={() => setModalVisible2(false)}
-        />
-      </SafeAreaView>
-    </View>
+              <Icon
+                name="search"
+                size={24}
+                color="#718096"
+                style={{ position: "absolute", left: 60 }}
+              />
+            </View>
+            <FlatList
+              data={searchResults}
+              keyExtractor={(item) => item._id}
+              renderItem={({ item }) => (
+                <DoctorCard item={item} closeModal={closeModal} />
+              )}
+            />
+          </SafeAreaView>
+        </Modal>
+      </ScrollView>
+
+      <CutomBottomBar active={"home"} />
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: lightTheme.colors.defaultBackground,
-    marginTop: Platform.OS === "android" ? 40 : 0,
+    backgroundColor: "#1E1E1E",
+  },
+  scrollContent: {
+    padding: 20,
   },
   header: {
-    // backgroundColor: lightTheme.colors.defaultBackground,
-    paddingTop: Platform.OS === "ios" ? 40 : 0,
-    padding: 16,
-  },
-  welcomeText: {
-    // color: lightTheme.colors.homeWelcomeTextColor,
-    color: "black",
-    fontSize: 26,
-  },
-  headerTitle: {
-    fontSize: 26,
-    fontWeight: "bold",
-    // color: lightTheme.colors.homeWelcomeTextColor,
-    color: "black",
-  },
-  searchContainer: {
-    padding: 16,
-  },
-  searchInput: {
-    height: 48,
-    backgroundColor: lightTheme.colors.homeSearchInputColor,
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-  },
-  menuContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 10,
-  },
-  menuItem: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    // backgroundColor: lightTheme.colors.primaryCard,
-    backgroundColor: "#F0F8FF",
-    borderRadius: 12,
-    margin: 5,
-    padding: 10,
-  },
-  menuText: {
-    marginTop: 4,
-    // color: lightTheme.colors.primaryText,
-    color: "#007fff",
-    fontSize: 14,
-  },
-  scheduleContainer: {
-    paddingHorizontal: 10,
-  },
-  scheduleContainer2: {
-    paddingHorizontal: 10,
-  },
-  scheduleHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: 20,
   },
-  scheduleTitle: {
-    fontSize: 20,
+  headerText: {
+    fontSize: 24,
     fontWeight: "bold",
-    color: "black",
-  },
-  detailsContainer: {
-    flex: 1,
-    marginLeft: 16,
-  },
-  nameText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: lightTheme.colors.homeCardContainerText,
-  },
-  specialtyText: {
-    fontSize: 14,
-    color: lightTheme.colors.homeCardContainerText,
-  },
-  appointmentContainer: {
-    // backgroundColor: lightTheme.colors.homeCardContainerSecondry,
-    backgroundColor: "#007BFF",
-    padding: 8,
-    borderRadius: 4,
-    marginHorizontal: 16,
-  },
-  appointmentText: {
-    fontSize: 12,
     color: "#fff",
   },
-  tabContainer: {
+  searchBar: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: lightTheme.colors.homeTabContainerColor,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    alignItems: "center",
+    backgroundColor: "#2C2C2E",
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 20,
   },
-  tabItem: {
+  searchInput: {
     flex: 1,
+    color: "#fff",
+    paddingVertical: 10,
+    marginLeft: 10,
+  },
+  section: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 10,
+  },
+  scheduleCard: {
+    flexDirection: "row",
+    backgroundColor: "#4A90E2",
+    borderRadius: 10,
+    padding: 15,
     alignItems: "center",
   },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderColor: lightTheme.colors.homeActiveTabColor,
+  doctorImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
   },
-  activeTabText: {
-    color: lightTheme.colors.homeActiveTabColor,
+  scheduleInfo: {
+    flex: 1,
+  },
+  doctorName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  doctorSpecialty: {
+    fontSize: 14,
+    color: "#E0E0E0",
+  },
+  scheduleTimeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 5,
+  },
+  scheduleTime: {
+    fontSize: 12,
+    color: "#E0E0E0",
+    marginLeft: 5,
+  },
+  addButton: {
+    backgroundColor: "#2980B9",
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  categoryButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
+  categoryButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+  },
+  categoryButtonText: {
+    color: "#fff",
+    marginLeft: 5,
+  },
+  doctorCard: {
+    flexDirection: "row",
+    backgroundColor: "#2C2C2E",
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
+    alignItems: "center",
+  },
+  doctorCardImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 15,
+  },
+  doctorCardInfo: {
+    flex: 1,
+  },
+  doctorCardName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  doctorCardSpecialty: {
+    fontSize: 14,
+    color: "#B0B0B0",
+  },
+  ratingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 5,
+  },
+  reviewCount: {
+    fontSize: 12,
+    color: "#B0B0B0",
+    marginLeft: 5,
+  },
+  chatButton: {
+    backgroundColor: "#2C2C2E",
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  bottomNav: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    backgroundColor: "#2C2C2E",
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#3C3C3E",
+  },
+  navItem: {
+    alignItems: "center",
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#1E1E1E",
   },
   modalHeader: {
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: "#2C2C2E",
   },
   modalSearchInput: {
     flex: 1,
     height: 40,
-    backgroundColor: lightTheme.colors.homeSearchInputColor,
     borderRadius: 8,
     paddingHorizontal: 16,
     fontSize: 16,
     marginLeft: 10,
+    backgroundColor: "#2C2C2E",
+    color: "#666",
   },
   chatButton: {
     position: "absolute",

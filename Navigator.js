@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import LoginScreen from "./screens/authScreens/LoginScreen";
 import SignUpScreen from "./screens/authScreens/SignUpScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import TabScreensContainer from "./screens/tabNavScreens/TabScreensContainer";
 import BotChattingScreen from "./screens/chattingUIScreens/BotChattingScreen";
 import ChattingList from "./screens/chattingUIScreens/ChattingList";
 import CameraAccessScreen from "./screens/cameraAccess/CameraAccessScreen";
@@ -12,6 +11,10 @@ import DoctorDetailPage from "./screens/extras/DoctorDetailPage";
 import BookingScreen from "./screens/extras/BookingScreen";
 import { ResultsScreen } from "./screens/extras/ResultsScreen";
 import ChatRoom from "./screens/extras/ChatRoom";
+import HomeScreen from "./screens/tabNavScreens/HomeScreen";
+import CutomBottomBar from "./screens/tabNavScreens/CutomBottomBar";
+import ChatsScreen from "./screens/extras/ChatScreen2";
+import SettingScreen from "./screens/tabNavScreens/Settings";
 
 const Stack = createNativeStackNavigator();
 const AppNavigator = () => {
@@ -35,9 +38,14 @@ const AppNavigator = () => {
         component={SignUpScreen}
       />
       <Stack.Screen
-        name="TabScreensContainer"
+        name="HomeScreen"
+        options={{ headerShown: false, animationEnabled: false }}
+        component={HomeScreen}
+      />
+      <Stack.Screen
+        name="CutomBottomBar"
         options={{ headerShown: false }}
-        component={TabScreensContainer}
+        component={CutomBottomBar}
       />
       <Stack.Screen
         name="ResultsScreen"
@@ -84,6 +92,16 @@ const AppNavigator = () => {
         name="ChatRoom"
         options={{ headerShown: true }}
         component={ChatRoom}
+      />
+      <Stack.Screen
+        name="ChatsScreen"
+        options={{ headerShown: false, animationEnabled: false }}
+        component={ChatsScreen}
+      />
+      <Stack.Screen
+        name="SettingScreen"
+        options={{ headerShown: false, animationEnabled: false }}
+        component={SettingScreen}
       />
     </Stack.Navigator>
   );

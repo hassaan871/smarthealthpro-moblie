@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Pressable,
   ScrollView,
@@ -17,6 +17,7 @@ import axios from "axios";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const uuidv4 = () => {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
@@ -30,11 +31,21 @@ const BotChattingScreen = ({ route }) => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const user = { id: "06c33e8b-e835-4736-80f4-63f44b66666c" };
+  const [patientId, setPatientId] = useState('');
+ 
   const chatbot = { id: "06c33e8b-e899-4736-80f4-63f44b66666c" };
   const scrollViewRef = useRef();
   const navigation = useNavigation();
   // const { name, image, convoID, receiverId } = route.params;
+  useEffect(()=>{
+    const fetchUser = async () => {
+      const userID = await AsyncStorage.getItem("userToken");
+      setPatientId(userID)
+      console.log("user",patientId,userID)
+    }
+    fetchUser()
+  },[])
+ 
 
   const addMessage = (message) => {
     setMessages((prevMessages) => [...prevMessages, message]);
@@ -47,7 +58,7 @@ const BotChattingScreen = ({ route }) => {
     if (!message.trim()) return;
 
     const sentMessage = {
-      author: user,
+      author: patientId,
       createdAt: Date.now(),
       id: uuidv4(),
       text: message,
@@ -59,8 +70,10 @@ const BotChattingScreen = ({ route }) => {
     try {
       const formData = new FormData();
       formData.append("message", message);
+      formData.append("patient_id", patientId);
+      console.log(patientId)
       const response = await axios.post(
-        "http://127.0.0.1:8081/chat",
+        "http://192.168.100.132:8082/chat",
         formData,
         {
           headers: {
@@ -90,7 +103,7 @@ const BotChattingScreen = ({ route }) => {
       if (response.assets && response.assets.length > 0 && !response.canceled) {
         const file = response.assets[0];
         const fileMessage = {
-          author: user,
+          author: patientId,
           createdAt: Date.now(),
           id: uuidv4(),
           mimeType: file.mimeType,
@@ -115,7 +128,7 @@ const BotChattingScreen = ({ route }) => {
         });
 
         const chatResponse = await axios.post(
-          "http://127.0.0.1:8081/chat",
+          "http://127.0.0.1:8082/chat",
           formData,
           {
             headers: {
@@ -185,14 +198,14 @@ const BotChattingScreen = ({ route }) => {
               key={index}
               style={[
                 styles.message,
-                item?.author.id === user.id
+                item?.author === patientId
                   ? styles.sentMessage
                   : styles.receivedMessage,
               ]}
             >
               <Text
                 style={
-                  item?.author.id === user.id
+                  item?.author === patientId
                     ? styles.messageContent
                     : styles.receivedMessageContent
                 }

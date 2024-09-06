@@ -59,7 +59,7 @@ const ChatRoom = ({ route }) => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
+        `http://192.168.100.132:5000/conversations/getMessages/${convoID}`
       );
       setMessages(response.data);
     } catch (error) {
@@ -149,7 +149,7 @@ const ChatRoom = ({ route }) => {
 
       try {
         await axios.post(
-          `http://192.168.18.124:5000/conversations/${convoID}/messages`,
+          `http://192.168.100.132:5000/conversations/${convoID}/messages`,
           {
             content: newMessage.content,
             sender: newMessage.sender,

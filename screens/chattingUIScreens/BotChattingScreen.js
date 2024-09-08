@@ -45,6 +45,20 @@ const BotChattingScreen = ({ route }) => {
     }
     fetchUser()
   },[])
+
+  const formatTextWithBold = (text) => {
+    const parts = text.split(/(\*\*.*?\*\*)/); // Split on bold markers (**)
+    return parts.map((part, index) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return (
+          <Text key={index} style={{ fontWeight: "bold" }}>
+            {part.slice(2, -2)}
+          </Text>
+        );
+      }
+      return <Text key={index}>{part}</Text>;
+    });
+  };
  
 
   const addMessage = (message) => {
@@ -210,7 +224,7 @@ const BotChattingScreen = ({ route }) => {
                     : styles.receivedMessageContent
                 }
               >
-                {item?.text}
+                {formatTextWithBold(item?.text)}
               </Text>
               <Text style={styles.messageTime}>
                 {formatTime(item?.createdAt)}
@@ -275,7 +289,7 @@ const styles = StyleSheet.create({
   },
   headerName: {
     color: "white",
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
   },
   headerSubtext: {

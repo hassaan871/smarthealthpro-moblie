@@ -42,7 +42,7 @@ const ChatsScreen = () => {
       console.log("userinfo id: ", userInfo);
       try {
         const response = await axios.get(
-          `http://192.168.100.132:5000/conversations/${userInfo?._id}`
+          `http://192.168.100.169:5000/conversations/${userInfo?._id}`
         );
         console.log("fetched chats 2332: ", response.data);
 

@@ -22,27 +22,35 @@ const ScheduleCard = ({ item }) => {
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Upcoming Schedule</Text>
-      <View style={styles.scheduleCard}>
-        <Image
-          source={{ uri: item?.doctor?.avatar }}
-          style={styles.doctorImage}
-        />
-        <View style={styles.scheduleInfo}>
-          <Text style={styles.doctorName}>{item?.doctor?.name}</Text>
-          <Text style={styles.doctorSpecialty}>
-            {item?.doctor?.specialization}
-          </Text>
-          <View style={styles.scheduleTimeContainer}>
-            <Icon name="calendar-outline" size={16} color="#4A90E2" />
-            <Text style={styles.scheduleTime}>
-              {formatDateAndTime(item?.date) + " at " + item?.selectedTimeSlot}
+      {item ? (
+        <View style={styles.scheduleCard}>
+          <Image
+            source={{ uri: item?.doctor?.avatar }}
+            style={styles.doctorImage}
+          />
+          <View style={styles.scheduleInfo}>
+            <Text style={styles.doctorName}>{item?.doctor?.name}</Text>
+            <Text style={styles.doctorSpecialty}>
+              {item?.doctor?.specialization}
             </Text>
+            <View style={styles.scheduleTimeContainer}>
+              <Icon name="calendar-outline" size={16} color="#4A90E2" />
+              <Text style={styles.scheduleTime}>
+                {formatDateAndTime(item?.date) +
+                  " at " +
+                  item?.selectedTimeSlot}
+              </Text>
+            </View>
           </View>
+          <TouchableOpacity style={styles.addButton}>
+            <Icon name="add" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.addButton}>
-          <Icon name="add" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
+      ) : (
+        <View style={styles.scheduleCard2}>
+          <Text style={styles.noAppointment}>No Appointments Booked</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -64,6 +72,14 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: "center",
   },
+  scheduleCard2: {
+    flexDirection: "row",
+    backgroundColor: "#4A90E2",
+    borderRadius: 10,
+    padding: 15,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   doctorImage: {
     width: 50,
     height: 50,
@@ -77,6 +93,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#fff",
+  },
+  noAppointment: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+    padding: 20,
   },
   doctorSpecialty: {
     fontSize: 14,

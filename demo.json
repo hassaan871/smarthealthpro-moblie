@@ -1,0 +1,35 @@
+[
+  {
+    "_id": "66c0b2aa90040b7bc334b850",
+    "doctor": {
+      "id": "66c0b2aa90040b7bc334b842",
+      "name": "Dr. Alice Smith",
+      "avatar": "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+      "specialization": "Cardiologist"
+    },
+    "patient": "66c0b2aa90040b7bc334b845",
+    "date": "null",
+    "time": "null",
+    "appointmentStatus": "pending",
+    "description": "Routine check-up.",
+    "location": "Wilshire Medical Center, Lahore",
+    "priority": "low",
+    "bookedOn": "2024-08-20T09:00:00.000Z"
+  },
+  {
+    "_id": "66c0b2aa90040b7bc334b852",
+    "doctor": {
+      "id": "66c0b2aa90040b7bc334b842",
+      "name": "Dr. Alice Smith",
+      "avatar": "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+      "specialization": "Cardiologist"
+    },
+    "patient": "66c0b2aa90040b7bc334b847",
+    "date": "null",
+    "time": "null",
+    "appointmentStatus": "visited",
+    "description": "Diabetes management.",
+    "location": "Wilshire Medical Center, Lahore",
+    "priority": "high"
+  }
+]

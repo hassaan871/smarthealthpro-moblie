@@ -9,6 +9,7 @@ import {
   Modal,
   FlatList,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import React, { useState, useRef, useEffect, useContext } from "react";
 import AntDesign from "react-native-vector-icons/AntDesign";
@@ -42,7 +43,7 @@ const ChatsScreen = () => {
       console.log("userinfo id: ", userInfo);
       try {
         const response = await axios.get(
-          `http://192.168.100.132:5000/conversations/${userInfo?._id}`
+          `http://192.168.18.124:5000/conversations/${userInfo?._id}`
         );
         console.log("fetched chats 2332: ", response.data);
 
@@ -112,108 +113,110 @@ const ChatsScreen = () => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Pressable>
-            <Image
-              style={styles.avatar}
-              source={{
-                uri: "https://lh3.googleusercontent.com/ogw/AF2bZyi09EC0vkA0pKVqrtBq0Y-SLxZc0ynGmNrVKjvV66i3Yg=s64-c-mo",
+    <>
+      <ScrollView style={{ flex: 1 }}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.header}>
+            <Pressable>
+              <Image
+                style={styles.avatar}
+                source={{
+                  uri: "https://lh3.googleusercontent.com/ogw/AF2bZyi09EC0vkA0pKVqrtBq0Y-SLxZc0ynGmNrVKjvV66i3Yg=s64-c-mo",
+                }}
+              />
+            </Pressable>
+
+            <Text style={styles.headerTitle}>Chats</Text>
+
+            <View style={styles.headerIcons}>
+              <AntDesign name="camerao" size={26} color="white" />
+              <MaterialIcons
+                onPress={() => navigation.navigate("People")}
+                name="person-outline"
+                size={26}
+                color="white"
+              />
+            </View>
+          </View>
+
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search for chats"
+              placeholderTextColor="#999"
+              onFocus={() => setIsBottomBarVisible(false)}
+              onBlur={() => setIsBottomBarVisible(true)}
+              onChangeText={handleSearch}
+            />
+
+            <Icon
+              name="search"
+              size={24}
+              color="#999"
+              style={styles.searchIcon}
+            />
+          </View>
+          {isBottomBarVisible && (
+            <Chat
+              item={{
+                name: "ChatBot",
+                avatar:
+                  "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+                lastMessage: "Chat with bot",
               }}
+              isSearch={false}
+              isBotChat={true}
             />
-          </Pressable>
+          )}
 
-          <Text style={styles.headerTitle}>Chats</Text>
+          <View style={styles.contentContainer}>
+            <Pressable
+              onPress={() => chooseOption("Chats")}
+              style={styles.optionHeader}
+            >
+              <Text style={styles.optionText}>Chats</Text>
+              <Entypo name="chevron-small-down" size={26} color="white" />
+            </Pressable>
 
-          <View style={styles.headerIcons}>
-            <AntDesign name="camerao" size={26} color="white" />
-            <MaterialIcons
-              onPress={() => navigation.navigate("People")}
-              name="person-outline"
-              size={26}
-              color="white"
-            />
+            <View>
+              {options?.includes("Chats") && (
+                <View>
+                  {chats.length > 0 ? (
+                    <FlatList
+                      data={searchResults}
+                      keyExtractor={(item) => item?._id}
+                      renderItem={({ item }) => (
+                        <Chat item={item} isSearch={false} />
+                      )}
+                      contentContainerStyle={{ paddingBottom: 20 }} // Optional padding
+                    />
+                  ) : (
+                    <View style={styles.emptyChatsContainer}>
+                      <Text style={styles.emptyChatsText}>No Chats yet</Text>
+                      <Text style={styles.emptyChatsSubText}>
+                        Get started by messaging a friend
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              )}
+            </View>
           </View>
-        </View>
+        </SafeAreaView>
+      </ScrollView>
+      <TouchableOpacity
+        style={styles.chatButton}
+        onPress={() => setModalVisible2(true)}
+      >
+        <Icon name="chat" size={30} color="#fff" />
+      </TouchableOpacity>
 
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search for chats"
-            placeholderTextColor="#999"
-            onFocus={() => setIsBottomBarVisible(false)}
-            onBlur={() => setIsBottomBarVisible(true)}
-            onChangeText={handleSearch}
-          />
-
-          <Icon
-            name="search"
-            size={24}
-            color="#999"
-            style={styles.searchIcon}
-          />
-        </View>
-        {isBottomBarVisible && (
-          <Chat
-            item={{
-              name: "ChatBot",
-              avatar:
-                "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
-              lastMessage: "Chat with bot",
-            }}
-            isSearch={false}
-            isBotChat={true}
-          />
-        )}
-
-        <View style={styles.contentContainer}>
-          <Pressable
-            onPress={() => chooseOption("Chats")}
-            style={styles.optionHeader}
-          >
-            <Text style={styles.optionText}>Chats</Text>
-            <Entypo name="chevron-small-down" size={26} color="white" />
-          </Pressable>
-
-          <View>
-            {options?.includes("Chats") && (
-              <View>
-                {chats.length > 0 ? (
-                  <FlatList
-                    data={searchResults}
-                    keyExtractor={(item) => item?._id}
-                    renderItem={({ item }) => (
-                      <Chat item={item} isSearch={false} />
-                    )}
-                    contentContainerStyle={{ paddingBottom: 20 }} // Optional padding
-                  />
-                ) : (
-                  <View style={styles.emptyChatsContainer}>
-                    <Text style={styles.emptyChatsText}>No Chats yet</Text>
-                    <Text style={styles.emptyChatsSubText}>
-                      Get started by messaging a friend
-                    </Text>
-                  </View>
-                )}
-              </View>
-            )}
-          </View>
-        </View>
-        <TouchableOpacity
-          style={styles.chatButton}
-          onPress={() => setModalVisible2(true)}
-        >
-          <Icon name="chat" size={30} color="#fff" />
-        </TouchableOpacity>
-
-        <DialogflowModal
-          visible={modalVisible2}
-          onClose={() => setModalVisible2(false)}
-        />
-      </SafeAreaView>
+      <DialogflowModal
+        visible={modalVisible2}
+        onClose={() => setModalVisible2(false)}
+      />
       {isBottomBarVisible && <CutomBottomBar active={"chat"} />}
-    </View>
+    </>
   );
 };
 
@@ -314,7 +317,7 @@ const styles = StyleSheet.create({
   },
   chatButton: {
     position: "absolute",
-    bottom: 20,
+    bottom: 60,
     right: 10,
     backgroundColor: "#007bff",
     borderRadius: 50,

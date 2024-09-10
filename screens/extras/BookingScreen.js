@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Calendar } from "react-native-calendars";
@@ -14,6 +16,8 @@ import checked from "../../assets/checked.png";
 import { useNavigation } from "@react-navigation/native";
 import moment from "moment";
 import Icon from "react-native-vector-icons/Ionicons";
+import axios from "axios";
+import Context from "../../Helper/context";
 
 const DAYS_OF_WEEK = [
   "sunday", // 0
@@ -28,9 +32,12 @@ const DAYS_OF_WEEK = [
 export default function BookingScreen({ route, navigation }) {
   const [selected, setSelected] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [markedDates, setMarkedDates] = useState({});
-
+  const priority = route?.params?.priority ?? "low";
   const navigate = useNavigation();
+
+  const { userInfo } = useContext(Context);
 
   const item = route.params.item;
   const officeHours = item.officeHours;
@@ -84,6 +91,49 @@ export default function BookingScreen({ route, navigation }) {
       return officeHours[dayOfWeek] || "Closed";
     }
     return "Not selected";
+  };
+
+  const createAppointment = async () => {
+    if (!selected) {
+      Alert.alert("Error", "Please select a date for the appointment");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        "http://192.168.18.124:5000/appointment/postAppointment",
+        {
+          doctor: {
+            id: item.user._id,
+            name: item.user.fullName,
+            avatar: item.avatar,
+            specialization: item.specialization,
+          },
+          patient: userInfo._id, // You need to replace this with the actual patient ID
+          date: "",
+          appointmentStatus: "tbd",
+          description: "Appointment with " + item.user.fullName,
+          location: item.office,
+          priority: priority,
+          bookedOn: selected,
+        }
+      );
+
+      setLoading(false);
+      if (response.status === 201) {
+        setModalVisible(true);
+      } else {
+        Alert.alert("Error", "Failed to create appointment. Please try again.");
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Error creating appointment:", error);
+      Alert.alert(
+        "Error",
+        "An error occurred while creating the appointment. Please try again."
+      );
+    }
   };
 
   return (
@@ -183,28 +233,45 @@ export default function BookingScreen({ route, navigation }) {
           </View>
         </View>
         <View style={{ padding: 20 }}>
+          {/* NEW: Update the TouchableOpacity for the Continue button */}
           <TouchableOpacity
-            style={{ backgroundColor: "#3498db", borderRadius: 10 }}
-            onPress={() => setModalVisible(true)}
+            style={{
+              backgroundColor: loading ? "#cccccc" : "#3498db",
+              borderRadius: 10,
+            }}
+            onPress={() => {
+              createAppointment();
+            }}
+            disabled={loading}
           >
-            <Text
-              style={{
-                textAlign: "center",
-                fontSize: 18,
-                fontWeight: "bold",
-                color: "#FFFFFF",
-                paddingVertical: 15,
-              }}
-            >
-              Continue
-            </Text>
+            {loading ? (
+              <ActivityIndicator
+                size="small"
+                color="#ffffff"
+                style={{ paddingVertical: 15 }}
+              />
+            ) : (
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  color: "#FFFFFF",
+                  paddingVertical: 15,
+                }}
+              >
+                Continue
+              </Text>
+            )}
           </TouchableOpacity>
           <ReusableModal
             modalVisible={modalVisible}
             setModalVisible={setModalVisible}
             title={"Appointment Booked"}
             message={
-              "You have successfully booked your appointment. By default, your priority is low. If you think you have a high priority case, kindly chat with our ChatBot."
+              priority === "low"
+                ? "You have successfully booked your appointment. By default, your priority is low. If you think you have a high priority case, kindly chat with our ChatBot."
+                : `You have successfully booked your appointment. Your priority has been set to ${priority}`
             }
             imageSource={checked}
             onClose={() => navigation.navigate("HomeScreen")}

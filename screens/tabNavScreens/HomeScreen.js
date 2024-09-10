@@ -44,7 +44,7 @@ const HomeScreen = () => {
       console.log("user id is from async: ", userID);
       if (userID !== null) {
         const response = await axios.get(
-          `http://192.168.100.132:5000/user/getUserInfo/${userID}`
+          `http://192.168.18.124:5000/user/getUserInfo/${userID}`
         );
 
         console.log("response users data: ", response.data.user);
@@ -63,7 +63,7 @@ const HomeScreen = () => {
       console.log("user id is from async: ", userID);
       if (userID !== null) {
         const response = await axios.get(
-          `http://192.168.100.132:5000/appointment/getAllAppointments?PatientId=${userID}`
+          `http://192.168.18.124:5000/appointment/getAllAppointments?PatientId=${userID}`
         );
 
         console.log("response appointment: ", response.data.appointments);
@@ -82,12 +82,11 @@ const HomeScreen = () => {
       console.log("Fetching popular doctor");
       try {
         const response = await axios.get(
-          `http://192.168.100.132:5000/user/getDoctorsBySatisfaction`
+          `http://192.168.18.124:5000/user/getDoctorsBySatisfaction`
         );
 
         console.log("response doctors: ", response.data[0]);
         const doctorsInfo = response.data;
-
         setPopularDoctors(doctorsInfo);
         setSearchResults(popularDoctors);
         console.log("popular doctors: ", doctorsInfo);
@@ -100,7 +99,17 @@ const HomeScreen = () => {
   }, []);
 
   useEffect(() => {
+    if (userInfo && popularDoctors) {
+      const pop2 = popularDoctors.filter(
+        (doctor) => doctor.user.fullName !== userInfo.fullName
+      );
+      setPopularDoctors(pop2);
+    }
+  }, [userInfo]);
+
+  useEffect(() => {
     console.log("popular doctor: ", popularDoctors[0]);
+    // console.log("userinfo id: ", userInfo._id);
     setSearchResults(popularDoctors);
   }, [searchQuery.length === 0 || searchResults === null]);
 
@@ -179,10 +188,15 @@ const HomeScreen = () => {
             </TouchableOpacity>
           </View>
 
-          <DoctorCard item={popularDoctors[0]} />
-          <DoctorCard item={popularDoctors[1]} />
-          <DoctorCard item={popularDoctors[2]} />
-          <DoctorCard item={popularDoctors[0]} />
+          {popularDoctors.length > 0 &&
+            userInfo &&
+            userInfo._id &&
+            popularDoctors
+              .filter((doctor) => doctor.user.fullName !== userInfo.fullName) // Filter out the doctor matching the userInfo._id
+              .slice(0, 3) // Select the first 3 doctors after filtering
+              .map((doctor, index) => (
+                <DoctorCard key={index} item={doctor} /> // Render DoctorCard for each doctor
+              ))}
         </View>
         <Modal visible={modalVisible} animationType="slide">
           <SafeAreaView style={styles.modalContainer}>

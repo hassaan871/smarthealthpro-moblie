@@ -83,7 +83,7 @@ const DoctorCard = ({ item, isBook }) => {
 
       // Make a POST request to create or retrieve a conversation
       const response = await axios.post(
-        "http://10.135.88.149:5000/conversations",
+        "http://192.168.18.124:5000/conversations",
         {
           currentUserId,
           otherUserId,

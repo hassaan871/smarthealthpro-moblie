@@ -136,10 +136,15 @@ const HomeScreen = () => {
       const fullName = item.user.fullName.toLowerCase();
       const specialization = item.specialization.toLowerCase();
 
+      // Check if the doctor's full name matches userInfo.fullName
+      const isCurrentUser = item.user.fullName === userInfo.fullName;
+
       // Check if either the fullName or specialization includes the search query
+      // and exclude the current user
       return (
-        fullName.includes(query.toLowerCase()) ||
-        specialization.includes(query.toLowerCase())
+        !isCurrentUser &&
+        (fullName.includes(query.toLowerCase()) ||
+          specialization.includes(query.toLowerCase()))
       );
     });
 

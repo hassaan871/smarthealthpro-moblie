@@ -15,11 +15,21 @@ import Context from "../../Helper/context";
 
 const SettingsScreen = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const { userInfo } = useContext(Context);
+  const { userInfo, popularDoctors } = useContext(Context);
+  const [isTopFiveDoctor, setIsTopFiveDoctor] = useState(false);
 
   useEffect(() => {
     console.log("user from setting: ", userInfo);
-  });
+    checkIfTopFiveDoctor();
+  }, [userInfo, popularDoctors]);
+
+  const checkIfTopFiveDoctor = () => {
+    const topFiveDoctors = popularDoctors.slice(0, 5);
+    const isTop = topFiveDoctors.some(
+      (doctor) => doctor.user.fullName === userInfo.fullName
+    );
+    setIsTopFiveDoctor(isTop);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -32,6 +42,12 @@ const SettingsScreen = () => {
           <Image source={{ uri: userInfo.avatar }} style={styles.userImage} />
           <Text style={styles.userName}>{userInfo.fullName}</Text>
           <Text style={styles.userEmail}>{userInfo.email}</Text>
+          {isTopFiveDoctor && (
+            <View style={styles.topDoctorBadge}>
+              <Icon name="star" size={20} color="#FFD700" />
+              <Text style={styles.topDoctorText}>Top 5 Doctor</Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.settingsSection}>
@@ -117,6 +133,20 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 16,
     color: "#B0B0B0",
+    marginBottom: 10,
+  },
+  topDoctorBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#4A90E2",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 15,
+  },
+  topDoctorText: {
+    color: "#fff",
+    marginLeft: 5,
+    fontWeight: "bold",
   },
   settingsSection: {
     backgroundColor: "#2C2C2E",

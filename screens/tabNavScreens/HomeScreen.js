@@ -86,7 +86,7 @@ const HomeScreen = () => {
         );
 
         console.log("response doctors: ", response.data[0]);
-        const doctorsInfo = response.data;
+        let doctorsInfo = response.data;
         setPopularDoctors(doctorsInfo);
         setSearchResults(popularDoctors);
         console.log("popular doctors: ", doctorsInfo);
@@ -110,7 +110,12 @@ const HomeScreen = () => {
   useEffect(() => {
     console.log("popular doctor: ", popularDoctors[0]);
     // console.log("userinfo id: ", userInfo._id);
-    setSearchResults(popularDoctors);
+
+    setSearchResults(
+      popularDoctors.filter(
+        (doctor) => doctor.user.fullName !== userInfo.fullName
+      )
+    );
   }, [searchQuery.length === 0 || searchResults === null]);
 
   const navigation = useNavigation();
@@ -138,7 +143,8 @@ const HomeScreen = () => {
 
       // Check if the doctor's full name matches userInfo.fullName
       const isCurrentUser = item.user.fullName === userInfo.fullName;
-
+      console.log("item full name: ", item.user.fullName);
+      console.log("userinfo full name: ", userInfo.fullName);
       // Check if either the fullName or specialization includes the search query
       // and exclude the current user
       return (
@@ -247,6 +253,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
+    backgroundColor: "#1E1E1E",
   },
   header: {
     flexDirection: "row",

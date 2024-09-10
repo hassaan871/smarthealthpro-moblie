@@ -114,7 +114,7 @@ const ChatsScreen = () => {
 
   return (
     <>
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView style={{ flex: 1, backgroundColor: "#1E1E1E" }}>
         <SafeAreaView style={styles.container}>
           <View style={styles.header}>
             <Pressable>

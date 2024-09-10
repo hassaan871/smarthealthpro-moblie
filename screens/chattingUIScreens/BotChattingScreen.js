@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect,useContext } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   Pressable,
   ScrollView,
@@ -10,9 +10,9 @@ import {
   Platform,
   ActivityIndicator,
   FlatList,
-  Button
+  Button,
 } from "react-native";
-import { Icon } from 'react-native-elements';
+import { Icon } from "react-native-elements";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Entypo from "react-native-vector-icons/Entypo";
 import Feather from "react-native-vector-icons/Feather";
@@ -22,7 +22,7 @@ import * as FileSystem from "expo-file-system";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Context from "../../Helper/context";
-import { BottomSheet,ListItem } from "react-native-elements";
+import { BottomSheet, ListItem } from "react-native-elements";
 
 const uuidv4 = () => {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
@@ -33,25 +33,25 @@ const uuidv4 = () => {
 };
 
 const BotChattingScreen = ({ route }) => {
-  const {popularDoctors} = useContext(Context)
+  const { popularDoctors } = useContext(Context);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [patientId, setPatientId] = useState('');
-  const [conversationEnd, setConversationEnd] = useState(false)
-  const [prioriryData,setPriorityData] = useState('')
- 
+  const [patientId, setPatientId] = useState("");
+  const [conversationEnd, setConversationEnd] = useState(false);
+  const [prioriryData, setPriorityData] = useState("");
+
   const chatbot = { id: "06c33e8b-e899-4736-80f4-63f44b66666c" };
   const scrollViewRef = useRef();
   const navigation = useNavigation();
   // const { name, image, convoID, receiverId } = route.params;
-  useEffect(()=>{
+  useEffect(() => {
     const fetchUser = async () => {
       const userID = await AsyncStorage.getItem("userToken");
-      setPatientId(userID)
-    }
-    fetchUser()
-  },[])
+      setPatientId(userID);
+    };
+    fetchUser();
+  }, []);
 
   const formatTextWithBold = (text) => {
     const parts = text.split(/(\*\*.*?\*\*)/); // Split on bold markers (**)
@@ -66,7 +66,6 @@ const BotChattingScreen = ({ route }) => {
       return <Text key={index}>{part}</Text>;
     });
   };
- 
 
   const addMessage = (message) => {
     setMessages((prevMessages) => [...prevMessages, message]);
@@ -93,18 +92,20 @@ const BotChattingScreen = ({ route }) => {
       formData.append("message", message);
       formData.append("patient_id", patientId);
       const response = await axios.post(
-        "http://192.168.100.169:8082/chat",formData,{
-          headers: {"Content-Type": "multipart/form-data"},
+        "http://192.168.18.124:8082/chat",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
-      const respData = response.data.response
+      const respData = response.data.response;
 
       if (respData.toLowerCase().includes("[priority]")) {
         const priorityMatch = responseText.match(/\[PRIORITY\](.*)/s);
-        console.log("ppp",priorityMatch)
+        console.log("ppp", priorityMatch);
         if (priorityMatch) {
-            setPriorityData(priorityMatch[1].trim())
-            console.log("trin",priorityMatch[1].trim())
+          setPriorityData(priorityMatch[1].trim());
+          console.log("trin", priorityMatch[1].trim());
         }
         setConversationEnd(true);
       }
@@ -117,7 +118,6 @@ const BotChattingScreen = ({ route }) => {
         type: "text",
       };
       addMessage(receivedMessage);
-
     } catch (error) {
       console.error("Error sending message to backend:", error);
     }
@@ -191,22 +191,37 @@ const BotChattingScreen = ({ route }) => {
   };
 
   const renderDoctorItem = ({ item }) => (
-    <ListItem onPress={() => console.log(item)} containerStyle={styles.listItemContainer} bottomDivider>
+    <ListItem
+      onPress={() => console.log(item)}
+      containerStyle={styles.listItemContainer}
+      bottomDivider
+    >
       <ListItem.Content style={styles.listItemContent}>
         <View style={styles.textContainer}>
-          <ListItem.Title style={styles.listItemTitle}>{item.user.fullName}</ListItem.Title>
+          <ListItem.Title style={styles.listItemTitle}>
+            {item.user.fullName}
+          </ListItem.Title>
           <ListItem.Subtitle style={styles.listItemSubtitle}>
-            <Icon name="stethoscope" type="font-awesome" color="white" size={16} />
-            {'  '}
+            <Icon
+              name="stethoscope"
+              type="font-awesome"
+              color="white"
+              size={16}
+            />
+            {"  "}
             {item.specialization}
           </ListItem.Subtitle>
           <Text style={styles.listItemText}>
             <Icon name="star" type="font-awesome" color="gold" size={16} />
-            {'  '}
+            {"  "}
             Rating: {item.rating}
           </Text>
         </View>
-        <Button title="Book Me" buttonStyle={styles.bookButton} onPress={() => console.log('Book Me pressed')} />
+        <Button
+          title="Book Me"
+          buttonStyle={styles.bookButton}
+          onPress={() => console.log("Book Me pressed")}
+        />
       </ListItem.Content>
     </ListItem>
   );
@@ -301,7 +316,6 @@ const BotChattingScreen = ({ route }) => {
           renderItem={renderDoctorItem}
         />
       </BottomSheet>
-
     </KeyboardAvoidingView>
   );
 };
@@ -413,34 +427,35 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   listItemContainer: {
-    backgroundColor: '#2e2e2e',
+    backgroundColor: "#2e2e2e",
     borderRadius: 10,
     padding: 10,
   },
   listItemContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  }, textContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  textContainer: {
     flex: 1,
   },
   listItemTitle: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   listItemSubtitle: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
     marginTop: 5,
   },
   listItemText: {
-    color: 'white',
+    color: "white",
     fontSize: 14,
     marginTop: 5,
   },
   bookButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: "#007AFF",
     borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 20,

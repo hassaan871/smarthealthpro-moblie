@@ -27,7 +27,7 @@ const Chat = ({ item, isBotChat }) => {
   //     console.log(senderId);
   //     console.log(receiverId);
 
-  //     const response = await axios.get("http://192.168.18.124:8000/messages", {
+  //     const response = await axios.get("http://192.168.100.169:8000/messages", {
   //       params: { senderId, receiverId },
   //     });
 
@@ -66,20 +66,20 @@ const Chat = ({ item, isBotChat }) => {
       // console.log("current user: ", currentUserId);
       // console.log("other user: ", otherUserId);
 
-      // console.log(`creating chat btw ${currentUserId} and ${otherUserId}`);
-      // // Make a POST request to create or retrieve a conversation
-      // const response = await axios.post(
-      //   "http://192.168.18.124:5000/conversations",
-      //   {
-      //     currentUserId,
-      //     otherUserId,
-      //     currentUserObjectIdAvatar: userInfo?.avatar,
-      //     otherUserObjectIdAvatar:
-      //       "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
-      //     currentUserObjectIdName: userInfo?.fullName,
-      //     otherUserObjectIdName: "ChatBot",
-      //   }
-      // );
+      console.log(`creating chat btw ${currentUserId} and ${otherUserId}`);
+      // Make a POST request to create or retrieve a conversation
+      const response = await axios.post(
+        "http://192.168.100.169:5000/conversations",
+        {
+          currentUserId,
+          otherUserId,
+          currentUserObjectIdAvatar: userInfo?.avatar,
+          otherUserObjectIdAvatar:
+            "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+          currentUserObjectIdName: userInfo?.fullName,
+          otherUserObjectIdName: "ChatBot",
+        }
+      );
 
       // const conversationId = response.data?._id;
       // console.log("convo created successfully with id: ", conversationId);

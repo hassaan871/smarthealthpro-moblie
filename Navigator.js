@@ -15,6 +15,7 @@ import HomeScreen from "./screens/tabNavScreens/HomeScreen";
 import CutomBottomBar from "./screens/tabNavScreens/CutomBottomBar";
 import ChatsScreen from "./screens/extras/ChatScreen2";
 import SettingScreen from "./screens/tabNavScreens/Settings";
+import AppointmentsScreen from "./screens/AppointmentsScreen";
 
 const Stack = createNativeStackNavigator();
 const AppNavigator = () => {
@@ -102,6 +103,11 @@ const AppNavigator = () => {
         name="SettingScreen"
         options={{ headerShown: false, animationEnabled: false }}
         component={SettingScreen}
+      />
+      <Stack.Screen
+        name="AppointmentsScreen"
+        options={{ headerShown: false, animationEnabled: false }}
+        component={AppointmentsScreen}
       />
     </Stack.Navigator>
   );

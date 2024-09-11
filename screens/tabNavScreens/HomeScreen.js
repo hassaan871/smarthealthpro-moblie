@@ -59,12 +59,15 @@ const HomeScreen = () => {
 
   useEffect(() => {
     const fetchAppointment = async () => {
-      const userID = await AsyncStorage.getItem("userToken");
-      console.log("user id is from async: ", userID);
+      const userID = userInfo._id;
+      console.log("user id is from userinfo: ", userID);
+      const link = `http://192.168.18.124:5000/appointment/getAllAppointments?${
+        userInfo.role === "doctor" ? "doctorId" : "patientId"
+      }=${userID}`;
+
+      console.log("link from userinfo: ", link);
       if (userID !== null) {
-        const response = await axios.get(
-          `http://192.168.18.124:5000/appointment/getAllAppointments?PatientId=${userID}`
-        );
+        const response = await axios.get(link);
 
         console.log("response appointment: ", response.data.appointments);
         appointmentInfo = response.data.appointments;
@@ -75,7 +78,7 @@ const HomeScreen = () => {
     };
 
     fetchAppointment();
-  }, []);
+  }, [userInfo]);
 
   useEffect(() => {
     const fetchPopularDoctors = async () => {

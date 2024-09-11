@@ -27,7 +27,7 @@ const Chat = ({ item, isBotChat }) => {
   //     console.log(senderId);
   //     console.log(receiverId);
 
-  //     const response = await axios.get("http://192.168.100.169:8000/messages", {
+  //     const response = await axios.get("http://192.168.18.124:8000/messages", {
   //       params: { senderId, receiverId },
   //     });
 

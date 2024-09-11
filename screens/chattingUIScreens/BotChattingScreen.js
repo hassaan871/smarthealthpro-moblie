@@ -92,17 +92,19 @@ const BotChattingScreen = ({ route }) => {
       formData.append("message", message);
       formData.append("patient_id", patientId);
       const response = await axios.post(
-        "http://192.168.100.169:8082/chat",
+        "http://192.168.18.124:8082/chat",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
       const respData = response.data.response;
-      console.log("resp",respData)
+      console.log("resp", respData);
 
       if (respData.toLowerCase().includes("[priority]")) {
-        const priorityMatch = respData.match(/\[PRIORITY\](.*?)(?=\[Disease\])/s);
+        const priorityMatch = respData.match(
+          /\[PRIORITY\](.*?)(?=\[Disease\])/s
+        );
         console.log("ppp", priorityMatch);
         if (priorityMatch) {
           setPriorityData(priorityMatch[1].trim());
@@ -221,11 +223,12 @@ const BotChattingScreen = ({ route }) => {
         <Button
           title="Book Me"
           buttonStyle={styles.bookButton}
-          onPress={() => navigation.navigate("BookingScreen",
-            {
-              priority:prioriryData,
-              doctorInfo:item
-            })}
+          onPress={() =>
+            navigation.navigate("BookingScreen", {
+              priority: prioriryData,
+              doctorInfo: item,
+            })
+          }
         />
       </ListItem.Content>
     </ListItem>

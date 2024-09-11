@@ -1,11 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import Context from "../Helper/context";
 
 const ScheduleCard = ({ item }) => {
-  // useEffect(() => {
-  //   console.log("item from schedule: ", item);
-  // });
+  const { userInfo } = useContext(Context);
+
+  useEffect(() => {
+    console.log("userInfo from context: ", userInfo);
+    console.log("item from schedule: ", item);
+  }, [item, userInfo]);
 
   function formatDateAndTime(isoString) {
     const options = {
@@ -29,9 +33,13 @@ const ScheduleCard = ({ item }) => {
             style={styles.doctorImage}
           />
           <View style={styles.scheduleInfo}>
-            <Text style={styles.doctorName}>{item?.doctor?.name}</Text>
+            <Text style={styles.doctorName}>
+              {userInfo?.role === "doctor"
+                ? item?.patient?.name
+                : item?.doctor?.name}
+            </Text>
             <Text style={styles.doctorSpecialty}>
-              {item?.doctor?.specialization}
+              {userInfo?.role === "doctor" ? "" : item?.doctor?.specialization}
             </Text>
             <View style={styles.scheduleTimeContainer}>
               <Icon name="calendar-outline" size={16} color="#4A90E2" />

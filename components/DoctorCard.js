@@ -12,7 +12,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import Context from "../Helper/context";
 import axios from "axios";
 
-const DoctorCard = ({ item, isBook }) => {
+const DoctorCard = ({ item, isBook, closeModal }) => {
   const navigation = useNavigation();
   const { userInfo } = useContext(Context);
 
@@ -110,6 +110,7 @@ const DoctorCard = ({ item, isBook }) => {
   return (
     <Pressable
       onPress={() => {
+        closeModal();
         navigation.navigate("DoctorDetail", {
           item: item,
         });

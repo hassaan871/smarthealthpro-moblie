@@ -119,9 +119,7 @@ const DoctorCard = ({ item, isBook, closeModal }) => {
       <View style={styles.doctorCard}>
         <Image
           source={{
-            uri:
-              item?.user?.avatar ||
-              "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+            uri: item?.user?.avatar,
           }}
           style={styles.doctorCardImage}
         />

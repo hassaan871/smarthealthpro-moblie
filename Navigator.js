@@ -3,7 +3,6 @@ import LoginScreen from "./screens/authScreens/LoginScreen";
 import SignUpScreen from "./screens/authScreens/SignUpScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import BotChattingScreen from "./screens/chattingUIScreens/BotChattingScreen";
-import ChattingList from "./screens/chattingUIScreens/ChattingList";
 import CameraAccessScreen from "./screens/cameraAccess/CameraAccessScreen";
 import OnBoardingScreen from "./screens/extras/OnBoarding";
 import ViewAllScreen from "./screens/extras/ViewAllScreen";
@@ -69,12 +68,6 @@ const AppNavigator = () => {
         name="DoctorDetail"
         options={{ headerShown: false }}
         component={DoctorDetailPage}
-      />
-
-      <Stack.Screen
-        name="ChatList"
-        options={{ headerShown: false }}
-        component={ChattingList}
       />
 
       <Stack.Screen

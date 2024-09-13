@@ -101,14 +101,14 @@ const HomeScreen = () => {
     fetchPopularDoctors();
   }, []);
 
-  useEffect(() => {
-    if (userInfo && popularDoctors) {
-      const pop2 = popularDoctors.filter(
-        (doctor) => doctor.user.fullName !== userInfo.fullName
-      );
-      setPopularDoctors(pop2);
-    }
-  }, [userInfo]);
+  // useEffect(() => {
+  //   if (userInfo && popularDoctors) {
+  //     const pop2 = popularDoctors.filter(
+  //       (doctor) => doctor.user?.fullName !== userInfo?.fullName
+  //     );
+  //     setPopularDoctors(pop2);
+  //   }
+  // }, [userInfo]);
 
   useEffect(() => {
     console.log("popular doctor: ", popularDoctors[0]);
@@ -116,7 +116,7 @@ const HomeScreen = () => {
 
     setSearchResults(
       popularDoctors.filter(
-        (doctor) => doctor.user.fullName !== userInfo.fullName
+        (doctor) => doctor.user?.fullName !== userInfo?.fullName
       )
     );
   }, [searchQuery.length === 0 || searchResults === null]);
@@ -141,13 +141,13 @@ const HomeScreen = () => {
 
     const filteredResults = popularDoctors.filter((item) => {
       // Convert the fullName and specialization to lowercase strings
-      const fullName = item.user.fullName.toLowerCase();
+      const fullName = item.user?.fullName.toLowerCase();
       const specialization = item.specialization.toLowerCase();
 
-      // Check if the doctor's full name matches userInfo.fullName
-      const isCurrentUser = item.user.fullName === userInfo.fullName;
-      console.log("item full name: ", item.user.fullName);
-      console.log("userinfo full name: ", userInfo.fullName);
+      // Check if the doctor's full name matches userInfo?.fullName
+      const isCurrentUser = item.user?.fullName === userInfo?.fullName;
+      console.log("item full name: ", item.user?.fullName);
+      console.log("userinfo full name: ", userInfo?.fullName);
       // Check if either the fullName or specialization includes the search query
       // and exclude the current user
       return (
@@ -206,7 +206,7 @@ const HomeScreen = () => {
             userInfo &&
             userInfo._id &&
             popularDoctors
-              .filter((doctor) => doctor.user.fullName !== userInfo.fullName) // Filter out the doctor matching the userInfo._id
+              .filter((doctor) => doctor.user?.fullName !== userInfo?.fullName) // Filter out the doctor matching the userInfo._id
               .slice(0, 3) // Select the first 3 doctors after filtering
               .map((doctor, index) => (
                 <DoctorCard key={index} item={doctor} /> // Render DoctorCard for each doctor

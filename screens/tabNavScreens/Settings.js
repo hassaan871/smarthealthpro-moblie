@@ -20,11 +20,11 @@ const SettingsScreen = () => {
 
   useEffect(() => {
     console.log("user from setting: ", userInfo);
-    checkIfTopFiveDoctor();
+    checkIfTop();
   }, [userInfo, popularDoctors]);
 
-  const checkIfTopFiveDoctor = () => {
-    const topFiveDoctors = popularDoctors.slice(0, 5);
+  const checkIfTop = () => {
+    const topFiveDoctors = popularDoctors.slice(0, 3);
     const isTop = topFiveDoctors.some(
       (doctor) => doctor.user.fullName === userInfo.fullName
     );
@@ -45,7 +45,7 @@ const SettingsScreen = () => {
           {isTopFiveDoctor && (
             <View style={styles.topDoctorBadge}>
               <Icon name="star" size={20} color="#FFD700" />
-              <Text style={styles.topDoctorText}>Top 5 Doctor</Text>
+              <Text style={styles.topDoctorText}>Top Doctor</Text>
             </View>
           )}
         </View>

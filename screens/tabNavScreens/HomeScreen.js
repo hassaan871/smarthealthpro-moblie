@@ -101,14 +101,6 @@ const HomeScreen = () => {
     fetchPopularDoctors();
   }, []);
 
-  // useEffect(() => {
-  //   if (userInfo && popularDoctors) {
-  //     const pop2 = popularDoctors.filter(
-  //       (doctor) => doctor.user?.fullName !== userInfo?.fullName
-  //     );
-  //     setPopularDoctors(pop2);
-  //   }
-  // }, [userInfo]);
 
   useEffect(() => {
     console.log("popular doctor: ", popularDoctors[0]);

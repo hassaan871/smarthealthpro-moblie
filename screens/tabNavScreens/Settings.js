@@ -17,19 +17,21 @@ const SettingsScreen = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const { userInfo, popularDoctors } = useContext(Context);
   const [isTopFiveDoctor, setIsTopFiveDoctor] = useState(false);
-
+  
+  const checkIfTop = () => {
+    const topFiveDoctors = popularDoctors.slice(0, 3);
+    console.log("is top five 1: ",topFiveDoctors[1])
+    const isTop = topFiveDoctors.some(
+      (doctor) => doctor?.user?.fullName === userInfo?.fullName
+    );
+    setIsTopFiveDoctor(isTop);
+  };
+  
   useEffect(() => {
     console.log("user from setting: ", userInfo);
     checkIfTop();
   }, [userInfo, popularDoctors]);
 
-  const checkIfTop = () => {
-    const topFiveDoctors = popularDoctors.slice(0, 3);
-    const isTop = topFiveDoctors.some(
-      (doctor) => doctor.user.fullName === userInfo.fullName
-    );
-    setIsTopFiveDoctor(isTop);
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -40,7 +42,7 @@ const SettingsScreen = () => {
 
         <View style={styles.userInfo}>
           <Image source={{ uri: userInfo.avatar }} style={styles.userImage} />
-          <Text style={styles.userName}>{userInfo.fullName}</Text>
+          <Text style={styles.userName}>{userInfo?.fullName}</Text>
           <Text style={styles.userEmail}>{userInfo.email}</Text>
           {isTopFiveDoctor && (
             <View style={styles.topDoctorBadge}>

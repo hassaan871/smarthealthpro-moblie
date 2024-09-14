@@ -286,11 +286,12 @@ const BotChattingScreen = ({ route }) => {
         <Button
           title="Book Me"
           buttonStyle={styles.bookButton}
-          onPress={() => navigation.navigate("BookingScreen",
-            {
-              priority:prioriryData,
-              doctorInfo:item
-            })}
+          onPress={() =>
+            navigation.navigate("BookingScreen", {
+              priority: prioriryData,
+              doctorInfo: item,
+            })
+          }
         />
       </ListItem.Content>
     </ListItem>

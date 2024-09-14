@@ -3,7 +3,6 @@ import LoginScreen from "./screens/authScreens/LoginScreen";
 import SignUpScreen from "./screens/authScreens/SignUpScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import BotChattingScreen from "./screens/chattingUIScreens/BotChattingScreen";
-import ChattingList from "./screens/chattingUIScreens/ChattingList";
 import CameraAccessScreen from "./screens/cameraAccess/CameraAccessScreen";
 import OnBoardingScreen from "./screens/extras/OnBoarding";
 import ViewAllScreen from "./screens/extras/ViewAllScreen";
@@ -15,6 +14,7 @@ import HomeScreen from "./screens/tabNavScreens/HomeScreen";
 import CutomBottomBar from "./screens/tabNavScreens/CutomBottomBar";
 import ChatsScreen from "./screens/extras/ChatScreen2";
 import SettingScreen from "./screens/tabNavScreens/Settings";
+import AppointmentsScreen from "./screens/AppointmentsScreen";
 
 const Stack = createNativeStackNavigator();
 const AppNavigator = () => {
@@ -71,12 +71,6 @@ const AppNavigator = () => {
       />
 
       <Stack.Screen
-        name="ChatList"
-        options={{ headerShown: false }}
-        component={ChattingList}
-      />
-
-      <Stack.Screen
         name="BotChattingScreen"
         options={{ headerShown: false }}
         component={BotChattingScreen}
@@ -102,6 +96,11 @@ const AppNavigator = () => {
         name="SettingScreen"
         options={{ headerShown: false, animationEnabled: false }}
         component={SettingScreen}
+      />
+      <Stack.Screen
+        name="AppointmentsScreen"
+        options={{ headerShown: false, animationEnabled: false }}
+        component={AppointmentsScreen}
       />
     </Stack.Navigator>
   );

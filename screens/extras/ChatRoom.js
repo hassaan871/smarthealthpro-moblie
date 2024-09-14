@@ -59,7 +59,11 @@ const ChatRoom = ({ route }) => {
     setLoading(true);
     try {
       const response = await axios.get(
+<<<<<<< HEAD
         `http://192.168.100.133:5000/conversations/getMessages/${convoID}`
+=======
+        `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
+>>>>>>> a12f1e1c0f691554e0308d914c0ecb0c91f25e45
       );
       setMessages(response.data);
     } catch (error) {
@@ -149,7 +153,11 @@ const ChatRoom = ({ route }) => {
 
       try {
         await axios.post(
+<<<<<<< HEAD
           `http://192.168.100.133:5000/conversations/${convoID}/messages`,
+=======
+          `http://192.168.18.124:5000/conversations/${convoID}/messages`,
+>>>>>>> a12f1e1c0f691554e0308d914c0ecb0c91f25e45
           {
             content: newMessage.content,
             sender: newMessage.sender,

@@ -1,11 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import Context from "../Helper/context";
 
 const ScheduleCard = ({ item }) => {
-  // useEffect(() => {
-  //   console.log("item from schedule: ", item);
-  // });
+  const { userInfo } = useContext(Context);
+
+  useEffect(() => {
+    console.log("userInfo from context: ", userInfo);
+    console.log("item from schedule: ", item);
+  }, [item, userInfo]);
 
   function formatDateAndTime(isoString) {
     const options = {
@@ -29,22 +33,27 @@ const ScheduleCard = ({ item }) => {
             style={styles.doctorImage}
           />
           <View style={styles.scheduleInfo}>
-            <Text style={styles.doctorName}>{item?.doctor?.name}</Text>
-            <Text style={styles.doctorSpecialty}>
-              {item?.doctor?.specialization}
+            <Text style={styles.doctorName}>
+              {userInfo?.role === "doctor"
+                ? item?.patient?.name
+                : item?.doctor?.name}
             </Text>
+            {userInfo?.role === "patient" && (
+              <Text style={styles.doctorSpecialty}>
+                {item?.doctor?.specialization}
+              </Text>
+            )}
             <View style={styles.scheduleTimeContainer}>
-              <Icon name="calendar-outline" size={16} color="#4A90E2" />
+              <Icon name="location" size={16} color="#fff" />
+              <Text style={styles.scheduleTime}>{item.location}</Text>
+            </View>
+            <View style={styles.scheduleTimeContainer}>
+              <Icon name="calendar-outline" size={16} color="#fff" />
               <Text style={styles.scheduleTime}>
-                {formatDateAndTime(item?.date) +
-                  " at " +
-                  item?.selectedTimeSlot}
+                {formatDateAndTime(item?.date) + " at " + item?.time}
               </Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.addButton}>
-            <Icon name="add" size={24} color="#fff" />
-          </TouchableOpacity>
         </View>
       ) : (
         <View style={styles.scheduleCard2}>
@@ -102,7 +111,8 @@ const styles = StyleSheet.create({
   },
   doctorSpecialty: {
     fontSize: 14,
-    color: "#E0E0E0",
+    color: "#fff",
+    fontWeight: "bold",
   },
   scheduleTimeContainer: {
     flexDirection: "row",
@@ -111,16 +121,9 @@ const styles = StyleSheet.create({
   },
   scheduleTime: {
     fontSize: 12,
-    color: "#E0E0E0",
+    color: "#fff",
     marginLeft: 5,
-  },
-  addButton: {
-    backgroundColor: "#2980B9",
-    borderRadius: 20,
-    width: 40,
-    height: 40,
-    justifyContent: "center",
-    alignItems: "center",
+    fontWeight: "bold",
   },
 });
 

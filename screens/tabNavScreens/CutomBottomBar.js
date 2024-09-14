@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import Icon from "react-native-vector-icons/Ionicons";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 const CutomBottomBar = ({ active }) => {
   const navigation = useNavigation();
+
   return (
     <View style={styles.bottomNav}>
       <TouchableOpacity
@@ -17,6 +18,18 @@ const CutomBottomBar = ({ active }) => {
           name="home"
           size={24}
           color={active === "home" ? "#4A90E2" : "#666"}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.navItem}
+        onPress={() => {
+          navigation.navigate("AppointmentsScreen");
+        }}
+      >
+        <Icon
+          name="calendar-outline"
+          size={24}
+          color={active === "appointments" ? "#4A90E2" : "#666"}
         />
       </TouchableOpacity>
       <TouchableOpacity
@@ -61,8 +74,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-export default CutomBottomBar;
 
-{
-  /* HomeScreen , Settings , ChatsScreen */
-}
+export default CutomBottomBar;

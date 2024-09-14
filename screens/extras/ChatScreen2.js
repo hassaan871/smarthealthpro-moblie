@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useContext } from "react";
 import {
   Image,
   Pressable,
@@ -6,12 +7,9 @@ import {
   Text,
   TextInput,
   View,
-  Modal,
   FlatList,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
-import React, { useState, useRef, useEffect, useContext } from "react";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Entypo from "react-native-vector-icons/Entypo";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -19,20 +17,17 @@ import { useNavigation } from "@react-navigation/native";
 import Chat from "./Chat";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Context from "../../Helper/context";
 import CutomBottomBar from "../tabNavScreens/CutomBottomBar";
 import DialogflowModal from "../../components/DialogFlowModal";
 
 const ChatsScreen = () => {
   const [options, setOptions] = useState(["Chats"]);
-  const [modalVisible, setModalVisible] = useState(false);
   const [modalVisible2, setModalVisible2] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [chats, setChats] = useState([]);
   const [isBottomBarVisible, setIsBottomBarVisible] = useState(true);
-  const modalSearchInputRef = useRef(null);
   const { userInfo } = useContext(Context);
   const navigation = useNavigation();
 
@@ -113,97 +108,82 @@ const ChatsScreen = () => {
   };
 
   return (
-    <>
-      <ScrollView style={{ flex: 1 }}>
-        <SafeAreaView style={styles.container}>
-          <View style={styles.header}>
-            <Pressable>
-              <Image
-                style={styles.avatar}
-                source={{
-                  uri: "https://lh3.googleusercontent.com/ogw/AF2bZyi09EC0vkA0pKVqrtBq0Y-SLxZc0ynGmNrVKjvV66i3Yg=s64-c-mo",
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Pressable>
+          <Image
+            style={styles.avatar}
+            source={{
+              uri: "https://lh3.googleusercontent.com/ogw/AF2bZyi09EC0vkA0pKVqrtBq0Y-SLxZc0ynGmNrVKjvV66i3Yg=s64-c-mo",
+            }}
+          />
+        </Pressable>
+
+        <Text style={styles.headerTitle}>Chats</Text>
+
+        <View style={styles.headerIcons}>
+          <AntDesign name="camerao" size={26} color="white" />
+          <MaterialIcons
+            onPress={() => navigation.navigate("People")}
+            name="person-outline"
+            size={26}
+            color="white"
+          />
+        </View>
+      </View>
+
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search for chats"
+          placeholderTextColor="#999"
+          onFocus={() => setIsBottomBarVisible(false)}
+          onBlur={() => setIsBottomBarVisible(true)}
+          onChangeText={handleSearch}
+        />
+
+        <Icon name="search" size={24} color="#999" style={styles.searchIcon} />
+      </View>
+
+      <FlatList
+        ListHeaderComponent={() => (
+          <>
+            {isBottomBarVisible && (
+              <Chat
+                item={{
+                  name: "ChatBot",
+                  avatar:
+                    "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+                  lastMessage: "Chat with bot",
                 }}
+                isSearch={false}
+                isBotChat={true}
               />
-            </Pressable>
-
-            <Text style={styles.headerTitle}>Chats</Text>
-
-            <View style={styles.headerIcons}>
-              <AntDesign name="camerao" size={26} color="white" />
-              <MaterialIcons
-                onPress={() => navigation.navigate("People")}
-                name="person-outline"
-                size={26}
-                color="white"
-              />
+            )}
+            <View style={styles.contentContainer}>
+              <Pressable
+                onPress={() => chooseOption("Chats")}
+                style={styles.optionHeader}
+              >
+                <Text style={styles.optionText}>Chats</Text>
+                <Entypo name="chevron-small-down" size={26} color="white" />
+              </Pressable>
             </View>
+          </>
+        )}
+        data={options.includes("Chats") ? searchResults : []}
+        keyExtractor={(item) => item?._id}
+        renderItem={({ item }) => <Chat item={item} isSearch={false} />}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyChatsContainer}>
+            <Text style={styles.emptyChatsText}>No Chats yet</Text>
+            <Text style={styles.emptyChatsSubText}>
+              Get started by messaging a friend
+            </Text>
           </View>
+        )}
+      />
 
-          <View style={styles.searchContainer}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search for chats"
-              placeholderTextColor="#999"
-              onFocus={() => setIsBottomBarVisible(false)}
-              onBlur={() => setIsBottomBarVisible(true)}
-              onChangeText={handleSearch}
-            />
-
-            <Icon
-              name="search"
-              size={24}
-              color="#999"
-              style={styles.searchIcon}
-            />
-          </View>
-          {isBottomBarVisible && (
-            <Chat
-              item={{
-                name: "ChatBot",
-                avatar:
-                  "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
-                lastMessage: "Chat with bot",
-              }}
-              isSearch={false}
-              isBotChat={true}
-            />
-          )}
-
-          <View style={styles.contentContainer}>
-            <Pressable
-              onPress={() => chooseOption("Chats")}
-              style={styles.optionHeader}
-            >
-              <Text style={styles.optionText}>Chats</Text>
-              <Entypo name="chevron-small-down" size={26} color="white" />
-            </Pressable>
-
-            <View>
-              {options?.includes("Chats") && (
-                <View>
-                  {chats.length > 0 ? (
-                    <FlatList
-                      data={searchResults}
-                      keyExtractor={(item) => item?._id}
-                      renderItem={({ item }) => (
-                        <Chat item={item} isSearch={false} />
-                      )}
-                      contentContainerStyle={{ paddingBottom: 20 }} // Optional padding
-                    />
-                  ) : (
-                    <View style={styles.emptyChatsContainer}>
-                      <Text style={styles.emptyChatsText}>No Chats yet</Text>
-                      <Text style={styles.emptyChatsSubText}>
-                        Get started by messaging a friend
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              )}
-            </View>
-          </View>
-        </SafeAreaView>
-      </ScrollView>
       <TouchableOpacity
         style={styles.chatButton}
         onPress={() => setModalVisible2(true)}
@@ -216,7 +196,7 @@ const ChatsScreen = () => {
         onClose={() => setModalVisible2(false)}
       />
       {isBottomBarVisible && <CutomBottomBar active={"chat"} />}
-    </>
+    </SafeAreaView>
   );
 };
 
@@ -289,35 +269,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
     color: "gray",
   },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: "#1E1E1E",
-  },
-  modalHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#2C2C2E",
-  },
-  modalSearchInput: {
-    flex: 1,
-    height: 40,
-    backgroundColor: "#2C2C2E",
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingLeft: 40,
-    fontSize: 16,
-    marginLeft: 10,
-    color: "white",
-  },
-  modalSearchIcon: {
-    position: "absolute",
-    left: 60,
-  },
   chatButton: {
     position: "absolute",
-    bottom: 60,
+    bottom: 90,
     right: 10,
     backgroundColor: "#007bff",
     borderRadius: 50,

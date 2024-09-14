@@ -27,7 +27,11 @@ const Chat = ({ item, isBotChat }) => {
   //     console.log(senderId);
   //     console.log(receiverId);
 
+<<<<<<< HEAD
+  //     const response = await axios.get("http://192.168.100.133:8000/messages", {
+=======
   //     const response = await axios.get("http://192.168.18.124:8000/messages", {
+>>>>>>> a12f1e1c0f691554e0308d914c0ecb0c91f25e45
   //       params: { senderId, receiverId },
   //     });
 
@@ -68,6 +72,20 @@ const Chat = ({ item, isBotChat }) => {
 
       // console.log(`creating chat btw ${currentUserId} and ${otherUserId}`);
       // Make a POST request to create or retrieve a conversation
+<<<<<<< HEAD
+      const response = await axios.post(
+        "http://192.168.100.133:5000/conversations",
+        {
+          currentUserId,
+          otherUserId,
+          currentUserObjectIdAvatar: userInfo?.avatar,
+          otherUserObjectIdAvatar:
+            "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+          currentUserObjectIdName: userInfo?.fullName,
+          otherUserObjectIdName: "ChatBot",
+        }
+      );
+=======
       // const response = await axios.post(
       //   "http://192.168.18.124:5000/conversations",
       //   {
@@ -80,6 +98,7 @@ const Chat = ({ item, isBotChat }) => {
       //     otherUserObjectIdName: "ChatBot",
       //   }
       // );
+>>>>>>> a12f1e1c0f691554e0308d914c0ecb0c91f25e45
 
       // const conversationId = response.data?._id;
       // console.log("convo created successfully with id: ", conversationId);

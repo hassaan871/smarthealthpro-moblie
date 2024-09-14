@@ -33,6 +33,8 @@ const HomeScreen = () => {
   const { userInfo, setUserInfo, popularDoctors, setPopularDoctors } =
     useContext(Context);
 
+    console.log("user ingo",userInfo)
+
   const modalSearchInputRef = useRef(null);
 
   useEffect(() => {
@@ -44,7 +46,7 @@ const HomeScreen = () => {
       console.log("user id is from async: ", userID);
       if (userID !== null) {
         const response = await axios.get(
-          `http://192.168.18.124:5000/user/getUserInfo/${userID}`
+          `http://192.168.100.133:5000/user/getUserInfo/${userID}`
         );
 
         console.log("response users data: ", response.data.user);
@@ -67,7 +69,9 @@ const HomeScreen = () => {
 
       console.log("link from userinfo: ", link);
       if (userID !== null) {
-        const response = await axios.get(link);
+        const response = await axios.get(
+          `http://192.168.100.133:5000/appointment/getAllAppointments?PatientId=${userID}`
+        );
 
         console.log("response appointment: ", response.data.appointments);
         appointmentInfo = response.data.appointments;
@@ -85,7 +89,7 @@ const HomeScreen = () => {
       console.log("Fetching popular doctor");
       try {
         const response = await axios.get(
-          `http://192.168.18.124:5000/user/getDoctorsBySatisfaction`
+          `http://192.168.100.133:5000/user/getDoctorsBySatisfaction`
         );
 
         console.log("response doctors: ", response.data[0]);

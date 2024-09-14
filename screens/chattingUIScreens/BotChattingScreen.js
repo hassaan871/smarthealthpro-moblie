@@ -40,6 +40,7 @@ const BotChattingScreen = ({ route }) => {
   const [patientId, setPatientId] = useState("");
   const [conversationEnd, setConversationEnd] = useState(false);
   const [prioriryData, setPriorityData] = useState("");
+  const [docsSheet,setDocsSheet] = useState("")
 
   const chatbot = { id: "06c33e8b-e899-4736-80f4-63f44b66666c" };
   const scrollViewRef = useRef();
@@ -75,8 +76,10 @@ const BotChattingScreen = ({ route }) => {
   };
 
   const handleSendPress = async () => {
+    // Ensure message is not empty
     if (!message.trim()) return;
-
+  
+    // Add the sent message to the chat
     const sentMessage = {
       author: patientId,
       createdAt: Date.now(),
@@ -86,33 +89,93 @@ const BotChattingScreen = ({ route }) => {
     };
     addMessage(sentMessage);
     setMessage("");
-
+  
     try {
+      // Create form data to send to the backend
       const formData = new FormData();
       formData.append("message", message);
       formData.append("patient_id", patientId);
+  
+      // Send request to the backend with the chat message
       const response = await axios.post(
-        "http://192.168.18.124:8082/chat",
+        "http://192.168.100.133:8082/chat",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
         }
       );
+  
       const respData = response.data.response;
-      console.log("resp", respData);
-
+      console.log("Response from backend:", respData);
+  
+      // Extract [PRIORITY] section if it exists
       if (respData.toLowerCase().includes("[priority]")) {
-        const priorityMatch = respData.match(
-          /\[PRIORITY\](.*?)(?=\[Disease\])/s
-        );
-        console.log("ppp", priorityMatch);
+        const priorityMatch = respData.toLowerCase().match(/\[priority\](.*?)(?=\[disease\])/s);
         if (priorityMatch) {
-          setPriorityData(priorityMatch[1].trim());
-          console.log("trin", priorityMatch[1].trim());
+          const priorityData = priorityMatch[1]?.trim();
+          setPriorityData(priorityData);
+          console.log("Extracted Priority:", priorityData);
         }
+      }
+  
+      // Extract [DISEASE] section
+      const diseaseMatch = respData.toLowerCase().match(/\[disease\](.*)/s);
+      if (diseaseMatch) {
+        let diseaseSection = diseaseMatch[1].trim();
+  
+        // Trim to only the section before two consecutive newlines
+        const doubleNewlineIndex = diseaseSection.indexOf("\n\n");
+        if (doubleNewlineIndex !== -1) {
+          diseaseSection = diseaseSection.substring(0, doubleNewlineIndex).trim();
+        }
+  
+        console.log("Extracted DISEASE section:", diseaseSection);
+  
+        // Remove markdown-like formatting (* ** **)
+        diseaseSection = diseaseSection.replace(/[*]/g, '').replace(/\*\*/g, '');
+  
+        // Initialize all diseases with 0%
+        const diseaseData = {
+          Diabetes: 0,
+          Kidney: 0,
+          Hypertension: 0
+        };
+        const diseaseLines = diseaseSection.split('\n');
+  
+        // Loop through each line and extract disease and percentage
+        diseaseLines.forEach(line => {
+          // Use regex to extract disease and percentage, ignore trailing text after percentage
+          const match = line.match(/\s*([a-zA-Z\s]+):\s*(\d+)%/);
+          if (match) {
+            const disease = match[1].trim();  // Disease name
+            const percentage = parseFloat(match[2].trim());  // Percentage
+            if (disease && !isNaN(percentage)) {
+              // Match the disease with the standard names
+              if (disease in diseaseData) {
+                diseaseData[disease] = percentage;
+              }
+            }
+          }
+        });
+  
+        // Post extracted data to the backend
+        const payload = {
+          specializations: diseaseData,  // Ensure the structure matches what the backend expects
+        };
+  
+        console.log("Payload to backend:", payload);
+  
+        const doctorResponse = await axios.post(
+          "http://192.168.100.133:5000/appointment/getAvailableDoctors",
+          payload
+        );
+  
+        console.log('Response from backend:', doctorResponse.data);
+        setDocsSheet(doctorResponse.data);
         setConversationEnd(true);
       }
-
+  
+      // Add chatbot's response message to the chat
       const receivedMessage = {
         author: chatbot,
         createdAt: Date.now(),
@@ -125,7 +188,7 @@ const BotChattingScreen = ({ route }) => {
       console.error("Error sending message to backend:", error);
     }
   };
-
+  
   const handleFileSelection = async () => {
     try {
       const response = await DocumentPicker.getDocumentAsync({
@@ -202,7 +265,7 @@ const BotChattingScreen = ({ route }) => {
       <ListItem.Content style={styles.listItemContent}>
         <View style={styles.textContainer}>
           <ListItem.Title style={styles.listItemTitle}>
-            {item.user.fullName}
+            {/* {item?.user?.fullName} */}
           </ListItem.Title>
           <ListItem.Subtitle style={styles.listItemSubtitle}>
             <Icon
@@ -319,7 +382,7 @@ const BotChattingScreen = ({ route }) => {
 
       <BottomSheet isVisible={conversationEnd}>
         <FlatList
-          data={popularDoctors}
+          data={docsSheet}
           keyExtractor={(item) => item._id}
           renderItem={renderDoctorItem}
         />

@@ -27,7 +27,7 @@ const Chat = ({ item, isSearch, isBotChat }) => {
   //     console.log(senderId);
   //     console.log(receiverId);
 
-  //     const response = await axios.get("http://192.168.100.169:8000/messages", {
+  //     const response = await axios.get("http://192.168.100.133:8000/messages", {
   //       params: { senderId, receiverId },
   //     });
 
@@ -69,7 +69,7 @@ const Chat = ({ item, isSearch, isBotChat }) => {
       console.log(`creating chat btw ${currentUserId} and ${otherUserId}`);
       // Make a POST request to create or retrieve a conversation
       const response = await axios.post(
-        "http://192.168.100.169:5000/conversations",
+        "http://192.168.100.133:5000/conversations",
         {
           currentUserId,
           otherUserId,

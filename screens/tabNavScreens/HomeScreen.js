@@ -66,21 +66,36 @@ const HomeScreen = () => {
       const link = `http://192.168.18.9:5000/appointment/getAllAppointments?${
         userInfo.role === "doctor" ? "doctorId" : "patientId"
       }=${userID}`;
-
+      
       console.log("link from userinfo: ", link);
+      
       if (userID !== null) {
-        const response = await axios.get(
-          `http://192.168.18.9:5000/appointment/getAllAppointments?PatientId=${userID}`
-        );
-
-        console.log("response appointment: ", response.data.appointments);
-        appointmentInfo = response.data.appointments;
-        setUpcomingSchedule(appointmentInfo);
+        try {
+          const response = await axios.get(link);
+          
+          console.log("response appointment: ", response.data.appointments);
+          
+          // Filter appointments
+          const filteredAppointments = response.data.appointments
+            .filter(appointment => appointment.appointmentStatus === "pending")
+            .sort((a, b) => {
+              // Compare dates
+              const dateComparison = new Date(a.date) - new Date(b.date);
+              if (dateComparison !== 0) return dateComparison;
+              
+              // If dates are the same, compare times
+              return a.time.localeCompare(b.time);
+            });
+          
+          setUpcomingSchedule(filteredAppointments);
+        } catch (error) {
+          console.error("Error fetching appointments:", error);
+        }
       } else {
         console.log("User token not available");
       }
     };
-
+  
     fetchAppointment();
   }, [userInfo]);
 

@@ -33,6 +33,10 @@ const ChatRoom = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const { socket } = useSocketContext();
   const { userInfo } = useContext(Context);
+  
+  useEffect(() => {
+    setLoading(true)
+    }, []);
 
   const scrollViewRef = useRef();
 
@@ -55,8 +59,10 @@ const ChatRoom = ({ route }) => {
   };
   listeMessages();
 
+  
+
+
   const fetchMessages = async () => {
-    setLoading(true);
     try {
       const response = await axios.get(
         `http://192.168.18.9:5000/conversations/getMessages/${convoID}`

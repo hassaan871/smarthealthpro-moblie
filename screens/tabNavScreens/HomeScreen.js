@@ -30,6 +30,7 @@ const HomeScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [upcomingSchedule, setUpcomingSchedule] = useState([]);
+  const [selectedSpecialization, setSelectedSpecialization] = useState("All");
   const { userInfo, setUserInfo, popularDoctors, setPopularDoctors } =
     useContext(Context);
 
@@ -46,7 +47,7 @@ const HomeScreen = () => {
       console.log("user id is from async: ", userID);
       if (userID !== null) {
         const response = await axios.get(
-          `http://192.168.18.9:5000/user/getUserInfo/${userID}`
+          `http://192.168.1.15:5000/user/getUserInfo/${userID}`
         );
 
         console.log("response users data: ", response.data.user);
@@ -63,7 +64,7 @@ const HomeScreen = () => {
     const fetchAppointment = async () => {
       const userID = userInfo._id;
       console.log("user id is from userinfo: ", userID);
-      const link = `http://192.168.18.9:5000/appointment/getAllAppointments?${
+      const link = `http://192.168.1.15:5000/appointment/getAllAppointments?${
         userInfo.role === "doctor" ? "doctorId" : "patientId"
       }=${userID}`;
       
@@ -104,7 +105,7 @@ const HomeScreen = () => {
       console.log("Fetching popular doctor");
       try {
         const response = await axios.get(
-          `http://192.168.18.9:5000/user/getDoctorsBySatisfaction`
+          `http://192.168.1.15:5000/user/getDoctorsBySatisfaction`
         );
 
         console.log("response doctors: ", response.data[0]);
@@ -171,6 +172,16 @@ const HomeScreen = () => {
     setSearchResults(filteredResults);
   };
 
+  const filterDoctors = () => {
+    return popularDoctors
+      .filter((doctor) => doctor.user?.fullName !== userInfo?.fullName)
+      .filter((doctor) => 
+        selectedSpecialization === "All" || 
+        doctor.specialization.toLowerCase() === selectedSpecialization.toLowerCase()
+      )
+      .slice(0, 3);
+  };
+  
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -193,35 +204,33 @@ const HomeScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Talk to a Doctor</Text>
           <View style={styles.categoryButtons}>
-            <TouchableOpacity
-              style={[styles.categoryButton, { backgroundColor: "#8E44AD" }]}
-            >
-              <Icon name="call-outline" size={16} color="#fff" />
-              <Text style={styles.categoryButtonText}>All</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.categoryButton, { backgroundColor: "#E74C3C" }]}
-            >
-              <Icon2 name="drop" size={16} color="#fff" />
-              <Text style={styles.categoryButtonText}>Diabities</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.categoryButton, { backgroundColor: "#3498DB" }]}
-            >
-              <Icon name="pulse-outline" size={16} color="#fff" />
-              <Text style={styles.categoryButtonText}>Hypertension</Text>
-            </TouchableOpacity>
-          </View>
+  <TouchableOpacity
+    style={[styles.categoryButton, { backgroundColor: "#8E44AD" }]}
+    onPress={() => setSelectedSpecialization("All")}
+  >
+    <Icon name="call-outline" size={16} color="#fff" />
+    <Text style={styles.categoryButtonText}>All</Text>
+  </TouchableOpacity>
+  <TouchableOpacity
+    style={[styles.categoryButton, { backgroundColor: "#E74C3C" }]}
+    onPress={() => setSelectedSpecialization("Diabetes")}
+  >
+    <Icon2 name="drop" size={16} color="#fff" />
+    <Text style={styles.categoryButtonText}>Diabetes</Text>
+  </TouchableOpacity>
+  <TouchableOpacity
+    style={[styles.categoryButton, { backgroundColor: "#3498DB" }]}
+    onPress={() => setSelectedSpecialization("Hypertension")}
+  >
+    <Icon name="pulse-outline" size={16} color="#fff" />
+    <Text style={styles.categoryButtonText}>Hypertension</Text>
+  </TouchableOpacity>
+</View>
 
-          {popularDoctors.length > 0 &&
-            userInfo &&
-            userInfo._id &&
-            popularDoctors
-              .filter((doctor) => doctor.user?.fullName !== userInfo?.fullName) // Filter out the doctor matching the userInfo._id
-              .slice(0, 3) // Select the first 3 doctors after filtering
-              .map((doctor, index) => (
-                <DoctorCard key={index} item={doctor} /> // Render DoctorCard for each doctor
-              ))}
+     
+{filterDoctors().map((doctor, index) => (
+            <DoctorCard key={index} item={doctor} />
+          ))}
         </View>
         <Modal visible={modalVisible} animationType="slide">
           <SafeAreaView style={styles.modalContainer}>

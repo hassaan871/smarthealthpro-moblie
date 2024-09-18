@@ -34,14 +34,21 @@ export default function BookingScreen({ route, navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [markedDates, setMarkedDates] = useState({});
-  const priority = route?.params?.priority ?? "low";
+  const priority = route?.params?.priority
+
+  const extractPriority = priority.toLowerCase().includes("mild") ? "mild" :
+  priority.toLowerCase().includes("moderate") ? "moderate" : priority.toLowerCase().includes("severe") ?
+  "severe" : priority.toLowerCase().includes("very severe") ? "very severe" : "low"
+
   const doctorInfo = route?.params?.doctorInfo;
   console.log("doc", doctorInfo);
   console.log("pri", priority);
+  console.log("extr",extractPriority)
   const navigate = useNavigation();
 
   const { userInfo } = useContext(Context);
 
+  console.log("user",userInfo)
   const item = route?.params?.doctorInfo;
   const officeHours = item?.officeHours;
 
@@ -104,8 +111,29 @@ export default function BookingScreen({ route, navigation }) {
 
     setLoading(true);
     try {
+
+      console.log("sdsdsd",{
+        doctor: {
+          id: item.user._id,
+          name: item.user.fullName,
+          avatar: item.user.avatar,
+          specialization: item.specialization,
+        },
+        patient: {
+          id: userInfo?._id,
+          name: userInfo?.fullName || "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+          avatar: userInfo?.avatar 
+        },
+        date: selected,
+        appointmentStatus: "tbd",
+        description: "Appointment with " + item.user.fullName,
+        location:  doctorInfo.address,
+        priority: extractPriority,
+        bookedOn: selected,
+      });
+      
       const response = await axios.post(
-        "http://192.168.18.124:5000/appointment/postAppointment",
+        "http://192.168.100.240:5000/appointment/postAppointment",
         {
           doctor: {
             id: item.user._id,
@@ -113,12 +141,16 @@ export default function BookingScreen({ route, navigation }) {
             avatar: item.avatar,
             specialization: item.specialization,
           },
-          patient: userInfo._id, // You need to replace this with the actual patient ID
-          date: "",
+          patient: {
+            id: userInfo?._id,
+            name: userInfo?.fullName, // Assuming userInfo has these details
+            avatar: userInfo?.avatar || "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png", // Provide a default avatar if necessary
+          },
+          date: selected,
           appointmentStatus: "tbd",
           description: "Appointment with " + item.user.fullName,
           location: item.office,
-          priority: priority,
+          priority: extractPriority,
           bookedOn: selected,
         }
       );

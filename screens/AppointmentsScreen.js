@@ -42,7 +42,7 @@ const AppointmentsScreen = () => {
     try {
       const userID = userInfo._id;
       console.log("user id is from all appointments: ", userID);
-      const link = `http://10.135.88.97:5000/appointment/getAllAppointments?${
+      const link = `http://192.168.100.240:5000/appointment/getAllAppointments?${
         userInfo.role === "doctor" ? "doctorId" : "patientId"
       }=${userID}`;
 
@@ -96,7 +96,7 @@ const AppointmentsScreen = () => {
   const confirmCancellation = async () => {
     try {
       await axios.delete(
-        `http://10.135.88.97:5000/appointment/cancelAppointment/${selectedAppointment._id}`
+        `http://192.168.100.240:5000/appointment/cancelAppointment/${selectedAppointment._id}`
       );
       fetchAllAppointments(); // Refresh the list
       setCancelConfirmation(false);
@@ -107,7 +107,7 @@ const AppointmentsScreen = () => {
 
   const submitReview = async () => {
     try {
-      await axios.post("http://10.135.88.97:5000/review/addReview", {
+      await axios.post("http://192.168.100.240:5000/review/addReview", {
         appointmentId: selectedAppointment._id,
         rating,
         comment: review,

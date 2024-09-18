@@ -33,6 +33,10 @@ const ChatRoom = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const { socket } = useSocketContext();
   const { userInfo } = useContext(Context);
+  
+  useEffect(() => {
+    setLoading(true)
+    }, []);
 
   const scrollViewRef = useRef();
 
@@ -55,8 +59,10 @@ const ChatRoom = ({ route }) => {
   };
   listeMessages();
 
+  
+
+
   const fetchMessages = async () => {
-    setLoading(true);
     try {
       const response = await axios.get(
         `http://10.135.88.97:5000/conversations/getMessages/${convoID}`
@@ -115,7 +121,7 @@ const ChatRoom = ({ route }) => {
             <View style={styles.profileImage} />
           </View>
           <View style={styles.headerTextContainer}>
-            <Text style={styles.headerName}>{name}</Text>
+            <Text numberOfLines={1} style={styles.headerName}>{name}</Text>
             <Text style={styles.headerSubtext}>Online</Text>
           </View>
         </View>
@@ -124,6 +130,7 @@ const ChatRoom = ({ route }) => {
         backgroundColor: "#1f1f1f",
         elevation: 0,
         shadowOpacity: 0,
+        height: 60, // Increased height
       },
     });
   }, [navigation, name]);
@@ -131,23 +138,24 @@ const ChatRoom = ({ route }) => {
   const sendMessage = async () => {
     if (socket) {
       if (!message.trim()) return;
-
+  
       const newMessage = {
         content: message,
         sender: userInfo._id,
         conversationId: convoID,
         timestamp: new Date(),
       };
-
+  
       setMessage(""); // Clear the input right after sending the message
       setMessages((prevMessages) => [...prevMessages, newMessage]); // Optimistically update the UI
-
+  
       // Scroll to the bottom after sending a message
       setTimeout(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
       }, 100);
-
+  
       try {
+        // Send the message
         await axios.post(
           `http://10.135.88.97:5000/conversations/${convoID}/messages`,
           {
@@ -156,8 +164,18 @@ const ChatRoom = ({ route }) => {
             receiverId: receiverId,
           }
         );
+  
+        console.log(`new link is : http://192.168.1.15:5000/conversations/${convoID}/lastMessage`)
+        // Update the last message of the conversation
+        await axios.put(
+          `http://192.168.1.15:5000/conversations/${convoID}/lastMessage`,
+          {
+            lastMessage: newMessage.content,
+          }
+        );
+  
         socket?.emit("sendMessage", { newMessage });
-
+  
         setTimeout(() => {
           fetchMessages();
         }, 100);
@@ -252,6 +270,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
     backgroundColor: "#1f1f1f",
+    height: 60, // Increased height
+    width: '100%', // Ensure full width
   },
   backIcon: {
     marginRight: 15,
@@ -266,12 +286,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#cccccc", // Placeholder color
   },
   headerTextContainer: {
+    flex: 1, // Take up remaining space
     justifyContent: "center",
   },
   headerName: {
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
+    marginRight: 50, // Ensure text doesn't overlap with right side of header
   },
   headerSubtext: {
     color: "#aaaaaa",

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext,useCallback } from "react";
 import {
   Image,
   Pressable,
@@ -13,7 +13,7 @@ import {
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Entypo from "react-native-vector-icons/Entypo";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation,useFocusEffect } from "@react-navigation/native";
 import Chat from "./Chat";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import axios from "axios";
@@ -28,31 +28,92 @@ const ChatsScreen = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [chats, setChats] = useState([]);
   const [isBottomBarVisible, setIsBottomBarVisible] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { userInfo } = useContext(Context);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    console.log("fetch chats");
+  
+  useFocusEffect(
+    useCallback(() => {
+      
+      const fetchChats = async () => {
+        console.log("userinfo id: ", userInfo);
+        try {
+          const response = await axios.get(
+            `http://192.168.1.15:5000/conversations/${userInfo?._id}`
+          );
+          console.log("fetched chats 2332: ", response.data);
+    
+          const formattedChats = response.data.map((chat) => {
+            const participantIndex = chat.participants.indexOf(userInfo?._id);
+            const avatar =
+              participantIndex === 0 ? chat.avatar[1] : chat.avatar[0];
+            const name = participantIndex === 0 ? chat.name[1] : chat.name[0];
+    
+            const receiverID =
+              participantIndex === 0
+                ? chat.participants[1]
+                : chat.participants[0];
+    
+            const formattedTime = new Date(chat.updatedAt).toLocaleString(
+              "en-US",
+              {
+                timeZone: "Asia/Karachi",
+                hour12: true,
+                hour: "2-digit",
+                minute: "2-digit",
+              }
+            );
+    
+            console.log("formatted time: ", formattedTime);
+    
+            return {
+              convoID: chat._id,
+              name: name,
+              lastMessage: chat.lastMessage,
+              avatar: avatar,
+              receiverId: receiverID,
+              time: formattedTime,
+            };
+          });
+    
+          console.log("for 0: ", formattedChats);
+          setChats(formattedChats);
+          setSearchResults(formattedChats);
+        } catch (error) {
+          console.log("error fetching chat: ", error);
+        }
+      };
 
+      fetchChats();
+    }, [userInfo?._id]) // Add userInfo?._id as a dependency
+  );
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
     const fetchChats = async () => {
       console.log("userinfo id: ", userInfo);
       try {
         const response = await axios.get(
+<<<<<<< HEAD:screens/extras/ChatScreen2.js
           `http://192.168.18.124:5000/conversations/${userInfo?._id}`
+=======
+          `http://192.168.1.15:5000/conversations/${userInfo?._id}`
+>>>>>>> 79b2f4f31e144a437085cc6c684935fb392f7b14:screens/extras/ChatScreen.js
         );
         console.log("fetched chats 2332: ", response.data);
-
+  
         const formattedChats = response.data.map((chat) => {
           const participantIndex = chat.participants.indexOf(userInfo?._id);
           const avatar =
             participantIndex === 0 ? chat.avatar[1] : chat.avatar[0];
           const name = participantIndex === 0 ? chat.name[1] : chat.name[0];
-
+  
           const receiverID =
             participantIndex === 0
               ? chat.participants[1]
               : chat.participants[0];
-
+  
           const formattedTime = new Date(chat.updatedAt).toLocaleString(
             "en-US",
             {
@@ -60,12 +121,11 @@ const ChatsScreen = () => {
               hour12: true,
               hour: "2-digit",
               minute: "2-digit",
-              second: "2-digit",
             }
           );
-
+  
           console.log("formatted time: ", formattedTime);
-
+  
           return {
             convoID: chat._id,
             name: name,
@@ -75,7 +135,7 @@ const ChatsScreen = () => {
             time: formattedTime,
           };
         });
-
+  
         console.log("for 0: ", formattedChats);
         setChats(formattedChats);
         setSearchResults(formattedChats);
@@ -83,9 +143,9 @@ const ChatsScreen = () => {
         console.log("error fetching chat: ", error);
       }
     };
-
-    fetchChats();
+    fetchChats().then(() => setRefreshing(false));
   }, [userInfo?._id]);
+
 
   const chooseOption = (option) => {
     if (options.includes(option)) {
@@ -107,6 +167,7 @@ const ChatsScreen = () => {
     setSearchResults(filteredResults);
   };
 
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -114,7 +175,7 @@ const ChatsScreen = () => {
           <Image
             style={styles.avatar}
             source={{
-              uri: "https://lh3.googleusercontent.com/ogw/AF2bZyi09EC0vkA0pKVqrtBq0Y-SLxZc0ynGmNrVKjvV66i3Yg=s64-c-mo",
+              uri: userInfo?.avatar,
             }}
           />
         </Pressable>
@@ -146,6 +207,8 @@ const ChatsScreen = () => {
       </View>
 
       <FlatList
+      refreshing={refreshing}
+      onRefresh={onRefresh}
         ListHeaderComponent={() => (
           <>
             {isBottomBarVisible && (

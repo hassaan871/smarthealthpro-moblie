@@ -171,7 +171,7 @@ const BotChattingScreen = ({ route }) => {
         );
   
         console.log('Response from backend:', doctorResponse.data);
-        setDocsSheet(doctorResponse.data);
+        setDocsSheet( doctorResponse.data.data);
         setConversationEnd(true);
       }
   

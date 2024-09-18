@@ -165,10 +165,10 @@ const ChatRoom = ({ route }) => {
           }
         );
   
-        console.log(`new link is : http://192.168.1.15:5000/conversations/${convoID}/lastMessage`)
+        console.log(`new link is : http://10.135.88.97:5000/conversations/${convoID}/lastMessage`)
         // Update the last message of the conversation
         await axios.put(
-          `http://192.168.1.15:5000/conversations/${convoID}/lastMessage`,
+          `http://10.135.88.97:5000/conversations/${convoID}/lastMessage`,
           {
             lastMessage: newMessage.content,
           }

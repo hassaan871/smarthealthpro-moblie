@@ -64,7 +64,7 @@ const HomeScreen = () => {
     const fetchAppointment = async () => {
       const userID = userInfo._id;
       console.log("user id is from userinfo: ", userID);
-      const link = `http://192.168.1.15:5000/appointment/getAllAppointments?${
+      const link = `http://10.135.88.97:5000/appointment/getAllAppointments?${
         userInfo.role === "doctor" ? "doctorId" : "patientId"
       }=${userID}`;
       

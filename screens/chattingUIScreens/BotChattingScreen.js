@@ -98,7 +98,7 @@ const BotChattingScreen = ({ route }) => {
   
       // Send request to the backend with the chat message
       const response = await axios.post(
-        "http://192.168.100.133:8082/chat",
+        "http://10.135.88.97:8082/chat",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -136,9 +136,9 @@ const BotChattingScreen = ({ route }) => {
   
         // Initialize all diseases with 0%
         const diseaseData = {
-          Diabetes: 0,
-          Kidney: 0,
-          Hypertension: 0
+          diabetes: 0,
+          kidney: 0,
+          hypertension: 0
         };
         const diseaseLines = diseaseSection.split('\n');
   
@@ -166,7 +166,7 @@ const BotChattingScreen = ({ route }) => {
         console.log("Payload to backend:", payload);
   
         const doctorResponse = await axios.post(
-          "http://192.168.100.133:5000/appointment/getAvailableDoctors",
+          "http://10.135.88.97:5000/appointment/getAvailableDoctors",
           payload
         );
   
@@ -286,12 +286,11 @@ const BotChattingScreen = ({ route }) => {
         <Button
           title="Book Me"
           buttonStyle={styles.bookButton}
-          onPress={() =>
-            navigation.navigate("BookingScreen", {
-              priority: prioriryData,
-              doctorInfo: item,
-            })
-          }
+          onPress={() => navigation.navigate("BookingScreen",
+            {
+              priority:prioriryData,
+              doctorInfo:item
+            })}
         />
       </ListItem.Content>
     </ListItem>
@@ -383,6 +382,7 @@ const BotChattingScreen = ({ route }) => {
       <BottomSheet isVisible={conversationEnd}>
         <FlatList
           data={docsSheet}
+          scrollEnabled={false}
           keyExtractor={(item) => item._id}
           renderItem={renderDoctorItem}
         />

@@ -41,16 +41,13 @@ export default function BookingScreen({ route, navigation }) {
   "severe" : priority.toLowerCase().includes("very severe") ? "very severe" : "low"
 
   const doctorInfo = route?.params?.doctorInfo;
-  console.log("doc", doctorInfo);
-  console.log("pri", priority);
-  console.log("extr",extractPriority)
   const navigate = useNavigation();
 
   const { userInfo } = useContext(Context);
-
-  console.log("user",userInfo)
   const item = route?.params?.doctorInfo;
   const officeHours = item?.officeHours;
+  console.log("doc info",doctorInfo)
+  console.log("user",userInfo)
 
   const initDate = new Date();
   const minimumDate = new Date();
@@ -113,45 +110,49 @@ export default function BookingScreen({ route, navigation }) {
     try {
 
       console.log("sdsdsd",{
-        doctor: {
-          id: item.user._id,
-          name: item.user.fullName,
-          avatar: item.user.avatar,
-          specialization: item.specialization,
-        },
+        // doctor: {
+        //   id: item.user._id,
+        //   name: item.user.fullName,
+        //   avatar: item.user.avatar,
+        //   specialization: item.specialization,
+        // },
         patient: {
           id: userInfo?._id,
           name: userInfo?.fullName || "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
           avatar: userInfo?.avatar 
         },
-        date: selected,
-        appointmentStatus: "tbd",
-        description: "Appointment with " + item.user.fullName,
-        location:  doctorInfo.address,
-        priority: extractPriority,
-        bookedOn: selected,
+        // date: selected,
+        // appointmentStatus: "tbd",
+        // description: "Appointment with " + item.user.fullName,
+        // location:  doctorInfo.address,
+        // priority: extractPriority,
+        // bookedOn: selected,
       });
       
       const response = await axios.post(
-        "http://192.168.100.240:5000/appointment/postAppointment",
+        "http://192.168.100.34:5000/appointment/postAppointment",
         {
           doctor: {
-            id: item.user._id,
-            name: item.user.fullName,
-            avatar: item.avatar,
-            specialization: item.specialization,
+            // id: doctorInfo._id,  
+            // name: doctorInfo.fullName,
+            // avatar:doctorInfo.avatar ,
+            // specialization: doctorInfo.specialization
+            id: doctorInfo._id,  
+            name: doctorInfo.user.fullName,
+            avatar: doctorInfo.user.avatar,
+            specialization: doctorInfo.specialization
           },
           patient: {
-            id: userInfo?._id,
-            name: userInfo?.fullName, // Assuming userInfo has these details
-            avatar: userInfo?.avatar || "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png", // Provide a default avatar if necessary
+            id: userInfo._id,
+            name: userInfo.fullName,
+            avatar: userInfo. avatar
           },
           date: selected,
           appointmentStatus: "tbd",
-          description: "Appointment with " + item.user.fullName,
-          location: item.office,
+          description: "Appointment for a check-up",
+          location:doctorInfo.address,
           priority: extractPriority,
-          bookedOn: selected,
+          bookedOn: selected
         }
       );
 

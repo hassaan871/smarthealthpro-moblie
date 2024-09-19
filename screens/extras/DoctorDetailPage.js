@@ -195,7 +195,7 @@ const DoctorDetailPage = () => {
 
         <TouchableOpacity style={styles.bookAppointmentButton} onPress={()=>{
           navigation.navigate("BookingScreen", {
-            item: item,
+            doctorInfo: item,
           });
         }}>
           <Text style={styles.bookAppointmentText}>Book Appointment</Text>

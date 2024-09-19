@@ -83,7 +83,7 @@ const DoctorCard = ({ item, isBook, closeModal }) => {
 
       // Make a POST request to create or retrieve a conversation
       const response = await axios.post(
-        "http://192.168.100.34:5000/conversations",
+        "http://10.135.88.124:5000/conversations",
         {
           currentUserId,
           otherUserId,
@@ -110,7 +110,10 @@ const DoctorCard = ({ item, isBook, closeModal }) => {
   return (
     <Pressable
       onPress={() => {
-        closeModal();
+        if(closeModal) {
+
+          closeModal();
+        }
         navigation.navigate("DoctorDetail", {
           item: item,
         });

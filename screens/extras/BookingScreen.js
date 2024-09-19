@@ -34,7 +34,7 @@ export default function BookingScreen({ route, navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [markedDates, setMarkedDates] = useState({});
-  const priority = route?.params?.priority
+  const priority = route?.params?.priority ||  "low"
 
   const extractPriority = priority.toLowerCase().includes("mild") ? "mild" :
   priority.toLowerCase().includes("moderate") ? "moderate" : priority.toLowerCase().includes("severe") ?
@@ -130,7 +130,7 @@ export default function BookingScreen({ route, navigation }) {
       });
       
       const response = await axios.post(
-        "http://192.168.100.34:5000/appointment/postAppointment",
+        "http://10.135.88.124:5000/appointment/postAppointment",
         {
           doctor: {
             // id: doctorInfo._id,  

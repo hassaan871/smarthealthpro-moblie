@@ -173,6 +173,7 @@ const SignUpScreen = ({ navigation }) => {
         <View style={styles.inputContainer}>
           <TextInput
             placeholder="Full Name"
+            placeholderTextColor={"#666"}
             onChangeText={(text) => setName(text)}
             style={styles.input}
           />
@@ -181,6 +182,7 @@ const SignUpScreen = ({ navigation }) => {
             placeholder="Email address"
             keyboardType="email-address"
             style={styles.input}
+            placeholderTextColor={"#666"}
             onChangeText={(text) => setEmail(text)}
           />
 
@@ -188,9 +190,11 @@ const SignUpScreen = ({ navigation }) => {
           <Picker
             selectedValue={selectedBlood}
             onValueChange={(itemValue) => setSelectedBlood(itemValue)}
+            style={{ color: "#fff" }}
+
           >
-            <Picker.Item style={{color:"#2d3748"}} label="Blood Group..." value="" />
-            <Picker.Item label="A+" value="A+" />
+            <Picker.Item style={{color:"#666"}} label="Blood Group..." value="" />
+            <Picker.Item label="A+" value="A+"/>
             <Picker.Item label="A-" value="A-" />
             <Picker.Item label="B+" value="B+" />
             <Picker.Item label="B-" value="B-" />
@@ -200,7 +204,6 @@ const SignUpScreen = ({ navigation }) => {
             <Picker.Item label="AB-" value="AB-" />
           </Picker>
           </View>
-
 
         <TextInput
           placeholder='Select Birthday'
@@ -219,7 +222,7 @@ const SignUpScreen = ({ navigation }) => {
                 testID="dateTimePicker"
                 value={birthday}
                 mode="date"
-                display="default"
+                display="spinner"
                 onChange={handleDateChange}
               />
             )}
@@ -230,6 +233,7 @@ const SignUpScreen = ({ navigation }) => {
             <TextInput
               placeholder="Password"
               secureTextEntry={!passwordVisible}
+              placeholderTextColor={"#666"}
               style={styles.input}
               onChangeText={(text) => setPassword(text)}
             />
@@ -248,6 +252,7 @@ const SignUpScreen = ({ navigation }) => {
             <TextInput
               placeholder="Confirm Password"
               secureTextEntry={!passwordVisible2}
+            placeholderTextColor={"#666"}
               style={styles.input}
               onChangeText={(text) => setConfirmPassword(text)}
             />
@@ -302,7 +307,7 @@ const SignUpScreen = ({ navigation }) => {
         >
           <Text style={{ textAlign: "center", color: "#6B7280", marginTop: 5 }}>
             Already have an account?{" "}
-            <Text style={{ fontWeight: "bold", color: "#3182ce" }}>Login</Text>
+    <Text style={{ fontWeight: "bold", color: "#4A90E2" }}>Login</Text>
           </Text>
         </Pressable>
       </View>
@@ -325,12 +330,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    // backgroundColor: "#E7ECF3",
-    backgroundColor: "#E0F4FF",
+    backgroundColor: "#000"
   },
   card: {
     // backgroundColor: "#fff",
-    backgroundColor: "#E0F4FF",
+    backgroundColor: "#1E1E1E",
     padding: 16,
     borderRadius: 8,
     shadowOpacity: 0.1,
@@ -351,7 +355,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#4a5568",
+    color: "#fff",
     textAlign: "center",
     marginBottom: 25,
   },
@@ -365,13 +369,13 @@ const styles = StyleSheet.create({
   },
   input: {
     // backgroundColor: "#edf2f7",
-    backgroundColor: "#F0F8FF",
+    backgroundColor: "#2C2C2E",
+    color:"#fff",
     borderColor: "#cbd5e0",
     borderWidth: 1,
     borderRadius: 8,
     padding: 8,
     fontSize: 16,
-    color: "#2d3748",
     marginBottom: 10,
   },
   iconButton: {
@@ -385,7 +389,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loginButton: {
-    backgroundColor: lightTheme.colors.primaryBtn,
+    backgroundColor: "#4A90E2",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -399,7 +403,7 @@ const styles = StyleSheet.create({
   },
   orText: {
     textAlign: "center",
-    color: "#718096",
+    color: "#fff",
     marginBottom: 8,
   },
   socialButtons: {

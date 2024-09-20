@@ -53,9 +53,9 @@ const OnBoardingScreen = () => {
   }, []);
 
   return (
-    <ImageBackground
+    <View
       source={require("../../assets/bg.png")}
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: "#1E1E1E" }}
     >
       <View style={{ flex: 0.2 }}>
         <View
@@ -68,7 +68,7 @@ const OnBoardingScreen = () => {
         >
           <View style={{ height: 24, width: 24 }}></View>
           <Pressable onPress={() => navigation.navigate("Login")}>
-            <Text style={{ color: "#007BFF", fontWeight: "600", top: 40 }}>
+            <Text style={{ color: "#4A90E2", fontWeight: "600", top: 40 }}>
               skip
             </Text>
           </Pressable>
@@ -83,10 +83,10 @@ const OnBoardingScreen = () => {
           />
         </View>
         <View style={{ alignItems: "center", paddingHorizontal: 24 }}>
-          <Text style={{ fontSize: 20, fontWeight: "bold", color: "#1F2937" }}>
+          <Text style={{ fontSize: 20, fontWeight: "bold",  color: "#fff" }}>
             {items[currentItemIndex].title}
           </Text>
-          <Text style={{ fontSize: 16, color: "#6B7280", marginTop: 10 }}>
+          <Text style={{ fontSize: 16, color: "#fff", marginTop: 10 }}>
             {items[currentItemIndex].description}
           </Text>
           <View
@@ -104,7 +104,7 @@ const OnBoardingScreen = () => {
                   width: 4,
                   borderRadius: 2,
                   backgroundColor:
-                    index === currentItemIndex ? "#007BFF" : "#E5E7EB",
+                    index === currentItemIndex ? "#4A90E2" : "#E5E7EB",
                   marginHorizontal: 1,
                 }}
               />
@@ -115,7 +115,7 @@ const OnBoardingScreen = () => {
       <View style={{ flex: 0.2, top: 80, padding: 20 }}>
         <Pressable
           style={{
-            backgroundColor: "#007BFF",
+            backgroundColor: "#4A90E2",
             borderRadius: 8,
             paddingVertical: 12,
           }}
@@ -132,7 +132,7 @@ const OnBoardingScreen = () => {
           </Text>
         </Pressable>
       </View>
-    </ImageBackground>
+    </View>
   );
 };
 

@@ -127,6 +127,7 @@ const LoginScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Enter your email"
+            placeholderTextColor={"#666"}
             autoCapitalize="none"
             onChangeText={(text) => setEmail(text)}
           />
@@ -137,6 +138,7 @@ const LoginScreen = () => {
               style={styles.input}
               secureTextEntry={!passwordVisible}
               placeholder="Enter your password"
+              placeholderTextColor={"#666"}
               autoCapitalize="none"
               onChangeText={(text) => setPassword(text)}
             />
@@ -155,7 +157,7 @@ const LoginScreen = () => {
                 navigation.navigate("SignUp");
               }}
             >
-              <Text style={styles.forgotPassword}>Signup?</Text>
+              <Text style={styles.forgotPassword}>Signup ?</Text>
             </Pressable>
           </View>
         </View>
@@ -221,10 +223,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#E0F4FF",
+    // backgroundColor: "#E0F4FF",
+     backgroundColor: "#000"
   },
   card: {
-    backgroundColor: "#E0F4FF",
+    backgroundColor: "#1E1E1E",
     padding: 16,
     borderRadius: 8,
     shadowOpacity: 0.1,
@@ -245,7 +248,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#4a5568",
+    color: "#fff",
     textAlign: "center",
     marginBottom: 24,
   },
@@ -259,14 +262,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: "#edf2f7",
+    backgroundColor: "#2C2C2E",
     borderColor: "#cbd5e0",
     borderWidth: 1,
     borderRadius: 8,
     padding: 10,
     fontSize: 16,
-    color: "#2d3748",
-    backgroundColor: "#F0F8FF",
+    color:"#fff"
   },
   iconButton: {
     position: "absolute",
@@ -275,11 +277,12 @@ const styles = StyleSheet.create({
   },
   forgotPassword: {
     alignSelf: "flex-end",
-    color: "#3182ce",
+    color: "#4A90E2",
     fontSize: 14,
+    marginTop:4
   },
   loginButton: {
-    backgroundColor: lightTheme.colors.primaryBtn,
+    backgroundColor: "#4A90E2",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -293,7 +296,7 @@ const styles = StyleSheet.create({
   },
   orText: {
     textAlign: "center",
-    color: "#718096",
+    color: "#fff",
     marginBottom: 16,
   },
   socialButtons: {

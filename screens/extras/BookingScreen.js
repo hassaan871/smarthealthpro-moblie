@@ -130,7 +130,7 @@ export default function BookingScreen({ route, navigation }) {
       });
       
       const response = await axios.post(
-        "http://10.135.88.124:5000/appointment/postAppointment",
+        "http://192.168.100.49:5000/appointment/postAppointment",
         {
           doctor: {
             // id: doctorInfo._id,  

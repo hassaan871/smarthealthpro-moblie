@@ -48,9 +48,22 @@ const LoginScreen = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    if (!email || !password) {
+      showAlertMessage(
+        setShowAlert,
+        setAlertMessage,
+        setAlertType,
+        "Please fill in both email and password.",
+        "error"
+      );
+      setLoading(false); // Stop loading since validation failed
+      return;
+    }
+
     console.log("Entering handle submit");
     try {
-      const res = await axios.post("http://10.135.88.124:5000/user/login", {
+      const res = await axios.post("http://192.168.100.49:5000/user/login", {
         email,
         password,
       });
@@ -142,7 +155,7 @@ const LoginScreen = () => {
                 navigation.navigate("SignUp");
               }}
             >
-              <Text style={styles.forgotPassword}>Forgot?</Text>
+              <Text style={styles.forgotPassword}>Signup?</Text>
             </Pressable>
           </View>
         </View>

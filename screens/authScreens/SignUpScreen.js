@@ -2,11 +2,11 @@ import React, { useState, useContext } from "react";
 import {
   View,
   Text,
-  TextInput,
   Image,
   StyleSheet,
   Pressable,
   Dimensions,
+  TextInput,
   Modal,
 } from "react-native";
 import signupLogo from "../../assets/signupLogo.jpg";
@@ -19,6 +19,8 @@ import Alert from "../../components/Alert";
 import showAlertMessage from "../../Helper/AlertHelper";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import ReusableModal from "../../components/ReusableModal";
+import {Picker} from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const SignUpScreen = ({ navigation }) => {
   // const { setToken, setUser } = useContext(Context);
@@ -27,15 +29,15 @@ const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [confirmPassword, setConfirmPassword] = useState();
-  const [dateOfBirth, setdateOfBirth] = useState("");
-  const [bloodType, setBloodType] = useState("");
-  const [role, setRole] = useState("patient");
+   const [role, setRole] = useState("patient");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [passwordVisible2, setPasswordVisible2] = useState(false);
-
+  const [showDateTimePicker, setShowDateTimePicker] = useState(false);
+  const [birthday, setBirthday] = useState(new Date());
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success"); // success or error
+  const [selectedBlood, setSelectedBlood] = useState();
 
   const navigate = useNavigation();
 
@@ -43,38 +45,87 @@ const SignUpScreen = ({ navigation }) => {
     setShowAlert(false);
   };
 
+  const handleDateChange = (event, selectedDate) => {
+    if (selectedDate) {
+      setBirthday(selectedDate);
+    }
+    setShowDateTimePicker(false);
+  };
+
+  const bloodGroups = [
+    { label: "A+", value: "A+" },
+    { label: "A-", value: "A-" },
+    { label: "B+", value: "B+" },
+    { label: "B-", value: "B-" },
+    { label: "O+", value: "O+" },
+    { label: "O-", value: "O-" },
+    { label: "AB+", value: "AB+" },
+    { label: "AB-", value: "AB-" },
+  ];
+
+
+  const formatDate = (date) => {
+    if (!date || !(date instanceof Date) || isNaN(date)) {
+      return ''; // Return an empty string if the date is invalid
+    }
+  
+    let day = date.getDate();
+    let month = date.getMonth() + 1; // Months are zero-indexed
+    let year = date.getFullYear();
+  
+    day = day < 10 ? `0${day}` : day;
+    month = month < 10 ? `0${month}` : month;
+  
+    return `${month}/${day}/${year}`;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!name || !email || !password) {
+    if (!name || name.length < 3 || name.length > 20) {
       showAlertMessage(
         setShowAlert,
         setAlertMessage,
         setAlertType,
-        "Please Fill all Fields",
+        "Name should be between 3 and 20 characters",
         "error"
       );
       return;
     }
 
-    if (password.length < 8) {
+    if (!email || !emailRegex.test(email)) {
       showAlertMessage(
         setShowAlert,
         setAlertMessage,
         setAlertType,
-        "Password should be at least 8 characters",
+        "Please enter a valid email address",
         "error"
       );
       return;
     }
-    console.log("Form data:", { name, email, password, role });
+  
+    if (password?.length < 8 && password != confirmPassword) {
+      showAlertMessage(
+        setShowAlert,
+        setAlertMessage,
+        setAlertType,
+        "Password should be at least 8 characters or Passwords do not match",
+        "error"
+      );
+      return;
+    }
+
+    console.log("Form data:", { name, email, password, role,birthday,selectedBlood});
 
     axios
-      .post("http://10.135.88.124:5000/user/register", {
+      .post("http://192.168.100.49:5000/user/register", {
         fullName: name,
-        email,
-        password,
-        role,
+        email: email,
+        password: password,
+        role: role,
+        dateOfBirth: birthday,
+        bloodType: selectedBlood,
       })
       .then((res) => {
         console.log("Response:", res);
@@ -107,12 +158,17 @@ const SignUpScreen = ({ navigation }) => {
       });
   };
 
+  const showDateTimePickerHandler = () => {
+    setShowDateTimePicker(true);
+  };
+  
+
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <View style={styles.imageContainer}>
+        {/* <View style={styles.imageContainer}>
           <Image source={signupLogo} style={styles.image} />
-        </View>
+        </View> */}
         <Text style={styles.title}>Sign Up</Text>
         <View style={styles.inputContainer}>
           <TextInput
@@ -127,7 +183,50 @@ const SignUpScreen = ({ navigation }) => {
             style={styles.input}
             onChangeText={(text) => setEmail(text)}
           />
+
+         <View style={[styles.input,{padding:0}]}>
+          <Picker
+            selectedValue={selectedBlood}
+            onValueChange={(itemValue) => setSelectedBlood(itemValue)}
+          >
+            <Picker.Item style={{color:"#2d3748"}} label="Blood Group..." value="" />
+            <Picker.Item label="A+" value="A+" />
+            <Picker.Item label="A-" value="A-" />
+            <Picker.Item label="B+" value="B+" />
+            <Picker.Item label="B-" value="B-" />
+            <Picker.Item label="O+" value="O+" />
+            <Picker.Item label="O-" value="O-" />
+            <Picker.Item label="AB+" value="AB+" />
+            <Picker.Item label="AB-" value="AB-" />
+          </Picker>
+          </View>
+
+
+        <TextInput
+          placeholder='Select Birthday'
+          onPress={showDateTimePickerHandler}
+          value={formatDate(birthday)}
+          // mode="outlined"
+          style={styles.input}
+          // left={<TextInput.Icon icon="cake" color={"#8C52FF"} paddingTop={4} />}
+          // right={<TextInput.Icon onPress={showDateTimePickerHandler} icon="calendar" color={"#8C52FF"} paddingTop={4} />}
+          // outlineStyle={{ borderRadius: 15, borderColor: "#F4F4F4" }}
+        />
+
           <View>
+            {showDateTimePicker && (
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={birthday}
+                mode="date"
+                display="default"
+                onChange={handleDateChange}
+              />
+            )}
+          </View>
+          <View>
+
+
             <TextInput
               placeholder="Password"
               secureTextEntry={!passwordVisible}
@@ -163,16 +262,6 @@ const SignUpScreen = ({ navigation }) => {
               />
             </Pressable>
           </View>
-          {/* <TextInput
-            placeholder="Blood Type"
-            style={styles.input}
-            onChangeText={(text) => setBloodType(text)}
-          /> */}
-          {/* <TextInput
-            placeholder="Date of Birth"
-            style={styles.input}
-            onChangeText={(text) => setdateOfBirth(text)}
-          /> */}
         </View>
 
         <Alert
@@ -280,10 +369,10 @@ const styles = StyleSheet.create({
     borderColor: "#cbd5e0",
     borderWidth: 1,
     borderRadius: 8,
-    padding: 12,
+    padding: 8,
     fontSize: 16,
     color: "#2d3748",
-    marginBottom: 14,
+    marginBottom: 10,
   },
   iconButton: {
     position: "absolute",

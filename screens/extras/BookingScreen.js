@@ -34,7 +34,19 @@ export default function BookingScreen({ route, navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [markedDates, setMarkedDates] = useState({});
+  const { userInfo, appointments } = useContext(Context);
   const priority = route?.params?.priority ||  "low"
+
+  const checkExistingAppointment = () => {
+    if (!appointments || !doctorInfo) return false;
+    
+    console.log("appointments[4].doctor.id: ",appointments);
+    console.log("doctorInfo._id: ",doctorInfo.user._id);
+
+    return appointments.some(appointment => 
+      appointment.doctor.id === doctorInfo.user._id);
+    }
+
 
   const extractPriority = priority.toLowerCase().includes("mild") ? "mild" :
   priority.toLowerCase().includes("moderate") ? "moderate" : priority.toLowerCase().includes("severe") ?
@@ -43,7 +55,6 @@ export default function BookingScreen({ route, navigation }) {
   const doctorInfo = route?.params?.doctorInfo;
   const navigate = useNavigation();
 
-  const { userInfo } = useContext(Context);
   const item = route?.params?.doctorInfo;
   const officeHours = item?.officeHours;
   console.log("doc info",doctorInfo)
@@ -106,70 +117,80 @@ export default function BookingScreen({ route, navigation }) {
       return;
     }
 
-    setLoading(true);
-    try {
-
-      console.log("sdsdsd",{
-        // doctor: {
-        //   id: item.user._id,
-        //   name: item.user.fullName,
-        //   avatar: item.user.avatar,
-        //   specialization: item.specialization,
-        // },
-        patient: {
-          id: userInfo?._id,
-          name: userInfo?.fullName || "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
-          avatar: userInfo?.avatar 
-        },
-        // date: selected,
-        // appointmentStatus: "tbd",
-        // description: "Appointment with " + item.user.fullName,
-        // location:  doctorInfo.address,
-        // priority: extractPriority,
-        // bookedOn: selected,
-      });
-      
-      const response = await axios.post(
-        "http://192.168.100.49:5000/appointment/postAppointment",
-        {
-          doctor: {
-            // id: doctorInfo._id,  
-            // name: doctorInfo.fullName,
-            // avatar:doctorInfo.avatar ,
-            // specialization: doctorInfo.specialization
-            id: doctorInfo._id,  
-            name: doctorInfo.user.fullName,
-            avatar: doctorInfo.user.avatar,
-            specialization: doctorInfo.specialization
-          },
-          patient: {
-            id: userInfo._id,
-            name: userInfo.fullName,
-            avatar: userInfo. avatar
-          },
-          date: selected,
-          appointmentStatus: "tbd",
-          description: "Appointment for a check-up",
-          location:doctorInfo.address,
-          priority: extractPriority,
-          bookedOn: selected
-        }
-      );
-
-      setLoading(false);
-      if (response.status === 201) {
-        setModalVisible(true);
-      } else {
-        Alert.alert("Error", "Failed to create appointment. Please try again.");
-      }
-    } catch (error) {
-      setLoading(false);
-      console.error("Error creating appointment:", error);
+    if (checkExistingAppointment()) {
       Alert.alert(
-        "Error",
-        "An error occurred while creating the appointment. Please try again."
+        "Existing Appointment",
+        "You already have an appointment with this doctor. Please come back after your current appointment has been completed or cancelled.",
+        [{ text: "OK", onPress: () => navigation.goBack() }]
       );
+      return;
     }
+
+
+    // setLoading(true);
+    // try {
+
+    //   console.log("sdsdsd",{
+    //     // doctor: {
+    //     //   id: item.user._id,
+    //     //   name: item.user.fullName,
+    //     //   avatar: item.user.avatar,
+    //     //   specialization: item.specialization,
+    //     // },
+    //     patient: {
+    //       id: userInfo?._id,
+    //       name: userInfo?.fullName || "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+    //       avatar: userInfo?.avatar 
+    //     },
+    //     // date: selected,
+    //     // appointmentStatus: "tbd",
+    //     // description: "Appointment with " + item.user.fullName,
+    //     // location:  doctorInfo.address,
+    //     // priority: extractPriority,
+    //     // bookedOn: selected,
+    //   });
+      
+    //   const response = await axios.post(
+    //     "http://192.168.72.115:5000/appointment/postAppointment",
+    //     {
+    //       doctor: {
+    //         // id: doctorInfo._id,  
+    //         // name: doctorInfo.fullName,
+    //         // avatar:doctorInfo.avatar ,
+    //         // specialization: doctorInfo.specialization
+    //         id: doctorInfo._id,  
+    //         name: doctorInfo.user.fullName,
+    //         avatar: doctorInfo.user.avatar,
+    //         specialization: doctorInfo.specialization
+    //       },
+    //       patient: {
+    //         id: userInfo._id,
+    //         name: userInfo.fullName,
+    //         avatar: userInfo. avatar
+    //       },
+    //       date: selected,
+    //       appointmentStatus: "tbd",
+    //       description: "Appointment for a check-up",
+    //       location:doctorInfo.address,
+    //       priority: extractPriority,
+    //       bookedOn: selected
+    //     }
+    //   );
+
+    //   setLoading(false);
+    //   if (response.status === 201) {
+    //     setModalVisible(true);
+    //   } else {
+    //     Alert.alert("Error", "Failed to create appointment. Please try again.");
+    //   }
+    // } catch (error) {
+    //   setLoading(false);
+    //   console.error("Error creating appointment:", error);
+    //   Alert.alert(
+    //     "Error",
+    //     "An error occurred while creating the appointment. Please try again."
+    //   );
+    // }
   };
 
   return (
@@ -271,35 +292,33 @@ export default function BookingScreen({ route, navigation }) {
         <View style={{ padding: 20 }}>
           {/* NEW: Update the TouchableOpacity for the Continue button */}
           <TouchableOpacity
-            style={{
-              backgroundColor: loading ? "#cccccc" : "#3498db",
-              borderRadius: 10,
-            }}
-            onPress={() => {
-              createAppointment();
-            }}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator
-                size="small"
-                color="#ffffff"
-                style={{ paddingVertical: 15 }}
-              />
-            ) : (
-              <Text
-                style={{
-                  textAlign: "center",
-                  fontSize: 18,
-                  fontWeight: "bold",
-                  color: "#FFFFFF",
-                  paddingVertical: 15,
-                }}
-              >
-                Continue
-              </Text>
-            )}
-          </TouchableOpacity>
+  style={{
+    backgroundColor: loading ? "#cccccc" : "#3498db",
+    borderRadius: 10,
+  }}
+  onPress={createAppointment}
+  disabled={loading}
+>
+  {loading ? (
+    <ActivityIndicator
+      size="small"
+      color="#ffffff"
+      style={{ paddingVertical: 15 }}
+    />
+  ) : (
+    <Text
+      style={{
+        textAlign: "center",
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#FFFFFF",
+        paddingVertical: 15,
+      }}
+    >
+      Continue
+    </Text>
+  )}
+</TouchableOpacity>
           <ReusableModal
             modalVisible={modalVisible}
             setModalVisible={setModalVisible}

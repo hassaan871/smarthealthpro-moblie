@@ -8,15 +8,20 @@ import {
   ScrollView,
   TouchableOpacity,
   Switch,
+  Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import CutomBottomBar from "./CutomBottomBar";
 import Context from "../../Helper/context";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SettingsScreen = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const { userInfo, popularDoctors } = useContext(Context);
   const [isTopFiveDoctor, setIsTopFiveDoctor] = useState(false);
+
+  const navigation = useNavigation();
   
   const checkIfTop = () => {
     const topFiveDoctors = popularDoctors.slice(0, 3);
@@ -74,13 +79,44 @@ const SettingsScreen = () => {
             <Icon name="chevron-forward" size={24} color="#B0B0B0" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.settingItem}>
-            <View style={styles.settingLeft}>
-              <Icon name="log-out-outline" size={24} color="#4A90E2" />
-              <Text style={styles.settingText}>Logout</Text>
-            </View>
-            <Icon name="chevron-forward" size={24} color="#B0B0B0" />
-          </TouchableOpacity>
+          <TouchableOpacity 
+  style={styles.settingItem} 
+  onPress={() => {
+    Alert.alert(
+      "Confirm Logout",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Logout",
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem("isThemeDark");
+              await AsyncStorage.removeItem("authToken");
+              await AsyncStorage.removeItem("userToken");
+              navigation.navigate("Login");
+            } catch (error) {
+              Alert.alert(
+                "Logout Failed",
+                "There was an error during logout. Please try again.",
+                [{ text: "OK" }]
+              );
+            }
+          }
+        }
+      ]
+    );
+  }}
+>
+  <View style={styles.settingLeft}>
+    <Icon name="log-out-outline" size={24} color="#4A90E2" />
+    <Text style={styles.settingText}>Logout</Text>
+  </View>
+  <Icon name="chevron-forward" size={24} color="#B0B0B0" />
+</TouchableOpacity>
 
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>

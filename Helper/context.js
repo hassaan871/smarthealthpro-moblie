@@ -13,6 +13,7 @@ export const MyContextProvider = ({ children }) => {
   const [id, setId] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [popularDoctors, setPopularDoctors] = useState([]);
+  const [appointments, setAppointments] = useState([]);
 
   return (
     <Context.Provider
@@ -33,6 +34,8 @@ export const MyContextProvider = ({ children }) => {
         setPopularDoctors,
         userInfo,
         setUserInfo,
+        appointments,
+        setAppointments
       }}
     >
       {children}

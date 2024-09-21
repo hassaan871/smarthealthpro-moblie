@@ -24,7 +24,6 @@ const SettingsScreen = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const { userInfo, popularDoctors } = useContext(Context);
   const [isTopFiveDoctor, setIsTopFiveDoctor] = useState(false);
-  console.log("userInfo",userInfo)
   const [imageUri, setImageUri] = useState(null);
   const [statusMessage, setStatusMessage] = useState('');
 
@@ -33,8 +32,6 @@ const SettingsScreen = () => {
       const result = await DocumentPicker.getDocumentAsync({
         type: 'image/*',
       });
-  
-      console.log("DocumentPicker result:", result);
   
       if (result.assets && result.assets.length > 0) {
         const pickedFile = result.assets[0];
@@ -46,12 +43,10 @@ const SettingsScreen = () => {
           type: pickedFile.mimeType
         };
   
-        console.log("File object created:", file);
-  
         try {
           const response = await updateProfilePic(userInfo._id, file);
-          console.log("Update response:", response);
           setStatusMessage(response.message);
+          navigation.navigate("HomeScreen")
         } catch (error) {
           console.error("Error updating profile picture:", error);
           setStatusMessage('Failed to update profile picture.');
@@ -67,7 +62,6 @@ const SettingsScreen = () => {
   
   const checkIfTop = () => {
     const topFiveDoctors = popularDoctors.slice(0, 3);
-    console.log("is top five 1: ",topFiveDoctors[1])
     const isTop = topFiveDoctors.some(
       (doctor) => doctor?.user?.fullName === userInfo?.fullName
     );

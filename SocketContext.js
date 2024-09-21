@@ -18,7 +18,7 @@ export const SocketContextProvider = ({ children }) => {
         const userId = await AsyncStorage.getItem("userToken");
 
         if (userId) {
-          const socket = io("http://192.168.72.115:5000", {
+          const socket = io("http://192.168.100.49:5000", {
             query: { userId: userId },
           });
 

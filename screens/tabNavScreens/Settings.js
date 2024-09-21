@@ -15,13 +15,55 @@ import CutomBottomBar from "./CutomBottomBar";
 import Context from "../../Helper/context";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as DocumentPicker from "expo-document-picker"
+import updateProfilePic from "../../Helper/updateProfilePic";
 
 const SettingsScreen = () => {
+  const navigation = useNavigation();
+
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const { userInfo, popularDoctors } = useContext(Context);
   const [isTopFiveDoctor, setIsTopFiveDoctor] = useState(false);
+  console.log("userInfo",userInfo)
+  const [imageUri, setImageUri] = useState(null);
+  const [statusMessage, setStatusMessage] = useState('');
 
-  const navigation = useNavigation();
+  const handlePickImage = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'image/*',
+      });
+  
+      console.log("DocumentPicker result:", result);
+  
+      if (result.assets && result.assets.length > 0) {
+        const pickedFile = result.assets[0];
+        setImageUri(pickedFile.uri);
+  
+        const file = {
+          uri: pickedFile.uri,
+          name: pickedFile.name,
+          type: pickedFile.mimeType
+        };
+  
+        console.log("File object created:", file);
+  
+        try {
+          const response = await updateProfilePic(userInfo._id, file);
+          console.log("Update response:", response);
+          setStatusMessage(response.message);
+        } catch (error) {
+          console.error("Error updating profile picture:", error);
+          setStatusMessage('Failed to update profile picture.');
+        }
+      } else {
+        console.log("No file selected");
+      }
+    } catch (error) {
+      console.error("Error in handlePickImage:", error);
+      setStatusMessage('An error occurred while picking the image.');
+    }
+  };
   
   const checkIfTop = () => {
     const topFiveDoctors = popularDoctors.slice(0, 3);
@@ -46,7 +88,11 @@ const SettingsScreen = () => {
         </View>
 
         <View style={styles.userInfo}>
-          <Image source={{ uri: userInfo.avatar }} style={styles.userImage} />
+        <Image source={{ uri: userInfo.avatar.url }} style={styles.userImage} />
+        <Icon name="camera" size={16} color={"white"} 
+        onPress={handlePickImage}
+        style={{marginLeft:48,marginTop:-16,backgroundColor:"#4A90E2",padding:6,borderRadius:16}}/>
+
           <Text style={styles.userName}>{userInfo?.fullName}</Text>
           <Text style={styles.userEmail}>{userInfo.email}</Text>
           {isTopFiveDoctor && (
@@ -160,7 +206,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    marginBottom: 15,
+    // marginBottom: 4,
   },
   userName: {
     fontSize: 20,

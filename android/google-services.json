@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "559728573332",
+    "project_id": "pushnotifications2-ab4a6",
+    "storage_bucket": "pushnotifications2-ab4a6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:559728573332:android:62c134c3dc9db3da1b2d81",
+        "android_client_info": {
+          "package_name": "com.anonymous.smarthealthpro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwE3v7BXPuDdbMJ7FJiN2Zr9CjOx8eu8g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

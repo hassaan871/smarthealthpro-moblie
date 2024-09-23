@@ -82,7 +82,7 @@ const SettingsScreen = () => {
         </View>
 
         <View style={styles.userInfo}>
-        <Image source={{ uri: userInfo.avatar.url }} style={styles.userImage} />
+        <Image source={{ uri: userInfo.avatar?.url?.length > 0 ?userInfo.avatar.url : userInfo.avatar  }} style={styles.userImage} />
         <Icon name="camera" size={16} color={"white"} 
         onPress={handlePickImage}
         style={{marginLeft:48,marginTop:-16,backgroundColor:"#4A90E2",padding:6,borderRadius:16}}/>

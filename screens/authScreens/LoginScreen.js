@@ -23,6 +23,8 @@ import lightTheme from "../../Themes/LightTheme";
 import Alert from "../../components/Alert";
 import showAlertMessage from "../../Helper/AlertHelper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import messaging from "@react-native-firebase/messaging";
+import DeviceInfo from "react-native-device-info";
 
 const LoginScreen = () => {
   const { setToken, setUserName, setEmailGlobal, setAvatar, setId } =
@@ -44,6 +46,41 @@ const LoginScreen = () => {
   const navigateToHomeTab = () => {
     navigation.replace("HomeScreen");
   };
+
+  const getDeviceId = async () => {
+    let deviceId = await DeviceInfo.getUniqueId();
+    return deviceId;
+  };
+
+  async function sendFcmTokenToServer(email, fcmToken, device) {
+    try {
+      const body = { email, fcmToken, device };
+      console.log("update-fcm-token body: ", body);
+      const response = await axios.post(
+        "http://192.168.18.124:5000/update-fcm-token",
+        {
+          email,
+          fcmToken,
+          device,
+        }
+      );
+      console.log("Server response:", response.data);
+    } catch (error) {
+      console.error("Error sending FCM token to server:", error);
+    }
+  }
+
+  async function getFcmTokenAndSendToServer(email, device) {
+    try {
+      const fcmToken = await messaging().getToken();
+      if (fcmToken) {
+        console.log("FCM Token:", fcmToken);
+        await sendFcmTokenToServer(email, fcmToken, device);
+      }
+    } catch (error) {
+      console.error("Error getting FCM token:", error);
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,6 +119,11 @@ const LoginScreen = () => {
         setToken(token);
         setUserName(name);
         setAvatar(avatar);
+
+        const device = await getDeviceId();
+
+        // Get FCM token and send to server
+        await getFcmTokenAndSendToServer(email, device);
 
         showAlertMessage(
           setShowAlert,

@@ -31,10 +31,15 @@ const HomeScreen = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [upcomingSchedule, setUpcomingSchedule] = useState([]);
   const [selectedSpecialization, setSelectedSpecialization] = useState("All");
-  const { userInfo, setUserInfo, popularDoctors, setPopularDoctors,setAppointments } =
-    useContext(Context);
+  const {
+    userInfo,
+    setUserInfo,
+    popularDoctors,
+    setPopularDoctors,
+    setAppointments,
+  } = useContext(Context);
 
-    console.log("user ingo",userInfo)
+  console.log("user ingo", userInfo);
 
   const modalSearchInputRef = useRef(null);
 
@@ -47,7 +52,7 @@ const HomeScreen = () => {
       console.log("user id is from async: ", userID);
       if (userID !== null) {
         const response = await axios.get(
-          `http://10.135.88.56:5000/user/getUserInfo/${userID}`
+          `http://192.168.18.124:5000/user/getUserInfo/${userID}`
         );
 
         console.log("response users data: ", response.data.user);
@@ -64,32 +69,34 @@ const HomeScreen = () => {
     const fetchAppointment = async () => {
       const userID = userInfo._id;
       console.log("user id is from userinfo: ", userID);
-      const link = `http://10.135.88.56:5000/appointment/getAllAppointments?${
+      const link = `http://192.168.18.124:5000/appointment/getAllAppointments?${
         userInfo.role === "doctor" ? "doctorId" : "patientId"
       }=${userID}`;
-      
+
       console.log("link from userinfo: ", link);
-      
+
       if (userID !== null) {
         try {
           const response = await axios.get(link);
-          
+
           console.log("response appointment: ", response.data.appointments);
-          
+
           // Filter appointments
           const filteredAppointments = response.data.appointments
-            .filter(appointment => appointment.appointmentStatus === "pending")
+            .filter(
+              (appointment) => appointment.appointmentStatus === "pending"
+            )
             .sort((a, b) => {
               // Compare dates
               const dateComparison = new Date(a.date) - new Date(b.date);
               if (dateComparison !== 0) return dateComparison;
-              
+
               // If dates are the same, compare times
               return a.time.localeCompare(b.time);
             });
-          
+
           setUpcomingSchedule(filteredAppointments);
-          setAppointments(response.data.appointments)
+          setAppointments(response.data.appointments);
         } catch (error) {
           console.error("Error fetching appointments:", error);
         }
@@ -97,7 +104,7 @@ const HomeScreen = () => {
         console.log("User token not available");
       }
     };
-  
+
     fetchAppointment();
   }, [userInfo]);
 
@@ -106,7 +113,7 @@ const HomeScreen = () => {
       console.log("Fetching popular doctor");
       try {
         const response = await axios.get(
-          `http://10.135.88.56:5000/user/getDoctorsBySatisfaction`
+          `http://192.168.18.124:5000/user/getDoctorsBySatisfaction`
         );
 
         console.log("response doctors: ", response.data[0]);
@@ -121,7 +128,6 @@ const HomeScreen = () => {
 
     fetchPopularDoctors();
   }, []);
-
 
   useEffect(() => {
     console.log("popular doctor: ", popularDoctors[0]);
@@ -176,13 +182,15 @@ const HomeScreen = () => {
   const filterDoctors = () => {
     return popularDoctors
       .filter((doctor) => doctor.user?.fullName !== userInfo?.fullName)
-      .filter((doctor) => 
-        selectedSpecialization === "All" || 
-        doctor.specialization.toLowerCase() === selectedSpecialization.toLowerCase()
+      .filter(
+        (doctor) =>
+          selectedSpecialization === "All" ||
+          doctor.specialization.toLowerCase() ===
+            selectedSpecialization.toLowerCase()
       )
       .slice(0, 3);
   };
-  
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -205,31 +213,30 @@ const HomeScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Talk to a Doctor</Text>
           <View style={styles.categoryButtons}>
-  <TouchableOpacity
-    style={[styles.categoryButton, { backgroundColor: "#8E44AD" }]}
-    onPress={() => setSelectedSpecialization("All")}
-  >
-    <Icon name="call-outline" size={16} color="#fff" />
-    <Text style={styles.categoryButtonText}>All</Text>
-  </TouchableOpacity>
-  <TouchableOpacity
-    style={[styles.categoryButton, { backgroundColor: "#E74C3C" }]}
-    onPress={() => setSelectedSpecialization("Diabetes")}
-  >
-    <Icon2 name="drop" size={16} color="#fff" />
-    <Text style={styles.categoryButtonText}>Diabetes</Text>
-  </TouchableOpacity>
-  <TouchableOpacity
-    style={[styles.categoryButton, { backgroundColor: "#3498DB" }]}
-    onPress={() => setSelectedSpecialization("Hypertension")}
-  >
-    <Icon name="pulse-outline" size={16} color="#fff" />
-    <Text style={styles.categoryButtonText}>Hypertension</Text>
-  </TouchableOpacity>
-</View>
+            <TouchableOpacity
+              style={[styles.categoryButton, { backgroundColor: "#8E44AD" }]}
+              onPress={() => setSelectedSpecialization("All")}
+            >
+              <Icon name="call-outline" size={16} color="#fff" />
+              <Text style={styles.categoryButtonText}>All</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.categoryButton, { backgroundColor: "#E74C3C" }]}
+              onPress={() => setSelectedSpecialization("Diabetes")}
+            >
+              <Icon2 name="drop" size={16} color="#fff" />
+              <Text style={styles.categoryButtonText}>Diabetes</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.categoryButton, { backgroundColor: "#3498DB" }]}
+              onPress={() => setSelectedSpecialization("Hypertension")}
+            >
+              <Icon name="pulse-outline" size={16} color="#fff" />
+              <Text style={styles.categoryButtonText}>Hypertension</Text>
+            </TouchableOpacity>
+          </View>
 
-     
-{filterDoctors().map((doctor, index) => (
+          {filterDoctors().map((doctor, index) => (
             <DoctorCard key={index} item={doctor} />
           ))}
         </View>

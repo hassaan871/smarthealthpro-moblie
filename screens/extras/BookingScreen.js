@@ -35,30 +35,36 @@ export default function BookingScreen({ route, navigation }) {
   const [loading, setLoading] = useState(false);
   const [markedDates, setMarkedDates] = useState({});
   const { userInfo, appointments } = useContext(Context);
-  const priority = route?.params?.priority ||  "low"
+  const priority = route?.params?.priority || "low";
 
   const checkExistingAppointment = () => {
     if (!appointments || !doctorInfo) return false;
-    
-    console.log("appointments[4].doctor.id: ",appointments);
-    console.log("doctorInfo._id: ",doctorInfo.user._id);
 
-    return appointments.some(appointment => 
-      appointment.doctor.id === doctorInfo.user._id);
-    }
+    console.log("appointments[4].doctor.id: ", appointments);
+    console.log("doctorInfo._id: ", doctorInfo.user._id);
 
+    return appointments.some(
+      (appointment) => appointment.doctor.id === doctorInfo.user._id
+    );
+  };
 
-  const extractPriority = priority.toLowerCase().includes("mild") ? "mild" :
-  priority.toLowerCase().includes("moderate") ? "moderate" : priority.toLowerCase().includes("severe") ?
-  "severe" : priority.toLowerCase().includes("very severe") ? "very severe" : "low"
+  const extractPriority = priority.toLowerCase().includes("mild")
+    ? "mild"
+    : priority.toLowerCase().includes("moderate")
+    ? "moderate"
+    : priority.toLowerCase().includes("severe")
+    ? "severe"
+    : priority.toLowerCase().includes("very severe")
+    ? "very severe"
+    : "low";
 
   const doctorInfo = route?.params?.doctorInfo;
   const navigate = useNavigation();
 
   const item = route?.params?.doctorInfo;
   const officeHours = item?.officeHours;
-  console.log("doc info",doctorInfo)
-  console.log("user",userInfo)
+  console.log("doc info", doctorInfo);
+  console.log("user", userInfo);
 
   const initDate = new Date();
   const minimumDate = new Date();
@@ -126,7 +132,6 @@ export default function BookingScreen({ route, navigation }) {
       return;
     }
 
-
     // setLoading(true);
     // try {
 
@@ -140,7 +145,7 @@ export default function BookingScreen({ route, navigation }) {
     //     patient: {
     //       id: userInfo?._id,
     //       name: userInfo?.fullName || "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
-    //       avatar: userInfo?.avatar 
+    //       avatar: userInfo?.avatar
     //     },
     //     // date: selected,
     //     // appointmentStatus: "tbd",
@@ -149,16 +154,16 @@ export default function BookingScreen({ route, navigation }) {
     //     // priority: extractPriority,
     //     // bookedOn: selected,
     //   });
-      
+
     //   const response = await axios.post(
-    //     "http://10.135.88.56:5000/appointment/postAppointment",
+    //     "http://192.168.18.124:5000/appointment/postAppointment",
     //     {
     //       doctor: {
-    //         // id: doctorInfo._id,  
+    //         // id: doctorInfo._id,
     //         // name: doctorInfo.fullName,
     //         // avatar:doctorInfo.avatar ,
     //         // specialization: doctorInfo.specialization
-    //         id: doctorInfo._id,  
+    //         id: doctorInfo._id,
     //         name: doctorInfo.user.fullName,
     //         avatar: doctorInfo.user.avatar,
     //         specialization: doctorInfo.specialization
@@ -292,33 +297,33 @@ export default function BookingScreen({ route, navigation }) {
         <View style={{ padding: 20 }}>
           {/* NEW: Update the TouchableOpacity for the Continue button */}
           <TouchableOpacity
-  style={{
-    backgroundColor: loading ? "#cccccc" : "#3498db",
-    borderRadius: 10,
-  }}
-  onPress={createAppointment}
-  disabled={loading}
->
-  {loading ? (
-    <ActivityIndicator
-      size="small"
-      color="#ffffff"
-      style={{ paddingVertical: 15 }}
-    />
-  ) : (
-    <Text
-      style={{
-        textAlign: "center",
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#FFFFFF",
-        paddingVertical: 15,
-      }}
-    >
-      Continue
-    </Text>
-  )}
-</TouchableOpacity>
+            style={{
+              backgroundColor: loading ? "#cccccc" : "#3498db",
+              borderRadius: 10,
+            }}
+            onPress={createAppointment}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator
+                size="small"
+                color="#ffffff"
+                style={{ paddingVertical: 15 }}
+              />
+            ) : (
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  color: "#FFFFFF",
+                  paddingVertical: 15,
+                }}
+              >
+                Continue
+              </Text>
+            )}
+          </TouchableOpacity>
           <ReusableModal
             modalVisible={modalVisible}
             setModalVisible={setModalVisible}

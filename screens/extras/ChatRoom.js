@@ -33,10 +33,10 @@ const ChatRoom = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const { socket } = useSocketContext();
   const { userInfo } = useContext(Context);
-  
+
   useEffect(() => {
-    setLoading(true)
-    }, []);
+    setLoading(true);
+  }, []);
 
   const scrollViewRef = useRef();
 
@@ -59,13 +59,10 @@ const ChatRoom = ({ route }) => {
   };
   listeMessages();
 
-  
-
-
   const fetchMessages = async () => {
     try {
       const response = await axios.get(
-        `http://10.135.88.56:5000/conversations/getMessages/${convoID}`
+        `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
       );
       setMessages(response.data);
     } catch (error) {
@@ -121,7 +118,9 @@ const ChatRoom = ({ route }) => {
             <View style={styles.profileImage} />
           </View>
           <View style={styles.headerTextContainer}>
-            <Text numberOfLines={1} style={styles.headerName}>{name}</Text>
+            <Text numberOfLines={1} style={styles.headerName}>
+              {name}
+            </Text>
             <Text style={styles.headerSubtext}>Online</Text>
           </View>
         </View>
@@ -138,44 +137,46 @@ const ChatRoom = ({ route }) => {
   const sendMessage = async () => {
     if (socket) {
       if (!message.trim()) return;
-  
+
       const newMessage = {
         content: message,
         sender: userInfo._id,
         conversationId: convoID,
         timestamp: new Date(),
       };
-  
+
       setMessage(""); // Clear the input right after sending the message
       setMessages((prevMessages) => [...prevMessages, newMessage]); // Optimistically update the UI
-  
+
       // Scroll to the bottom after sending a message
       setTimeout(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
       }, 100);
-  
+
       try {
         // Send the message
         await axios.post(
-          `http://10.135.88.56:5000/conversations/${convoID}/messages`,
+          `http://192.168.18.124:5000/conversations/${convoID}/messages`,
           {
             content: newMessage.content,
             sender: newMessage.sender,
             receiverId: receiverId,
           }
         );
-  
-        console.log(`new link is : http://10.135.88.56:5000/conversations/${convoID}/lastMessage`)
+
+        console.log(
+          `new link is : http://192.168.18.124:5000/conversations/${convoID}/lastMessage`
+        );
         // Update the last message of the conversation
         await axios.put(
-          `http://10.135.88.56:5000/conversations/${convoID}/lastMessage`,
+          `http://192.168.18.124:5000/conversations/${convoID}/lastMessage`,
           {
             lastMessage: newMessage.content,
           }
         );
-  
+
         socket?.emit("sendMessage", { newMessage });
-  
+
         setTimeout(() => {
           fetchMessages();
         }, 100);
@@ -271,7 +272,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: "#1f1f1f",
     height: 60, // Increased height
-    width: '100%', // Ensure full width
+    width: "100%", // Ensure full width
   },
   backIcon: {
     marginRight: 15,

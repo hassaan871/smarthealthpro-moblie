@@ -19,8 +19,8 @@ import Alert from "../../components/Alert";
 import showAlertMessage from "../../Helper/AlertHelper";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import ReusableModal from "../../components/ReusableModal";
-import {Picker} from '@react-native-picker/picker';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from "@react-native-picker/picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const SignUpScreen = ({ navigation }) => {
   // const { setToken, setUser } = useContext(Context);
@@ -29,7 +29,7 @@ const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [confirmPassword, setConfirmPassword] = useState();
-   const [role, setRole] = useState("patient");
+  const [role, setRole] = useState("patient");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [passwordVisible2, setPasswordVisible2] = useState(false);
   const [showDateTimePicker, setShowDateTimePicker] = useState(false);
@@ -63,19 +63,18 @@ const SignUpScreen = ({ navigation }) => {
     { label: "AB-", value: "AB-" },
   ];
 
-
   const formatDate = (date) => {
     if (!date || !(date instanceof Date) || isNaN(date)) {
-      return ''; // Return an empty string if the date is invalid
+      return ""; // Return an empty string if the date is invalid
     }
-  
+
     let day = date.getDate();
     let month = date.getMonth() + 1; // Months are zero-indexed
     let year = date.getFullYear();
-  
+
     day = day < 10 ? `0${day}` : day;
     month = month < 10 ? `0${month}` : month;
-  
+
     return `${month}/${day}/${year}`;
   };
 
@@ -104,7 +103,7 @@ const SignUpScreen = ({ navigation }) => {
       );
       return;
     }
-  
+
     if (password?.length < 8 && password != confirmPassword) {
       showAlertMessage(
         setShowAlert,
@@ -116,10 +115,17 @@ const SignUpScreen = ({ navigation }) => {
       return;
     }
 
-    console.log("Form data:", { name, email, password, role,birthday,selectedBlood});
+    console.log("Form data:", {
+      name,
+      email,
+      password,
+      role,
+      birthday,
+      selectedBlood,
+    });
 
     axios
-      .post("http://10.135.88.56:5000/user/register", {
+      .post("http://192.168.18.124:5000/user/register", {
         fullName: name,
         email: email,
         password: password,
@@ -161,7 +167,6 @@ const SignUpScreen = ({ navigation }) => {
   const showDateTimePickerHandler = () => {
     setShowDateTimePicker(true);
   };
-  
 
   return (
     <View style={styles.container}>
@@ -186,35 +191,38 @@ const SignUpScreen = ({ navigation }) => {
             onChangeText={(text) => setEmail(text)}
           />
 
-         <View style={[styles.input,{padding:0}]}>
-          <Picker
-            selectedValue={selectedBlood}
-            onValueChange={(itemValue) => setSelectedBlood(itemValue)}
-            style={{ color: "#fff" }}
-
-          >
-            <Picker.Item style={{color:"#666"}} label="Blood Group..." value="" />
-            <Picker.Item label="A+" value="A+"/>
-            <Picker.Item label="A-" value="A-" />
-            <Picker.Item label="B+" value="B+" />
-            <Picker.Item label="B-" value="B-" />
-            <Picker.Item label="O+" value="O+" />
-            <Picker.Item label="O-" value="O-" />
-            <Picker.Item label="AB+" value="AB+" />
-            <Picker.Item label="AB-" value="AB-" />
-          </Picker>
+          <View style={[styles.input, { padding: 0 }]}>
+            <Picker
+              selectedValue={selectedBlood}
+              onValueChange={(itemValue) => setSelectedBlood(itemValue)}
+              style={{ color: "#fff" }}
+            >
+              <Picker.Item
+                style={{ color: "#666" }}
+                label="Blood Group..."
+                value=""
+              />
+              <Picker.Item label="A+" value="A+" />
+              <Picker.Item label="A-" value="A-" />
+              <Picker.Item label="B+" value="B+" />
+              <Picker.Item label="B-" value="B-" />
+              <Picker.Item label="O+" value="O+" />
+              <Picker.Item label="O-" value="O-" />
+              <Picker.Item label="AB+" value="AB+" />
+              <Picker.Item label="AB-" value="AB-" />
+            </Picker>
           </View>
 
-        <TextInput
-          placeholder='Select Birthday'
-          onPress={showDateTimePickerHandler}
-          value={formatDate(birthday)}
-          // mode="outlined"
-          style={styles.input}
-          // left={<TextInput.Icon icon="cake" color={"#8C52FF"} paddingTop={4} />}
-          // right={<TextInput.Icon onPress={showDateTimePickerHandler} icon="calendar" color={"#8C52FF"} paddingTop={4} />}
-          // outlineStyle={{ borderRadius: 15, borderColor: "#F4F4F4" }}
-        />
+          <TextInput
+            placeholder="Select Birthday"
+            onPress={showDateTimePickerHandler}
+            value={formatDate(birthday)}
+            // mode="outlined"
+            style={styles.input}
+            // left={<TextInput.Icon icon="cake" color={"#8C52FF"} paddingTop={4} />}
+            // right={<TextInput.Icon onPress={showDateTimePickerHandler} icon="calendar" color={"#8C52FF"} paddingTop={4} />}
+            // outlineStyle={{ borderRadius: 15, borderColor: "#F4F4F4" }}
+          />
 
           <View>
             {showDateTimePicker && (
@@ -228,8 +236,6 @@ const SignUpScreen = ({ navigation }) => {
             )}
           </View>
           <View>
-
-
             <TextInput
               placeholder="Password"
               secureTextEntry={!passwordVisible}
@@ -252,7 +258,7 @@ const SignUpScreen = ({ navigation }) => {
             <TextInput
               placeholder="Confirm Password"
               secureTextEntry={!passwordVisible2}
-            placeholderTextColor={"#666"}
+              placeholderTextColor={"#666"}
               style={styles.input}
               onChangeText={(text) => setConfirmPassword(text)}
             />
@@ -307,7 +313,7 @@ const SignUpScreen = ({ navigation }) => {
         >
           <Text style={{ textAlign: "center", color: "#6B7280", marginTop: 5 }}>
             Already have an account?{" "}
-    <Text style={{ fontWeight: "bold", color: "#4A90E2" }}>Login</Text>
+            <Text style={{ fontWeight: "bold", color: "#4A90E2" }}>Login</Text>
           </Text>
         </Pressable>
       </View>
@@ -330,7 +336,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#000"
+    backgroundColor: "#000",
   },
   card: {
     // backgroundColor: "#fff",
@@ -370,7 +376,7 @@ const styles = StyleSheet.create({
   input: {
     // backgroundColor: "#edf2f7",
     backgroundColor: "#2C2C2E",
-    color:"#fff",
+    color: "#fff",
     borderColor: "#cbd5e0",
     borderWidth: 1,
     borderRadius: 8,

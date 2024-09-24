@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:559728573332:android:62c134c3dc9db3da1b2d81",
+        "mobilesdk_app_id": "1:559728573332:android:78090b2cb1e88beb1b2d81",
         "android_client_info": {
-          "package_name": "com.anonymous.smarthealthpro"
+          "package_name": "com.arif_nawaz.smarthealthpro"
         }
       },
       "oauth_client": [],

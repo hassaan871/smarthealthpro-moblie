@@ -1,29 +1,33 @@
-import axios from 'axios';
+import axios from "axios";
 
 const updateProfilePic = async (userId, file) => {
   try {
-    console.log('Preparing to upload file:', file);
+    console.log("Preparing to upload file:", file);
 
     const formData = new FormData();
-    formData.append('id', userId);
-    formData.append('file', {
+    formData.append("id", userId);
+    formData.append("file", {
       uri: file.uri,
       name: file.name,
-      type: file.type
+      type: file.type,
     });
 
-    console.log('FormData created:', formData);
+    console.log("FormData created:", formData);
 
-    const response = await axios.put('http://10.135.88.56:5000/user/updateProfile', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await axios.put(
+      "http://192.168.18.124:5000/user/updateProfile",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
-    console.log('Server response:', response.data);
+    console.log("Server response:", response.data);
     return response.data;
   } catch (error) {
-    console.error('Error uploading profile picture:', error);
+    console.error("Error uploading profile picture:", error);
     throw error;
   }
 };

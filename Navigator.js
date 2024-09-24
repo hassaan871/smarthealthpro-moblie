@@ -15,112 +15,106 @@ import ChatsScreen from "./screens/extras/ChatScreen";
 import SettingScreen from "./screens/tabNavScreens/Settings";
 import AppointmentsScreen from "./screens/AppointmentsScreen";
 import OfflineScreen from "./screens/extras/OfflineScreen";
-import NetInfo from '@react-native-community/netinfo';
-import { useState } from "react";
+import NetInfo from "@react-native-community/netinfo";
 
 const Stack = createNativeStackNavigator();
 const AppNavigator = () => {
+  const [isConnected, setIsConnected] = useState();
 
-  const [isConnected , setIsConnected ] = useState()
-
-  NetInfo.fetch().then(state => {
-    console.log('Connection type', state.type);
-    console.log('Is connected?', state.isConnected);
-    setIsConnected(state.isConnected)
+  NetInfo.fetch().then((state) => {
+    console.log("Connection type", state.type);
+    console.log("Is connected?", state.isConnected);
+    setIsConnected(state.isConnected);
   });
 
   return (
     <Stack.Navigator>
-
       {!isConnected ? (
-
-          <Stack.Screen
+        <Stack.Screen
           name="OfflineScreen"
           options={{ headerShown: false }}
           component={OfflineScreen}
-          />
-
+        />
       ) : (
         <React.Fragment>
-      <Stack.Screen
-        name="OnBoarding"
-        options={{ headerShown: false }}
-        component={OnBoardingScreen}
-      />
+          <Stack.Screen
+            name="OnBoarding"
+            options={{ headerShown: false }}
+            component={OnBoardingScreen}
+          />
 
-      <Stack.Screen
-        name="Login"
-        options={{ headerShown: false }}
-        component={LoginScreen}
-      />
+          <Stack.Screen
+            name="Login"
+            options={{ headerShown: false }}
+            component={LoginScreen}
+          />
 
-      <Stack.Screen
-        name="SignUp"
-        options={{ headerShown: false }}
-        component={SignUpScreen}
-      />
-      <Stack.Screen
-        name="HomeScreen"
-        options={{ headerShown: false, animationEnabled: false }}
-        component={HomeScreen}
-      />
-      <Stack.Screen
-        name="CutomBottomBar"
-        options={{ headerShown: false }}
-        component={CutomBottomBar}
-      />
-      <Stack.Screen
-        name="ResultsScreen"
-        options={{ headerShown: false }}
-        component={ResultsScreen}
-      />
-      <Stack.Screen
-        name="BookingScreen"
-        options={{ headerShown: false }}
-        component={BookingScreen}
-      />
+          <Stack.Screen
+            name="SignUp"
+            options={{ headerShown: false }}
+            component={SignUpScreen}
+          />
+          <Stack.Screen
+            name="HomeScreen"
+            options={{ headerShown: false, animationEnabled: false }}
+            component={HomeScreen}
+          />
+          <Stack.Screen
+            name="CutomBottomBar"
+            options={{ headerShown: false }}
+            component={CutomBottomBar}
+          />
+          <Stack.Screen
+            name="ResultsScreen"
+            options={{ headerShown: false }}
+            component={ResultsScreen}
+          />
+          <Stack.Screen
+            name="BookingScreen"
+            options={{ headerShown: false }}
+            component={BookingScreen}
+          />
 
+          <Stack.Screen
+            name="DoctorDetail"
+            options={{ headerShown: false }}
+            component={DoctorDetailPage}
+          />
 
-      <Stack.Screen
-        name="DoctorDetail"
-        options={{ headerShown: false }}
-        component={DoctorDetailPage}
-      />
+          <Stack.Screen
+            name="BotChattingScreen"
+            options={{ headerShown: false }}
+            component={BotChattingScreen}
+          />
 
-      <Stack.Screen
-        name="BotChattingScreen"
-        options={{ headerShown: false }}
-        component={BotChattingScreen}
-      />
+          <Stack.Screen
+            name="CameraAccessScreen"
+            options={{ headerShown: false }}
+            component={CameraAccessScreen}
+          />
 
-      <Stack.Screen
-        name="CameraAccessScreen"
-        options={{ headerShown: false }}
-        component={CameraAccessScreen}
-      />
-
-      <Stack.Screen
-        name="ChatRoom"
-        options={{ headerShown: true }}
-        component={ChatRoom}
-      />
-      <Stack.Screen
-        name="ChatsScreen"
-        options={{ headerShown: false, animationEnabled: false }}
-        component={ChatsScreen}
-      />
-      <Stack.Screen
-        name="SettingScreen"
-        options={{ headerShown: false, animationEnabled: false }}
-        component={SettingScreen}
-      />
-      <Stack.Screen
-        name="AppointmentsScreen"
-        options={{ headerShown: false, animationEnabled: false }}
-        component={AppointmentsScreen}
-      />
-    </React.Fragment>
-    )}
+          <Stack.Screen
+            name="ChatRoom"
+            options={{ headerShown: true }}
+            component={ChatRoom}
+          />
+          <Stack.Screen
+            name="ChatsScreen"
+            options={{ headerShown: false, animationEnabled: false }}
+            component={ChatsScreen}
+          />
+          <Stack.Screen
+            name="SettingScreen"
+            options={{ headerShown: false, animationEnabled: false }}
+            component={SettingScreen}
+          />
+          <Stack.Screen
+            name="AppointmentsScreen"
+            options={{ headerShown: false, animationEnabled: false }}
+            component={AppointmentsScreen}
+          />
+        </React.Fragment>
+      )}
     </Stack.Navigator>
   );
 };

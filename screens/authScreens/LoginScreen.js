@@ -63,7 +63,7 @@ const LoginScreen = () => {
 
     console.log("Entering handle submit");
     try {
-      const res = await axios.post("http://10.135.88.56:5000/user/login", {
+      const res = await axios.post("http://192.168.18.124:5000/user/login", {
         email,
         password,
       });
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     // backgroundColor: "#E0F4FF",
-     backgroundColor: "#000"
+    backgroundColor: "#000",
   },
   card: {
     backgroundColor: "#1E1E1E",
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     fontSize: 16,
-    color:"#fff"
+    color: "#fff",
   },
   iconButton: {
     position: "absolute",
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     color: "#4A90E2",
     fontSize: 14,
-    marginTop:4
+    marginTop: 4,
   },
   loginButton: {
     backgroundColor: "#4A90E2",

@@ -63,7 +63,7 @@ const LoginScreen = () => {
 
     console.log("Entering handle submit");
     try {
-      const res = await axios.post("http://192.168.18.9:5000/user/login", {
+      const res = await axios.post("http://10.135.88.56:5000/user/login", {
         email,
         password,
       });

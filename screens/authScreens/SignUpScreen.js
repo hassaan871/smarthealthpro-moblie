@@ -119,7 +119,7 @@ const SignUpScreen = ({ navigation }) => {
     console.log("Form data:", { name, email, password, role,birthday,selectedBlood});
 
     axios
-      .post("http://192.168.18.9:5000/user/register", {
+      .post("http://10.135.88.56:5000/user/register", {
         fullName: name,
         email: email,
         password: password,

@@ -47,7 +47,7 @@ const HomeScreen = () => {
       console.log("user id is from async: ", userID);
       if (userID !== null) {
         const response = await axios.get(
-          `http://192.168.18.9:5000/user/getUserInfo/${userID}`
+          `http://10.135.88.56:5000/user/getUserInfo/${userID}`
         );
 
         console.log("response users data: ", response.data.user);
@@ -64,7 +64,7 @@ const HomeScreen = () => {
     const fetchAppointment = async () => {
       const userID = userInfo._id;
       console.log("user id is from userinfo: ", userID);
-      const link = `http://192.168.18.9:5000/appointment/getAllAppointments?${
+      const link = `http://10.135.88.56:5000/appointment/getAllAppointments?${
         userInfo.role === "doctor" ? "doctorId" : "patientId"
       }=${userID}`;
       
@@ -106,7 +106,7 @@ const HomeScreen = () => {
       console.log("Fetching popular doctor");
       try {
         const response = await axios.get(
-          `http://192.168.18.9:5000/user/getDoctorsBySatisfaction`
+          `http://10.135.88.56:5000/user/getDoctorsBySatisfaction`
         );
 
         console.log("response doctors: ", response.data[0]);

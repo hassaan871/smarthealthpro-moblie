@@ -14,11 +14,34 @@ import CutomBottomBar from "./screens/tabNavScreens/CutomBottomBar";
 import ChatsScreen from "./screens/extras/ChatScreen";
 import SettingScreen from "./screens/tabNavScreens/Settings";
 import AppointmentsScreen from "./screens/AppointmentsScreen";
+import OfflineScreen from "./screens/extras/OfflineScreen";
+import NetInfo from '@react-native-community/netinfo';
+import { useState } from "react";
 
 const Stack = createNativeStackNavigator();
 const AppNavigator = () => {
+
+  const [isConnected , setIsConnected ] = useState()
+
+  NetInfo.fetch().then(state => {
+    console.log('Connection type', state.type);
+    console.log('Is connected?', state.isConnected);
+    setIsConnected(state.isConnected)
+  });
+
   return (
     <Stack.Navigator>
+
+      {!isConnected ? (
+
+          <Stack.Screen
+          name="OfflineScreen"
+          options={{ headerShown: false }}
+          component={OfflineScreen}
+          />
+
+      ) : (
+        <React.Fragment>
       <Stack.Screen
         name="OnBoarding"
         options={{ headerShown: false }}
@@ -96,6 +119,8 @@ const AppNavigator = () => {
         options={{ headerShown: false, animationEnabled: false }}
         component={AppointmentsScreen}
       />
+    </React.Fragment>
+    )}
     </Stack.Navigator>
   );
 };

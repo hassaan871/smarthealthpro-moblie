@@ -65,7 +65,7 @@ const ChatRoom = ({ route }) => {
   const fetchMessages = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.18.9:5000/conversations/getMessages/${convoID}`
+        `http://10.135.88.56:5000/conversations/getMessages/${convoID}`
       );
       setMessages(response.data);
     } catch (error) {
@@ -157,7 +157,7 @@ const ChatRoom = ({ route }) => {
       try {
         // Send the message
         await axios.post(
-          `http://192.168.18.9:5000/conversations/${convoID}/messages`,
+          `http://10.135.88.56:5000/conversations/${convoID}/messages`,
           {
             content: newMessage.content,
             sender: newMessage.sender,
@@ -165,10 +165,10 @@ const ChatRoom = ({ route }) => {
           }
         );
   
-        console.log(`new link is : http://192.168.18.9:5000/conversations/${convoID}/lastMessage`)
+        console.log(`new link is : http://10.135.88.56:5000/conversations/${convoID}/lastMessage`)
         // Update the last message of the conversation
         await axios.put(
-          `http://192.168.18.9:5000/conversations/${convoID}/lastMessage`,
+          `http://10.135.88.56:5000/conversations/${convoID}/lastMessage`,
           {
             lastMessage: newMessage.content,
           }

@@ -2,8 +2,8 @@
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
-
 #import <Firebase.h>
+#import <FirebaseMessaging.h>
 
 @implementation AppDelegate
 
@@ -15,6 +15,10 @@
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
 
+  // Configure Firebase
+    [FIRApp configure];
+
+  
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 
@@ -46,8 +50,9 @@
 // Explicitly define remote notification delegates to ensure compatibility with some third-party libraries
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
-  return [super application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+  [FIRMessaging messaging].APNSToken = deviceToken;
 }
+
 
 // Explicitly define remote notification delegates to ensure compatibility with some third-party libraries
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
@@ -58,7 +63,9 @@
 // Explicitly define remote notification delegates to ensure compatibility with some third-party libraries
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
-  return [super application:application didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+  [[FIRMessaging messaging] appDidReceiveMessage:userInfo];
+  completionHandler(UIBackgroundFetchResultNewData);
 }
+
 
 @end

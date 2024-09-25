@@ -85,6 +85,24 @@ export default function App() {
     try {
       console.log("Requesting notification permissions...");
 
+      if (Platform.OS === 'ios') {
+        const authStatus = await messaging().requestPermission({
+          alert: true,
+          announcement: false,
+          badge: true,
+          carPlay: false,
+          provisional: false,
+          sound: true,
+        });
+        if (authStatus === messaging.AuthorizationStatus.AUTHORIZED) {
+          console.log('User has notification permissions enabled.');
+        } else if (authStatus === messaging.AuthorizationStatus.PROVISIONAL) {
+          console.log('User has provisional notification permissions.');
+        } else {
+          console.log('User has notification permissions disabled');
+        }
+      } else {      
+
       if (Platform.OS === "android") {
         const androidPermissionGranted =
           await requestAndroidNotificationPermission();
@@ -101,6 +119,7 @@ export default function App() {
         authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
         authStatus === messaging.AuthorizationStatus.PROVISIONAL
       );
+    }
     } catch (error) {
       console.error("Error in requestUserPermission:", error);
       return false;

@@ -23,6 +23,9 @@ import Feather from "react-native-vector-icons/Feather";
 import axios from "axios";
 import { useSocketContext } from "../../SocketContext";
 import Context from "../../Helper/context";
+import CryptoJS from 'crypto-js';
+
+const secretKey = "YOUR_SECRET_KEY"; // You should generate this key securely
 
 const ChatRoom = ({ route }) => {
   const { name, image, convoID, receiverId } = route.params;
@@ -33,6 +36,15 @@ const ChatRoom = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const { socket } = useSocketContext();
   const { userInfo } = useContext(Context);
+
+  const encryptMessage = (message) => {
+    return CryptoJS.AES.encrypt(message, secretKey).toString();
+  };
+  const decryptMessage = (encryptedMessage) => {
+    const bytes = CryptoJS.AES.decrypt(encryptedMessage, secretKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+  };
+  
 
   useEffect(() => {
     setLoading(true);
@@ -62,7 +74,7 @@ const ChatRoom = ({ route }) => {
   const fetchMessages = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
+        `http://192.168.100.180:5000/conversations/getMessages/${convoID}`
       );
       setMessages(response.data);
     } catch (error) {
@@ -88,6 +100,9 @@ const ChatRoom = ({ route }) => {
   useEffect(() => {
     if (socket) {
       const handleMessageReceive = (newMessage) => {
+        const decryptedContent = decryptMessage(newMessage.content);
+        newMessage.content = decryptedContent; // Replace the encrypted content with the decrypted content
+  
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       };
 
@@ -138,12 +153,15 @@ const ChatRoom = ({ route }) => {
     if (socket) {
       if (!message.trim()) return;
 
-      const newMessage = {
-        content: message,
-        sender: userInfo._id,
-        conversationId: convoID,
-        timestamp: new Date(),
-      };
+       // Encrypt the message content before sending
+      const encryptedMessage = encryptMessage(message);
+
+       const newMessage = {
+      content: encryptedMessage, // Send encrypted content
+      sender: userInfo._id,
+      conversationId: convoID,
+      timestamp: new Date(),
+    };
 
       setMessage(""); // Clear the input right after sending the message
       setMessages((prevMessages) => [...prevMessages, newMessage]); // Optimistically update the UI
@@ -156,7 +174,7 @@ const ChatRoom = ({ route }) => {
       try {
         // Send the message
         await axios.post(
-          `http://192.168.18.124:5000/conversations/${convoID}/messages`,
+          `http://192.168.100.180:5000/conversations/${convoID}/messages`,
           {
             content: newMessage.content,
             sender: newMessage.sender,
@@ -165,11 +183,11 @@ const ChatRoom = ({ route }) => {
         );
 
         console.log(
-          `new link is : http://192.168.18.124:5000/conversations/${convoID}/lastMessage`
+          `new link is : http://192.168.100.180:5000/conversations/${convoID}/lastMessage`
         );
         // Update the last message of the conversation
         await axios.put(
-          `http://192.168.18.124:5000/conversations/${convoID}/lastMessage`,
+          `http://192.168.100.180:5000/conversations/${convoID}/lastMessage`,
           {
             lastMessage: newMessage.content,
           }

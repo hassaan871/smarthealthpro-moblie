@@ -24,8 +24,58 @@ import axios from "axios";
 import { useSocketContext } from "../../SocketContext";
 import Context from "../../Helper/context";
 import CryptoJS from 'crypto-js';
+import * as Crypto from 'expo-crypto';
 
-const secretKey = "YOUR_SECRET_KEY"; // You should generate this key securely
+const secretKey = "YOUR_SECRET_KEY"; // Ideally, generate and store this securely
+
+const generateRandomKey = () => {
+  console.log("Generating random key...");
+  // Combine current timestamp with CryptoJS's random function
+  const timestamp = new Date().getTime().toString();
+  const random = CryptoJS.lib.WordArray.random(8).toString();
+  const combinedString = timestamp + random;
+  
+  // Use SHA-256 to create a consistent length key
+  const key = CryptoJS.SHA256(combinedString);
+  console.log("Key generated:", key.toString());
+  return key;
+};
+
+const encryptMessage = (message) => {
+  console.log("Encrypting message:", message);
+  if (!message) {
+    console.error("Message is undefined or empty");
+    return null;
+  }
+  try {
+    const key = generateRandomKey();
+    const encrypted = CryptoJS.AES.encrypt(message, key.toString());
+    console.log("Encryption successful");
+    return encrypted.toString();
+  } catch (error) {
+    console.error("Error encrypting message:", error);
+    console.error("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    return null;
+  }
+};
+
+const decryptMessage = (encryptedMessage) => {
+  if (!encryptedMessage) {
+    console.error("Encrypted message is undefined or empty");
+    return null;
+  }
+  try {
+    // In a real-world scenario, you'd need to store and retrieve the key used for encryption
+    // For demonstration, we're using a static key here
+    const key = CryptoJS.SHA256("static_key_for_demo");
+    const bytes = CryptoJS.AES.decrypt(encryptedMessage, key.toString());
+    return bytes.toString(CryptoJS.enc.Utf8);
+  } catch (error) {
+    console.error("Error decrypting message:", error);
+    console.error("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    return null;
+  }
+};
 
 const ChatRoom = ({ route }) => {
   const { name, image, convoID, receiverId } = route.params;
@@ -36,15 +86,6 @@ const ChatRoom = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const { socket } = useSocketContext();
   const { userInfo } = useContext(Context);
-
-  const encryptMessage = (message) => {
-    return CryptoJS.AES.encrypt(message, secretKey).toString();
-  };
-  const decryptMessage = (encryptedMessage) => {
-    const bytes = CryptoJS.AES.decrypt(encryptedMessage, secretKey);
-    return bytes.toString(CryptoJS.enc.Utf8);
-  };
-  
 
   useEffect(() => {
     setLoading(true);
@@ -74,7 +115,7 @@ const ChatRoom = ({ route }) => {
   const fetchMessages = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.100.180:5000/conversations/getMessages/${convoID}`
+        `http://10.135.10.3:5000/conversations/getMessages/${convoID}`
       );
       setMessages(response.data);
     } catch (error) {
@@ -102,7 +143,6 @@ const ChatRoom = ({ route }) => {
       const handleMessageReceive = (newMessage) => {
         const decryptedContent = decryptMessage(newMessage.content);
         newMessage.content = decryptedContent; // Replace the encrypted content with the decrypted content
-  
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       };
 
@@ -151,50 +191,65 @@ const ChatRoom = ({ route }) => {
 
   const sendMessage = async () => {
     if (socket) {
-      if (!message.trim()) return;
-
-       // Encrypt the message content before sending
-      const encryptedMessage = encryptMessage(message);
-
-       const newMessage = {
-      content: encryptedMessage, // Send encrypted content
-      sender: userInfo._id,
-      conversationId: convoID,
-      timestamp: new Date(),
-    };
-
-      setMessage(""); // Clear the input right after sending the message
-      setMessages((prevMessages) => [...prevMessages, newMessage]); // Optimistically update the UI
-
-      // Scroll to the bottom after sending a message
-      setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-      }, 100);
-
+      if (!message.trim()) {
+        console.log("Message is empty, not sending");
+        return;
+      }
+  
       try {
+        console.log("Attempting to encrypt message:", message);
+        // Encrypt the message content before sending
+        const encryptedMessage = await encryptMessage(message);
+  
+        if (!encryptedMessage) {
+          console.error("Failed to encrypt message");
+          return;
+        }
+  
+        console.log("Message encrypted successfully");
+  
+        const newMessage = {
+          content: encryptedMessage, // Send encrypted content
+          sender: userInfo._id,
+          conversationId: convoID,
+          timestamp: new Date(),
+        };
+  
+        console.log("New message object:", newMessage);
+  
+        setMessage(""); // Clear the input right after sending the message
+        setMessages((prevMessages) => [...prevMessages, newMessage]); // Optimistically update the UI
+  
+        // Scroll to the bottom after sending a message
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 100);
+  
         // Send the message
-        await axios.post(
-          `http://192.168.100.180:5000/conversations/${convoID}/messages`,
+        console.log("Sending message to server");
+        const response = await axios.post(
+          `http://10.135.10.3:5000/conversations/${convoID}/messages`,
           {
             content: newMessage.content,
             sender: newMessage.sender,
             receiverId: receiverId,
           }
         );
-
-        console.log(
-          `new link is : http://192.168.100.180:5000/conversations/${convoID}/lastMessage`
-        );
+        console.log("Server response:", response.data);
+  
         // Update the last message of the conversation
+        console.log("Updating last message");
         await axios.put(
-          `http://192.168.100.180:5000/conversations/${convoID}/lastMessage`,
+          `http://10.135.10.3:5000/conversations/${convoID}/lastMessage`,
           {
             lastMessage: newMessage.content,
           }
         );
-
+  
+        console.log("Emitting sendMessage event");
         socket?.emit("sendMessage", { newMessage });
-
+  
+        console.log("Fetching messages");
         setTimeout(() => {
           fetchMessages();
         }, 100);

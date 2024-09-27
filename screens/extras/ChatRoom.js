@@ -23,59 +23,10 @@ import Feather from "react-native-vector-icons/Feather";
 import axios from "axios";
 import { useSocketContext } from "../../SocketContext";
 import Context from "../../Helper/context";
-import CryptoJS from 'crypto-js';
 import * as Crypto from 'expo-crypto';
+var C = require("crypto-js");
+import CryptoES from "crypto-es";
 
-const secretKey = "YOUR_SECRET_KEY"; // Ideally, generate and store this securely
-
-const generateRandomKey = () => {
-  console.log("Generating random key...");
-  // Combine current timestamp with CryptoJS's random function
-  const timestamp = new Date().getTime().toString();
-  const random = CryptoJS.lib.WordArray.random(8).toString();
-  const combinedString = timestamp + random;
-  
-  // Use SHA-256 to create a consistent length key
-  const key = CryptoJS.SHA256(combinedString);
-  console.log("Key generated:", key.toString());
-  return key;
-};
-
-const encryptMessage = (message) => {
-  console.log("Encrypting message:", message);
-  if (!message) {
-    console.error("Message is undefined or empty");
-    return null;
-  }
-  try {
-    const key = generateRandomKey();
-    const encrypted = CryptoJS.AES.encrypt(message, key.toString());
-    console.log("Encryption successful");
-    return encrypted.toString();
-  } catch (error) {
-    console.error("Error encrypting message:", error);
-    console.error("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
-    return null;
-  }
-};
-
-const decryptMessage = (encryptedMessage) => {
-  if (!encryptedMessage) {
-    console.error("Encrypted message is undefined or empty");
-    return null;
-  }
-  try {
-    // In a real-world scenario, you'd need to store and retrieve the key used for encryption
-    // For demonstration, we're using a static key here
-    const key = CryptoJS.SHA256("static_key_for_demo");
-    const bytes = CryptoJS.AES.decrypt(encryptedMessage, key.toString());
-    return bytes.toString(CryptoJS.enc.Utf8);
-  } catch (error) {
-    console.error("Error decrypting message:", error);
-    console.error("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
-    return null;
-  }
-};
 
 const ChatRoom = ({ route }) => {
   const { name, image, convoID, receiverId } = route.params;
@@ -111,11 +62,27 @@ const ChatRoom = ({ route }) => {
     }, [socket, messages, setMessages]);
   };
   listeMessages();
+  
+  const encrypted = (mytexttoEncryption ) => 
+    {
+      const encryptedMessage = CryptoES.AES.encrypt(mytexttoEncryption ,"your password").toString();
+      console.log("res of en",encryptedMessage)
+      return encryptedMessage
+    }
+  
+  const decrypted = (decryptText)=>{ 
+    console.log("decrypt text")
+    C.AES.decrypt(decryptText, "your password");
+    const result =Decrypted.toString(C.enc.Utf8);
+   console.log("result of de ",result)
+   return result
+  }
+  
 
   const fetchMessages = async () => {
     try {
       const response = await axios.get(
-        `http://10.135.10.3:5000/conversations/getMessages/${convoID}`
+        `http://192.168.100.135:5000/conversations/getMessages/${convoID}`
       );
       setMessages(response.data);
     } catch (error) {
@@ -141,7 +108,8 @@ const ChatRoom = ({ route }) => {
   useEffect(() => {
     if (socket) {
       const handleMessageReceive = (newMessage) => {
-        const decryptedContent = decryptMessage(newMessage.content);
+        console.log("rec",newMessage)
+        const decryptedContent = decrypted(newMessage.content);
         newMessage.content = decryptedContent; // Replace the encrypted content with the decrypted content
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       };
@@ -199,7 +167,7 @@ const ChatRoom = ({ route }) => {
       try {
         console.log("Attempting to encrypt message:", message);
         // Encrypt the message content before sending
-        const encryptedMessage = await encryptMessage(message);
+        const encryptedMessage = await encrypted(message);
   
         if (!encryptedMessage) {
           console.error("Failed to encrypt message");
@@ -209,7 +177,8 @@ const ChatRoom = ({ route }) => {
         console.log("Message encrypted successfully");
   
         const newMessage = {
-          content: encryptedMessage, // Send encrypted content
+          content: message, // Store the original message for display
+          encryptedContent: encryptedMessage, // Store encrypted content for sending
           sender: userInfo._id,
           conversationId: convoID,
           timestamp: new Date(),
@@ -228,8 +197,7 @@ const ChatRoom = ({ route }) => {
         // Send the message
         console.log("Sending message to server");
         const response = await axios.post(
-          `http://10.135.10.3:5000/conversations/${convoID}/messages`,
-          {
+          `http://192.168.100.135:5000/conversations/${convoID}/messages`,{
             content: newMessage.content,
             sender: newMessage.sender,
             receiverId: receiverId,
@@ -240,7 +208,7 @@ const ChatRoom = ({ route }) => {
         // Update the last message of the conversation
         console.log("Updating last message");
         await axios.put(
-          `http://10.135.10.3:5000/conversations/${convoID}/lastMessage`,
+          `http://192.168.100.135:5000/conversations/${convoID}/lastMessage`,
           {
             lastMessage: newMessage.content,
           }

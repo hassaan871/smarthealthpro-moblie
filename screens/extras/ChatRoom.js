@@ -70,14 +70,18 @@ const ChatRoom = ({ route }) => {
       return encryptedMessage
     }
   
-  const decrypted = (decryptText)=>{ 
-    console.log("decrypt text")
-    C.AES.decrypt(decryptText, "your password");
-    const result =Decrypted.toString(C.enc.Utf8);
-   console.log("result of de ",result)
-   return result
-  }
-  
+    const decrypted = (decryptText) => { 
+      console.log("decrypt text",decryptText);
+      try {
+        const bytes = CryptoES.AES.decrypt(decryptText, "your password");
+        const result = bytes.toString(CryptoES.enc.Utf8);
+        console.log("result of de ", result);
+        return result;
+      } catch (error) {
+        console.error("Decryption failed:", error);
+        return "Error: Could not decrypt message";
+      }
+    }
 
   const fetchMessages = async () => {
     try {
@@ -198,7 +202,7 @@ const ChatRoom = ({ route }) => {
         console.log("Sending message to server");
         const response = await axios.post(
           `http://192.168.100.135:5000/conversations/${convoID}/messages`,{
-            content: newMessage.content,
+            content: newMessage.encryptedContent,
             sender: newMessage.sender,
             receiverId: receiverId,
           }
@@ -271,7 +275,7 @@ const ChatRoom = ({ route }) => {
                     : styles.receivedMessageContent
                 }
               >
-                {item.content}
+                {decrypted(item.content)}
               </Text>
               <Text style={styles.messageTime}>
                 {formatTime(item.timestamp)}

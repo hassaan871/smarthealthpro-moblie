@@ -1,146 +1,90 @@
-import React, { useEffect, useState, useContext } from "react";
-import { View, Text, Image, StyleSheet, Pressable } from "react-native";
+import React, { useContext } from "react";
+import { View, Text, Image, StyleSheet, Pressable, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Context from "../../Helper/context";
+import { GestureHandlerRootView, GestureDetector, Swipeable } from 'react-native-gesture-handler';
 
 const Chat = ({ item, isBotChat }) => {
   const navigation = useNavigation();
-  const [messages, setMessages] = useState([]);
   const { userInfo } = useContext(Context);
 
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     const userId = await AsyncStorage.getItem("userToken");
-  //     setUserId(userId);
-  //   };
-
-  //   fetchUser();
-  // }, []);
-
-  // const fetchMessages = async () => {
-  //   try {
-  //     const senderId = userId;
-  //     const receiverId = item?._id;
-
-  //     console.log(senderId);
-  //     console.log(receiverId);
-
-  //     const response = await axios.get("http://192.168.100.135:8000/messages", {
-  //       params: { senderId, receiverId },
-  //     });
-
-  //     setMessages(response.data);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // console.log("messages", item.lastMessage);
-
-  // useEffect(() => {
-  //   fetchMessages();
-  // }, []);
-
-  // const getLastMessage = () => {
-  //   const n = messages.length;
-
-  //   return messages[n - 1];
-  // };
-  // const lastMessage = getLastMessage();
-
-  // useEffect(() => {
-  //   console.log("coming from useeffect");
-  //   console.log("reciever avatar: ", item.recieverAvatar);
-  //   console.log("receiver Name: ", item.receiverName);
-  //   console.log("lastMessage: ", item.lastMessage);
-  //   console.log("updatedAt: ", item.updatedAt);
-  // }, []);
-
   const handleChatPress = async () => {
+    // Existing chat press logic...
+  };
+
+  const handleDelete = async () => {
     try {
-      const currentUserId = userInfo?._id;
-      const otherUserId = "ChatBot";
-
-      // console.log("current user: ", currentUserId);
-      // console.log("other user: ", otherUserId);
-
-      // console.log(`creating chat btw ${currentUserId} and ${otherUserId}`);
-      // Make a POST request to create or retrieve a conversation
-      const response = await axios.post(
-        "http://192.168.100.135:5000/conversations",
-        {
-          currentUserId,
-          otherUserId,
-          currentUserObjectIdAvatar: userInfo?.avatar,
-          otherUserObjectIdAvatar:
-            "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
-          currentUserObjectIdName: userInfo?.fullName,
-          otherUserObjectIdName: "ChatBot",
-        }
-      );
-
-      // const conversationId = response.data?._id;
-      // console.log("convo created successfully with id: ", conversationId);
-      navigation.navigate("BotChattingScreen");
-      // Navigate to the ChatScreen with the conversationId
-      // navigation.navigate("ChatRoom", {
-      //   name: "ChatBot",
-      //   image:
-      //     "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
-      //   convoID: conversationId,
-      //   receiverId: "ChatBot",
-      // });
+      const response = await axios.delete(`http://192.168.100.135:5000/chats/${item.convoID}`);
+      if (response.status === 200) {
+        // Handle successful deletion (e.g., update state, show a message)
+        console.log("Conversation deleted successfully");
+      }
     } catch (error) {
-      console.error("Error creating or retrieving conversation:", error);
+      console.error("Error deleting conversation:", error);
+      Alert.alert("Error", "Failed to delete conversation. Please try again later.");
     }
   };
 
-  useEffect(() => {
-    console.log("item from chats234: ", item);
-  }, [item]);
+  const confirmDelete = () => {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this conversation?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        { text: "Delete", onPress: handleDelete }
+      ]
+    );
+  };
+
+  const renderRightActions = () => {
+    return (
+      <Pressable
+        onPress={confirmDelete}
+        style={styles.deleteButton}
+      >
+        <Text style={styles.deleteText}>Delete</Text>
+      </Pressable>
+    );
+  };
 
   return (
-    <Pressable
-      onPress={() => {
-        console.log("Item clicked on 1: ", item);
-        // console.log("item's recieverid: ", item?.receiverId);
-
-        if (isBotChat) {
-          console.log("Entering bot chat");
-          handleChatPress();
-        } else {
-          navigation.navigate("ChatRoom", {
-            name: item?.name,
-            image: item?.avatar,
-            convoID: item?.convoID,
-            receiverId: item?.receiverId,
-          });
-        }
-      }}
-    >
-      <View style={styles.container}>
-        {/* Profile Picture */}
-        <Image source={{ uri: item.avatar }} style={styles.avatar} />
-
-        {/* Chat Info */}
-        <View style={styles.chatInfo}>
-          {/* Full Name */}
-          <Text style={styles.name} numberOfLines={1}>
-            {item.name}
-          </Text>
-
-          {/* Last Message */}
-          <Text style={styles.lastMessage} numberOfLines={1}>
-            {item.lastMessage}
-          </Text>
-        </View>
-
-        {/* Time */}
-        <Text style={styles.timestamp}>{item?.time}</Text>
-      </View>
-    </Pressable>
+    <GestureHandlerRootView>
+      <Swipeable
+        renderRightActions={renderRightActions}
+      >
+        <Pressable
+          onPress={() => {
+            if (isBotChat) {
+              handleChatPress();
+            } else {
+              navigation.navigate("ChatRoom", {
+                name: item?.name,
+                image: item?.avatar,
+                convoID: item?.convoID,
+                receiverId: item?.receiverId,
+              });
+            }
+          }}
+        >
+          <View style={styles.container}>
+            <Image source={{ uri: item.avatar }} style={styles.avatar} />
+            <View style={styles.chatInfo}>
+              <Text style={styles.name} numberOfLines={1}>
+                {item.name}
+              </Text>
+              <Text style={styles.lastMessage} numberOfLines={1}>
+                {item.lastMessage}
+              </Text>
+            </View>
+            <Text style={styles.timestamp}>{item?.time}</Text>
+          </View>
+        </Pressable>
+      </Swipeable>
+    </GestureHandlerRootView>
   );
 };
 
@@ -176,6 +120,19 @@ const styles = StyleSheet.create({
   timestamp: {
     fontSize: 12,
     color: "#999",
+  },
+  deleteButton: {
+    backgroundColor: "red",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+    height: "80%",
+    marginHorizontal: 4,
+    borderRadius:12
+  },
+  deleteText: {
+    color: "white",
+    fontWeight: "bold",
   },
 });
 

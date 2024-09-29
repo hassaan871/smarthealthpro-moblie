@@ -78,6 +78,27 @@ const BotChattingScreen = ({ route }) => {
     }, 100);
   };
 
+  const handleMessagePress = async (item) => {
+    console.log("sdfs", item);
+    
+    if (item.type === 'file' && item.mimeType === 'application/pdf') {
+      const fileInfo = await FileSystem.getInfoAsync(item.uri);
+      console.log("File Info:", fileInfo);
+  
+      if (!fileInfo.exists) {
+        Alert.alert("Error", "The file does not exist.");
+        return;
+      }
+  
+      // Navigate to the PdfViewer component
+      navigation.navigate('PdfViewer', { uri: item.uri });
+      console.log("item",item.uri)
+    } else {
+      Alert.alert("Message", "This is not a PDF file.");
+    }
+  };
+  
+
   const handleSendPress = async () => {
     // Ensure message is not empty
     if (!message.trim()) return;
@@ -380,6 +401,7 @@ const BotChattingScreen = ({ route }) => {
         ? styles.sentMessage
         : styles.receivedMessage,
     ]}
+    onPress={() => handleMessagePress(item)}
   >
     {item.type === 'file' ? (
       <View style={styles.fileMessage}>

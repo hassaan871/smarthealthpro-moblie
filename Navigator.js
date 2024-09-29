@@ -18,6 +18,7 @@ import OfflineScreen from "./screens/extras/OfflineScreen";
 import NetInfo from "@react-native-community/netinfo";
 import ForgotScreen from "./screens/authScreens/ForgotScreen";
 import ResetPasswordScreen from "./screens/authScreens/ResetPasswordScreen";
+import PdfViewer from "./screens/extras/PdfViewer ";
 
 const Stack = createNativeStackNavigator();
 const AppNavigator = () => {
@@ -101,6 +102,12 @@ const AppNavigator = () => {
             name="BotChattingScreen"
             options={{ headerShown: false }}
             component={BotChattingScreen}
+          />
+
+<Stack.Screen
+            name="PdfViewer"
+            options={{ headerShown: false }}
+            component={PdfViewer}
           />
 
           <Stack.Screen

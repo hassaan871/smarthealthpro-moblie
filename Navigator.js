@@ -16,6 +16,8 @@ import SettingScreen from "./screens/tabNavScreens/Settings";
 import AppointmentsScreen from "./screens/AppointmentsScreen";
 import OfflineScreen from "./screens/extras/OfflineScreen";
 import NetInfo from "@react-native-community/netinfo";
+import ForgotScreen from "./screens/authScreens/ForgotScreen";
+import ResetPasswordScreen from "./screens/authScreens/ResetPasswordScreen";
 
 const Stack = createNativeStackNavigator();
 const AppNavigator = () => {
@@ -54,6 +56,20 @@ const AppNavigator = () => {
             options={{ headerShown: false }}
             component={SignUpScreen}
           />
+
+         <Stack.Screen
+            name="ForgotScreen"
+            options={{ headerShown: false }}
+            component={ForgotScreen}
+          />
+
+          <Stack.Screen
+            name="ResetPasswordScreen"
+            options={{ headerShown: false }}
+            component={ResetPasswordScreen}
+          />
+
+
           <Stack.Screen
             name="HomeScreen"
             options={{ headerShown: false, animationEnabled: false }}

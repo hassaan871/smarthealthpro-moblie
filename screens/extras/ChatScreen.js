@@ -215,6 +215,7 @@ const ChatsScreen = () => {
                 isBotChat={true}
               />
             )}
+
             <View style={styles.contentContainer}>
               <Pressable
                 onPress={() => chooseOption("Chats")}

@@ -10,8 +10,16 @@ const Chat = ({ item, isBotChat }) => {
   const { userInfo } = useContext(Context);
 
   const handleChatPress = async () => {
-    // Existing chat press logic...
+    try {
+      // Navigate to your chatbot screen
+      navigation.navigate("BotChattingScreen", {
+        botName: "ChatBot",
+      });
+    } catch (error) {
+      console.error("Error navigating to bot chat:", error);
+    }
   };
+  
 
   const handleDelete = async () => {
     console.log(`Attempting to delete conversation with ID: ${item.convoID}`);

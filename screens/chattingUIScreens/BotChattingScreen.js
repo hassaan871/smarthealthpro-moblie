@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   FlatList,
   Button,
+  Alert
 } from "react-native";
 import { Icon } from "react-native-elements";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -23,8 +24,10 @@ import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Context from "../../Helper/context";
 import { BottomSheet, ListItem } from "react-native-elements";
+import { FontAwesome } from "@expo/vector-icons";
 
 const uuidv4 = () => {
+
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = Math.floor(Math.random() * 16);
     const v = c === "x" ? r : (r % 4) + 8;
@@ -55,12 +58,12 @@ const BotChattingScreen = ({ route }) => {
   }, []);
 
   const formatTextWithBold = (text) => {
-    const parts = text.split(/(\*\*.*?\*\*)/); // Split on bold markers (**)
-    return parts.map((part, index) => {
-      if (part.startsWith("**") && part.endsWith("**")) {
+    const parts = text?.split(/(\*\*.*?\*\*)/); // Split on bold markers (**)
+    return parts?.map((part, index) => {
+      if (part?.startsWith("**") && part?.endsWith("**")) {
         return (
           <Text key={index} style={{ fontWeight: "bold" }}>
-            {part.slice(2, -2)}
+            {part?.slice(2, -2)}
           </Text>
         );
       }
@@ -105,11 +108,11 @@ const BotChattingScreen = ({ route }) => {
         }
       );
 
-      const respData = response.data.response;
+      const respData = response?.data?.response;
       console.log("Response from backend:", respData);
 
       // Extract [PRIORITY] section if it exists
-      if (respData.toLowerCase().includes("[priority]")) {
+      if (respData?.toLowerCase()?.includes("[priority]")) {
         const priorityMatch = respData
           .toLowerCase()
           .match(/\[priority\](.*?)(?=\[disease\])/s);
@@ -146,7 +149,7 @@ const BotChattingScreen = ({ route }) => {
           kidney: 0,
           hypertension: 0,
         };
-        const diseaseLines = diseaseSection.split("\n");
+        const diseaseLines = diseaseSection?.split("\n");
 
         // Loop through each line and extract disease and percentage
         diseaseLines.forEach((line) => {
@@ -197,58 +200,91 @@ const BotChattingScreen = ({ route }) => {
 
   const handleFileSelection = async () => {
     try {
-      const response = await DocumentPicker.getDocumentAsync({
+      console.log("File selection started");
+      
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const result = await DocumentPicker.getDocumentAsync({
         type: "*/*",
       });
-
-      if (response.assets && response.assets.length > 0 && !response.canceled) {
-        const file = response.assets[0];
-        const fileMessage = {
-          author: patientId,
-          createdAt: Date.now(),
-          id: uuidv4(),
-          mimeType: file.mimeType,
-          name: file?.name,
-          size: file.size,
-          type: "file",
-          uri: file.uri,
-        };
-        addMessage(fileMessage);
-
-        const fileUri = FileSystem.documentDirectory + file?.name;
-        await FileSystem.copyAsync({
-          from: file.uri,
-          to: fileUri,
-        });
-
-        const formData = new FormData();
-        formData.append("file", {
-          uri: fileUri,
-          type: file.mimeType,
-          name: file?.name,
-        });
-
-        const chatResponse = await axios.post(
-          "http://127.0.0.1:8082/chat",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        const receivedMessage = {
-          author: chatbot,
-          createdAt: Date.now(),
-          id: uuidv4(),
-          text: chatResponse.data.response,
-          type: "text",
-        };
-        addMessage(receivedMessage);
+  
+      console.log("Document picker result:", JSON.stringify(result, null, 2));
+  
+      if (result.type === "cancel") {
+        console.log("User cancelled file selection");
+        return;
+      }
+  
+      if (result.assets && result.assets.length > 0) {
+        const file = result.assets[0];
+        console.log("Selected file:", JSON.stringify(file, null, 2));
+  
+        if (file.uri && file.name && file.mimeType) {
+          console.log("Creating file message");
+          const fileMessage = {
+            author: patientId,
+            createdAt: Date.now(),
+            id: uuidv4(),
+            mimeType: file.mimeType,
+            name: file.name,
+            size: file.size,
+            type: "file",
+            uri: file.uri,
+          };
+          console.log("File message created:", JSON.stringify(fileMessage, null, 2));
+          
+          addMessage(fileMessage);
+  
+          console.log("Copying file");
+          const fileUri = FileSystem.documentDirectory + file.name;
+          await FileSystem.copyAsync({
+            from: file.uri,
+            to: fileUri,
+          });
+          console.log("File copied to:", fileUri);
+  
+          console.log("Creating form data");
+          const formData = new FormData();
+          formData.append("file", {
+            uri: fileUri,
+            type: file.mimeType,
+            name: file.name,
+          });
+  
+          console.log("Sending request to server");
+          const chatResponse = await axios.post(
+            "http://192.168.100.135:8082/chat",
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+          console.log("Server response:", JSON.stringify(chatResponse.data, null, 2));
+  
+          console.log("Creating received message");
+          const receivedMessage = {
+            author: chatbot,
+            createdAt: Date.now(),
+            id: uuidv4(),
+            text: chatResponse.data.response,
+            type: "text",
+          };
+          console.log("Received message created:", JSON.stringify(receivedMessage, null, 2));
+          
+          addMessage(receivedMessage);
+        } else {
+          console.log("Invalid file:", JSON.stringify(file, null, 2));
+          Alert.alert("Error", "Invalid file. Please try again.");
+        }
+      } else {
+        console.log("No file selected");
+        Alert.alert("Error", "No file was selected.");
       }
     } catch (error) {
-      console.error("Error selecting or uploading file:", error);
+      console.error("Error in handleFileSelection:", error);
+      Alert.alert("Error", "An error occurred while selecting or uploading the file.");
     }
   };
 
@@ -335,35 +371,46 @@ const BotChattingScreen = ({ route }) => {
             scrollViewRef.current?.scrollToEnd({ animated: true })
           }
         >
-          {messages.map((item, index) => (
-            <Pressable
-              key={index}
-              style={[
-                styles.message,
-                item?.author === patientId
-                  ? styles.sentMessage
-                  : styles.receivedMessage,
-              ]}
-            >
-              <Text
-                style={
-                  item?.author === patientId
-                    ? styles.messageContent
-                    : styles.receivedMessageContent
-                }
-              >
-                {formatTextWithBold(item?.text)}
-              </Text>
-              <Text style={styles.messageTime}>
-                {formatTime(item?.createdAt)}
-              </Text>
-            </Pressable>
-          ))}
+         {messages?.map((item, index) => (
+  <Pressable
+    key={index}
+    style={[
+      styles.message,
+      item?.author === patientId
+        ? styles.sentMessage
+        : styles.receivedMessage,
+    ]}
+  >
+    {item.type === 'file' ? (
+      <View style={styles.fileMessage}>
+        <FontAwesome name="file-pdf-o" size={24} color="red" />
+        <View style={styles.fileInfo}>
+          <Text style={styles.fileName}>{item.name}</Text>
+          <Text style={styles.fileSize}>{(item.size / 1024).toFixed(2)} KB</Text>
+        </View>
+      </View>
+    ) : (
+      <Text
+        style={
+          item?.author === patientId
+            ? styles.messageContent
+            : styles.receivedMessageContent
+        }
+      >
+        {formatTextWithBold(item?.text)}
+      </Text>
+    )}
+    <Text style={styles.messageTime}>
+      {formatTime(item?.createdAt)}
+    </Text>
+  </Pressable>
+))}
         </ScrollView>
       )}
 
       <View style={styles.inputContainer}>
-        <Entypo name="emoji-happy" size={24} color="gray" />
+        {/* <Entypo name="emoji-happy" size={24} color="gray" /> */}
+        <FontAwesome onPress={handleFileSelection} name="file-pdf-o" size={24} color="gray" />
         <TextInput
           aria-disabled={conversationEnd ? true : false}
           placeholder="Type your message..."
@@ -373,12 +420,12 @@ const BotChattingScreen = ({ route }) => {
           style={styles.textInput}
         />
         <View style={styles.iconContainer}>
-          <Entypo
+          {/* <Entypo
             name="camera"
             size={24}
             color="gray"
             onPress={handleFileSelection}
-          />
+          /> */}
           <Feather name="mic" size={24} color="gray" />
         </View>
         <Pressable style={styles.sendButton} onPress={handleSendPress}>
@@ -537,6 +584,22 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 20,
+  },
+  fileMessage: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 5,
+  },
+  fileInfo: {
+    marginLeft: 10,
+  },
+  fileName: {
+    fontWeight: 'bold',
+    color: 'white', // Adjust this color as needed
+  },
+  fileSize: {
+    color: "#b0b0b0",
+    fontSize: 12,
   },
 });
 

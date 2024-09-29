@@ -14,10 +14,10 @@ const Chat = ({ item, isBotChat }) => {
   };
 
   const handleDelete = async () => {
+    console.log(`Attempting to delete conversation with ID: ${item.convoID}`);
     try {
-      const response = await axios.delete(`http://192.168.100.135:5000/chats/${item.convoID}`);
+      const response = await axios.delete(`http://192.168.100.135:5000/chats/deleteChat/${item.convoID}`);
       if (response.status === 200) {
-        // Handle successful deletion (e.g., update state, show a message)
         console.log("Conversation deleted successfully");
       }
     } catch (error) {
@@ -25,6 +25,7 @@ const Chat = ({ item, isBotChat }) => {
       Alert.alert("Error", "Failed to delete conversation. Please try again later.");
     }
   };
+  
 
   const confirmDelete = () => {
     Alert.alert(

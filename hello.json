@@ -1,0 +1,47 @@
+{
+  "_id": "66e296fb1c27a2a94f6cbabe",
+  "about": "Dr. Lucy Clark is renowned for her expertise in skin care and treatment.",
+  "address": "21 Pine Road, Hilltown",
+  "cnic": "3234567890123",
+  "education": [
+    {
+      "_id": "66e296fb1c27a2a94f6cbabf",
+      "degree": "MBBS",
+      "institution": "Yale University",
+      "year": "2009"
+    },
+    {
+      "_id": "66e296fb1c27a2a94f6cbac0",
+      "degree": "MD",
+      "institution": "Yale University",
+      "year": "2013"
+    }
+  ],
+  "numPatients": 150,
+  "officeHours": {
+    "friday": "10:00 AM - 4:00 PM",
+    "monday": "10:00 AM - 6:00 PM",
+    "saturday": "Closed",
+    "sunday": "Closed",
+    "thursday": "10:00 AM - 6:00 PM",
+    "tuesday": "10:00 AM - 6:00 PM",
+    "wednesday": "10:00 AM - 6:00 PM"
+  },
+  "rating": 4.9,
+  "reviewCount": 300,
+  "satisfactionRatio": 5.592968059453899,
+  "specialization": "Kidney",
+  "user": {
+    "__v": 0,
+    "_id": "66e296801c27a2a94f6cbab4",
+    "avatar": "https://randomuser.me/api/portraits/women/15.jpg",
+    "devices": [],
+    "email": "janedoe@medical.com",
+    "fullName": "Dr. Jane Doe",
+    "gender": "female",
+    "notes": [],
+    "password": "$2b$10$j4eivwfNUlIgOV0h9A3QMOZQ.Uiuruzogi0q.gIUY9TVRJLpf89b.",
+    "role": "doctor",
+    "userName": "dr.janedoe"
+  }
+}

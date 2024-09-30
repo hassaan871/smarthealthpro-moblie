@@ -3,7 +3,11 @@ import { View, Text, Image, StyleSheet, Pressable, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import Context from "../../Helper/context";
-import { GestureHandlerRootView, GestureDetector, Swipeable } from 'react-native-gesture-handler';
+import {
+  GestureHandlerRootView,
+  GestureDetector,
+  Swipeable,
+} from "react-native-gesture-handler";
 
 const Chat = ({ item, isBotChat }) => {
   const navigation = useNavigation();
@@ -19,21 +23,24 @@ const Chat = ({ item, isBotChat }) => {
       console.error("Error navigating to bot chat:", error);
     }
   };
-  
 
   const handleDelete = async () => {
     console.log(`Attempting to delete conversation with ID: ${item.convoID}`);
     try {
-      const response = await axios.delete(`http://192.168.100.135:5000/chats/deleteChat/${item.convoID}`);
+      const response = await axios.delete(
+        `http://192.168.18.124:5000/chats/deleteChat/${item.convoID}`
+      );
       if (response.status === 200) {
         console.log("Conversation deleted successfully");
       }
     } catch (error) {
       console.error("Error deleting conversation:", error);
-      Alert.alert("Error", "Failed to delete conversation. Please try again later.");
+      Alert.alert(
+        "Error",
+        "Failed to delete conversation. Please try again later."
+      );
     }
   };
-  
 
   const confirmDelete = () => {
     Alert.alert(
@@ -42,19 +49,16 @@ const Chat = ({ item, isBotChat }) => {
       [
         {
           text: "Cancel",
-          style: "cancel"
+          style: "cancel",
         },
-        { text: "Delete", onPress: handleDelete }
+        { text: "Delete", onPress: handleDelete },
       ]
     );
   };
 
   const renderRightActions = () => {
     return (
-      <Pressable
-        onPress={confirmDelete}
-        style={styles.deleteButton}
-      >
+      <Pressable onPress={confirmDelete} style={styles.deleteButton}>
         <Text style={styles.deleteText}>Delete</Text>
       </Pressable>
     );
@@ -62,17 +66,14 @@ const Chat = ({ item, isBotChat }) => {
 
   return (
     <GestureHandlerRootView>
-      <Swipeable
-        renderRightActions={renderRightActions}
-      >
+      <Swipeable renderRightActions={renderRightActions}>
         <Pressable
           onPress={() => {
             if (isBotChat) {
               handleChatPress();
             } else {
               navigation.navigate("ChatRoom", {
-                name: item?.name,
-                image: item?.avatar,
+                item,
                 convoID: item?.convoID,
                 receiverId: item?.receiverId,
               });
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: "80%",
     marginHorizontal: 4,
-    borderRadius:12
+    borderRadius: 12,
   },
   deleteText: {
     color: "white",

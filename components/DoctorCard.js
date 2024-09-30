@@ -74,44 +74,17 @@ const DoctorCard = ({ item, isBook, closeModal }) => {
   };
 
   const handleChatPress = async (item) => {
-    try {
-      const currentUserId = userInfo?._id;
-      const otherUserId = item?.user?._id;
-      console.log("current user: ", userInfo);
-      console.log("other user: ", item);
-      console.log(`creating chat btw ${currentUserId} and ${otherUserId}`);
-
-      // Make a POST request to create or retrieve a conversation
-      const response = await axios.post(
-        "http://10.135.88.124:5000/conversations",
-        {
-          currentUserId,
-          otherUserId,
-          currentUserObjectIdAvatar: userInfo?.avatar,
-          otherUserObjectIdAvatar: item?.user?.avatar,
-          currentUserObjectIdName: userInfo?.fullName,
-          otherUserObjectIdName: item?.user?.fullName,
-        }
-      );
-      // console.log("full res: ", response.data);
-      const conversationId = response.data?._id;
-      console.log("convo id: ", conversationId);
-      // Navigate to the ChatScreen with the conversationId
-      navigation.navigate("ChatRoom", {
-        name: item?.name,
-        image: item?.avatar,
-        convoID: conversationId,
-      });
-    } catch (error) {
-      console.error("Error creating or retrieving conversation:", error);
-    }
+    console.log("item from doctor card: ", item);
+    navigation.navigate("ChatRoom", {
+      item: item.user,
+      convoID: null,
+    });
   };
 
   return (
     <Pressable
       onPress={() => {
-        if(closeModal) {
-
+        if (closeModal) {
           closeModal();
         }
         navigation.navigate("DoctorDetail", {

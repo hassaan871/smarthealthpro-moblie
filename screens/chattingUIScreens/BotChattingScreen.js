@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
   FlatList,
   Button,
-  Alert
+  Alert,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -27,7 +27,6 @@ import { BottomSheet, ListItem } from "react-native-elements";
 import { FontAwesome } from "@expo/vector-icons";
 
 const uuidv4 = () => {
-
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = Math.floor(Math.random() * 16);
     const v = c === "x" ? r : (r % 4) + 8;
@@ -80,24 +79,23 @@ const BotChattingScreen = ({ route }) => {
 
   const handleMessagePress = async (item) => {
     console.log("sdfs", item);
-    
-    if (item.type === 'file' && item.mimeType === 'application/pdf') {
+
+    if (item.type === "file" && item.mimeType === "application/pdf") {
       const fileInfo = await FileSystem.getInfoAsync(item.uri);
       console.log("File Info:", fileInfo);
-  
+
       if (!fileInfo.exists) {
         Alert.alert("Error", "The file does not exist.");
         return;
       }
-  
+
       // Navigate to the PdfViewer component
-      navigation.navigate('PdfViewer', { uri: item.uri });
-      console.log("item",item.uri)
+      navigation.navigate("PdfViewer", { uri: item.uri });
+      console.log("item", item.uri);
     } else {
       Alert.alert("Message", "This is not a PDF file.");
     }
   };
-  
 
   const handleSendPress = async () => {
     // Ensure message is not empty
@@ -122,7 +120,7 @@ const BotChattingScreen = ({ route }) => {
 
       // Send request to the backend with the chat message
       const response = await axios.post(
-        "http://192.168.100.135:8082/chat",
+        "http://192.168.18.124:8082/chat",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -196,7 +194,7 @@ const BotChattingScreen = ({ route }) => {
         console.log("Payload to backend:", payload);
 
         const doctorResponse = await axios.post(
-          "http://192.168.100.135:5000/appointment/getAvailableDoctors",
+          "http://192.168.18.124:5000/appointment/getAvailableDoctors",
           payload
         );
 
@@ -222,24 +220,24 @@ const BotChattingScreen = ({ route }) => {
   const handleFileSelection = async () => {
     try {
       console.log("File selection started");
-      
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       const result = await DocumentPicker.getDocumentAsync({
         type: "*/*",
       });
-  
+
       console.log("Document picker result:", JSON.stringify(result, null, 2));
-  
+
       if (result.type === "cancel") {
         console.log("User cancelled file selection");
         return;
       }
-  
+
       if (result.assets && result.assets.length > 0) {
         const file = result.assets[0];
         console.log("Selected file:", JSON.stringify(file, null, 2));
-  
+
         if (file.uri && file.name && file.mimeType) {
           console.log("Creating file message");
           const fileMessage = {
@@ -252,10 +250,13 @@ const BotChattingScreen = ({ route }) => {
             type: "file",
             uri: file.uri,
           };
-          console.log("File message created:", JSON.stringify(fileMessage, null, 2));
-          
+          console.log(
+            "File message created:",
+            JSON.stringify(fileMessage, null, 2)
+          );
+
           addMessage(fileMessage);
-  
+
           console.log("Copying file");
           const fileUri = FileSystem.documentDirectory + file.name;
           await FileSystem.copyAsync({
@@ -263,7 +264,7 @@ const BotChattingScreen = ({ route }) => {
             to: fileUri,
           });
           console.log("File copied to:", fileUri);
-  
+
           console.log("Creating form data");
           const formData = new FormData();
           formData.append("file", {
@@ -271,10 +272,10 @@ const BotChattingScreen = ({ route }) => {
             type: file.mimeType,
             name: file.name,
           });
-  
+
           console.log("Sending request to server");
           const chatResponse = await axios.post(
-            "http://192.168.100.135:8082/chat",
+            "http://192.168.18.124:8082/chat",
             formData,
             {
               headers: {
@@ -282,8 +283,11 @@ const BotChattingScreen = ({ route }) => {
               },
             }
           );
-          console.log("Server response:", JSON.stringify(chatResponse.data, null, 2));
-  
+          console.log(
+            "Server response:",
+            JSON.stringify(chatResponse.data, null, 2)
+          );
+
           console.log("Creating received message");
           const receivedMessage = {
             author: chatbot,
@@ -292,8 +296,11 @@ const BotChattingScreen = ({ route }) => {
             text: chatResponse.data.response,
             type: "text",
           };
-          console.log("Received message created:", JSON.stringify(receivedMessage, null, 2));
-          
+          console.log(
+            "Received message created:",
+            JSON.stringify(receivedMessage, null, 2)
+          );
+
           addMessage(receivedMessage);
         } else {
           console.log("Invalid file:", JSON.stringify(file, null, 2));
@@ -305,7 +312,10 @@ const BotChattingScreen = ({ route }) => {
       }
     } catch (error) {
       console.error("Error in handleFileSelection:", error);
-      Alert.alert("Error", "An error occurred while selecting or uploading the file.");
+      Alert.alert(
+        "Error",
+        "An error occurred while selecting or uploading the file."
+      );
     }
   };
 
@@ -392,47 +402,54 @@ const BotChattingScreen = ({ route }) => {
             scrollViewRef.current?.scrollToEnd({ animated: true })
           }
         >
-         {messages?.map((item, index) => (
-  <Pressable
-    key={index}
-    style={[
-      styles.message,
-      item?.author === patientId
-        ? styles.sentMessage
-        : styles.receivedMessage,
-    ]}
-    onPress={() => handleMessagePress(item)}
-  >
-    {item.type === 'file' ? (
-      <View style={styles.fileMessage}>
-        <FontAwesome name="file-pdf-o" size={24} color="red" />
-        <View style={styles.fileInfo}>
-          <Text style={styles.fileName}>{item.name}</Text>
-          <Text style={styles.fileSize}>{(item.size / 1024).toFixed(2)} KB</Text>
-        </View>
-      </View>
-    ) : (
-      <Text
-        style={
-          item?.author === patientId
-            ? styles.messageContent
-            : styles.receivedMessageContent
-        }
-      >
-        {formatTextWithBold(item?.text)}
-      </Text>
-    )}
-    <Text style={styles.messageTime}>
-      {formatTime(item?.createdAt)}
-    </Text>
-  </Pressable>
-))}
+          {messages?.map((item, index) => (
+            <Pressable
+              key={index}
+              style={[
+                styles.message,
+                item?.author === patientId
+                  ? styles.sentMessage
+                  : styles.receivedMessage,
+              ]}
+              onPress={() => handleMessagePress(item)}
+            >
+              {item.type === "file" ? (
+                <View style={styles.fileMessage}>
+                  <FontAwesome name="file-pdf-o" size={24} color="red" />
+                  <View style={styles.fileInfo}>
+                    <Text style={styles.fileName}>{item.name}</Text>
+                    <Text style={styles.fileSize}>
+                      {(item.size / 1024).toFixed(2)} KB
+                    </Text>
+                  </View>
+                </View>
+              ) : (
+                <Text
+                  style={
+                    item?.author === patientId
+                      ? styles.messageContent
+                      : styles.receivedMessageContent
+                  }
+                >
+                  {formatTextWithBold(item?.text)}
+                </Text>
+              )}
+              <Text style={styles.messageTime}>
+                {formatTime(item?.createdAt)}
+              </Text>
+            </Pressable>
+          ))}
         </ScrollView>
       )}
 
       <View style={styles.inputContainer}>
         {/* <Entypo name="emoji-happy" size={24} color="gray" /> */}
-        <FontAwesome onPress={handleFileSelection} name="file-pdf-o" size={24} color="gray" />
+        <FontAwesome
+          onPress={handleFileSelection}
+          name="file-pdf-o"
+          size={24}
+          color="gray"
+        />
         <TextInput
           aria-disabled={conversationEnd ? true : false}
           placeholder="Type your message..."
@@ -608,16 +625,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   fileMessage: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 5,
   },
   fileInfo: {
     marginLeft: 10,
   },
   fileName: {
-    fontWeight: 'bold',
-    color: 'white', // Adjust this color as needed
+    fontWeight: "bold",
+    color: "white", // Adjust this color as needed
   },
   fileSize: {
     color: "#b0b0b0",

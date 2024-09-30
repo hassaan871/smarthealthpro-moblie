@@ -1,38 +1,55 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from "react-native";
+import axios from "axios";
+import { useNavigation } from "@react-navigation/native";
 
 const ResetPasswordScreen = ({ route }) => {
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   const { userId, token } = route.params; // Get userId and token from route params
-  const [newPassword, setNewPassword] = useState('');
+  const [newPassword, setNewPassword] = useState("");
 
   const handleResetPassword = async () => {
     if (!newPassword) {
-        Alert.alert('Error', 'Please enter a new password.');
-        return;
+      Alert.alert("Error", "Please enter a new password.");
+      return;
     }
 
     try {
-        const response = await axios.post(`http://192.168.100.135:5000/user/reset-password/${userId}/${token}`, {
-            password: newPassword,
-        });
-
-        Alert.alert('Success', response.data.msg || 'Password has been reset successfully.', [
-            {
-                text: 'OK',
-                onPress: () => navigation.navigate('Login'), // Navigate back to the login screen
-            },
-        ]);
-    } catch (error) {
-        if (error.response) {
-            Alert.alert('Error', error.response.data.error || 'Something went wrong.');
-        } else {
-            Alert.alert('Error', 'Failed to reset password. Please try again.');
+      const response = await axios.post(
+        `http://192.168.18.124:5000/user/reset-password/${userId}/${token}`,
+        {
+          password: newPassword,
         }
+      );
+
+      Alert.alert(
+        "Success",
+        response.data.msg || "Password has been reset successfully.",
+        [
+          {
+            text: "OK",
+            onPress: () => navigation.navigate("Login"), // Navigate back to the login screen
+          },
+        ]
+      );
+    } catch (error) {
+      if (error.response) {
+        Alert.alert(
+          "Error",
+          error.response.data.error || "Something went wrong."
+        );
+      } else {
+        Alert.alert("Error", "Failed to reset password. Please try again.");
+      }
     }
-};
+  };
 
   return (
     <View style={styles.container}>
@@ -45,7 +62,7 @@ const ResetPasswordScreen = ({ route }) => {
         value={newPassword}
         onChangeText={setNewPassword}
       />
-      
+
       <TouchableOpacity style={styles.button} onPress={handleResetPassword}>
         <Text style={styles.buttonText}>Reset Password</Text>
       </TouchableOpacity>
@@ -68,7 +85,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   input: {
-    width: '80%',
+    width: "80%",
     backgroundColor: "#2C2C2E",
     borderColor: "#cbd5e0",
     borderWidth: 1,
@@ -79,7 +96,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    width: '80%',
+    width: "80%",
     backgroundColor: "#4A90E2",
     paddingVertical: 12,
     borderRadius: 8,

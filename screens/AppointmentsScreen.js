@@ -10,18 +10,25 @@ import {
   TextInput,
   RefreshControl,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import Icon2 from "react-native-vector-icons/MaterialIcons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import Context from "../Helper/context";
 import CutomBottomBar from "./tabNavScreens/CutomBottomBar";
+import { appBarClasses } from "@mui/material";
 
 const AppointmentsScreen = () => {
   const [allAppointments, setAllAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [reviewModalVisible, setReviewModalVisible] = useState(false);
+  const [seeNotesModalVisible, setSeeNotesModalVisible] = useState(false);
+  const [notesModalVisible, setNotesModalVisible] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [note, setNotes] = useState("");
   const [review, setReview] = useState("");
   const [rating, setRating] = useState(0);
   const { userInfo, setUserInfo, popularDoctors, setPopularDoctors } =
@@ -29,6 +36,7 @@ const AppointmentsScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
   const [cancelConfirmation, setCancelConfirmation] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchAllAppointments();
@@ -42,7 +50,7 @@ const AppointmentsScreen = () => {
     try {
       const userID = userInfo._id;
       console.log("user id is from all appointments: ", userID);
-      const link = `http://192.168.100.135:5000/appointment/getAllAppointments?${
+      const link = `http://192.168.18.124:5000/appointment/getAllAppointments?${
         userInfo.role === "doctor" ? "doctorId" : "patientId"
       }=${userID}`;
 
@@ -96,7 +104,7 @@ const AppointmentsScreen = () => {
   const confirmCancellation = async () => {
     try {
       await axios.delete(
-        `http://192.168.100.135:5000/appointment/cancelAppointment/${selectedAppointment._id}`
+        `http://192.168.18.124:5000/appointment/cancelAppointment/${selectedAppointment._id}`
       );
       fetchAllAppointments(); // Refresh the list
       setCancelConfirmation(false);
@@ -107,7 +115,7 @@ const AppointmentsScreen = () => {
 
   const submitReview = async () => {
     try {
-      await axios.post("http://192.168.100.135:5000/review/addReview", {
+      await axios.post("http://192.168.18.124:5000/review/addReview", {
         appointmentId: selectedAppointment._id,
         rating,
         comment: review,
@@ -120,7 +128,54 @@ const AppointmentsScreen = () => {
       console.error("Error submitting review:", error);
     }
   };
+  const submitNotes = async () => {
+    console.log("appointment id is: ", selectedAppointment._id);
+    try {
+      await axios.post("http://192.168.18.124:5000/user/addNotes", {
+        appointmentId: selectedAppointment._id,
+        note: note,
+      });
+      setNotesModalVisible(false);
+      setNotes("");
+      fetchAllAppointments(); // Refresh the list to show updated review status
+    } catch (error) {
+      console.error("Error submitting review:", error);
+    }
+  };
 
+  const fetchNotes = async (appointment) => {
+    console.log("fetchNotes called");
+    console.log("selectedAppointment:", appointment);
+
+    if (!appointment || !appointment.patient || !appointment.patient.id) {
+      console.error("Invalid selectedAppointment structure");
+      return;
+    }
+
+    const patientId = appointment.patient.id;
+    console.log("fetching notes for patient ID:", patientId);
+
+    const link = `http://192.168.18.124:5000/user/getUserInfo/${patientId}`;
+    console.log("API request URL:", link);
+
+    setIsLoading(true);
+    try {
+      const response = await axios.get(link);
+      console.log("API response:", response.data.user.notes);
+      const notes = response.data.user.notes;
+
+      console.log("notes doctor id: ", notes[0].doctorId);
+      console.log("user id: ", userInfo._id);
+      const doctorNote = notes.find((note) => note.doctorId === userInfo._id);
+      console.log("doctor note: ", doctorNote.note);
+      setNotes(doctorNote.note); // Assuming the notes are in the response data
+      // fetchAllAppointments(); // This line seems unnecessary here
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const renderAppointment = ({ item }) => (
     <View style={styles.appointmentCard}>
       <View style={styles.profileContainer}>
@@ -167,17 +222,53 @@ const AppointmentsScreen = () => {
         </Text>
       </View>
       <View style={styles.actionButtons}>
-        {item.appointmentStatus === "visited" && !item.reviewed && (
-          <TouchableOpacity
-            style={[styles.actionButton, styles.reviewButton]}
-            onPress={() => {
-              setSelectedAppointment(item);
-              setModalVisible(true);
-            }}
-          >
-            <Icon name="star-outline" size={20} color="#FFD700" />
-            <Text style={styles.actionButtonText}>Review</Text>
-          </TouchableOpacity>
+        {item.appointmentStatus === "visited" && (
+          <>
+            <TouchableOpacity
+              style={styles.noteButton}
+              onPress={async () => {
+                console.log("Notes button pressed");
+                setSelectedAppointment(item);
+                console.log("Selected appointment:", item);
+
+                try {
+                  await fetchNotes(item);
+                  console.log("fetchNotes completed");
+
+                  if (userInfo.role === "doctor") {
+                    // console.log(
+                    //   "Setting notesModalVisible to true: ",
+                    //   selectedAppointment
+                    // );
+                    setNotesModalVisible(true);
+                  } else {
+                    console.log("Setting seeNotesModalVisible to true");
+                    setSeeNotesModalVisible(true);
+                  }
+                } catch (error) {
+                  console.error("Error in notes button press handler:", error);
+                }
+              }}
+            >
+              <Icon2 name="edit-note" size={30} color="#4A90E2" />
+              <Text style={{ ...styles.actionButtonText, top: 8 }}>Notes</Text>
+            </TouchableOpacity>
+
+            {userInfo.role === "patient" && (
+              <TouchableOpacity
+                style={styles.reviewButton}
+                onPress={() => {
+                  setSelectedAppointment(item);
+                  setReviewModalVisible(true);
+                }}
+              >
+                <Icon name="star-outline" size={20} color="#FFD700" />
+                <Text style={{ ...styles.actionButtonText, top: 6 }}>
+                  Review
+                </Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
         {(item.appointmentStatus === "tbd" ||
           item.appointmentStatus === "pending") && (
@@ -185,8 +276,8 @@ const AppointmentsScreen = () => {
             style={[styles.actionButton, styles.cancelButton]}
             onPress={() => cancelAppointment(item._id)}
           >
-            <Icon name="close-outline" size={20} color="#FF6B6B" />
-            <Text style={styles.actionButtonText}>Cancel</Text>
+            <Icon name="close-outline" size={30} color="#FF6B6B" />
+            <Text style={{ ...styles.actionButtonText }}>Cancel</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -219,6 +310,7 @@ const AppointmentsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {isLoading && <ActivityIndicator size="large" color="#4A90E2" />}
       <View style={styles.header}>
         <Text style={styles.headerText}>All Appointments</Text>
       </View>
@@ -235,44 +327,35 @@ const AppointmentsScreen = () => {
       <Modal
         animationType="slide"
         transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        visible={reviewModalVisible}
+        onRequestClose={() => setReviewModalVisible(false)}
       >
         <TouchableOpacity
           style={styles.centeredView}
           activeOpacity={1}
-          onPress={() => setModalVisible(false)}
+          onPress={() => setReviewModalVisible(false)}
         >
           <TouchableOpacity
             activeOpacity={1}
             style={styles.modalView}
             onPress={(e) => e.stopPropagation()}
           >
-            <Text style={styles.modalTitle}>
-              {userInfo.role === "doctor"
-                ? "Add Remarks"
-                : "Rate your appointment"}
-            </Text>
-            {userInfo.role === "patient" && (
-              <View style={styles.ratingContainer}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <TouchableOpacity key={star} onPress={() => setRating(star)}>
-                    <Icon
-                      name={star <= rating ? "star" : "star-outline"}
-                      size={30}
-                      color="#FFD700"
-                    />
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
+            <Text style={styles.modalTitle}>Review</Text>
+
+            <View style={styles.ratingContainer}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <TouchableOpacity key={star} onPress={() => setRating(star)}>
+                  <Icon
+                    name={star <= rating ? "star" : "star-outline"}
+                    size={30}
+                    color="#FFD700"
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
             <TextInput
               style={styles.reviewInput}
-              placeholder={
-                userInfo.role === "doctor"
-                  ? "Write your remarks here"
-                  : "Write your review here"
-              }
+              placeholder={"Write your review here"}
               placeholderTextColor="#666"
               multiline
               numberOfLines={4}
@@ -283,11 +366,67 @@ const AppointmentsScreen = () => {
               style={styles.submitButton}
               onPress={submitReview}
             >
-              <Text style={styles.submitButtonText}>
-                {userInfo.role === "doctor"
-                  ? "Submit Remarks"
-                  : "Submit Review"}
-              </Text>
+              <Text style={styles.submitButtonText}>Submit Review</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={seeNotesModalVisible}
+        onRequestClose={() => setSeeNotesModalVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.centeredView}
+          activeOpacity={1}
+          onPress={() => setSeeNotesModalVisible(false)}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            style={styles.modalView}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <Text style={styles.modalTitle}>Notes</Text>
+            <Text style={styles.modalText}>{note}</Text>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={notesModalVisible}
+        onRequestClose={() => setNotesModalVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.centeredView}
+          activeOpacity={1}
+          onPress={() => setNotesModalVisible(false)}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            style={styles.modalView}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <Text style={styles.modalTitle}>Add Notes</Text>
+
+            <TextInput
+              style={styles.reviewInput}
+              placeholder={"Write your note here"}
+              placeholderTextColor="#666"
+              multiline
+              numberOfLines={4}
+              value={note}
+              onChangeText={setNotes}
+            />
+
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={() => {
+                submitNotes();
+              }}
+            >
+              <Text style={styles.submitButtonText}>Submit Notes</Text>
             </TouchableOpacity>
           </TouchableOpacity>
         </TouchableOpacity>
@@ -408,7 +547,7 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     flexDirection: "row",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
   },
   statusText: {
     fontSize: 12,
@@ -465,14 +604,20 @@ const styles = StyleSheet.create({
   },
   actionButtonText: {
     color: "#fff",
-    marginLeft: 5,
-    fontSize: 12,
+    marginLeft: 8,
+    fontSize: 10,
+  },
+  noteButton: {
+    flexDirection: "row",
+    top: 10,
   },
   reviewButton: {
-    backgroundColor: "#2C2C2E",
+    flexDirection: "row",
+    top: 13,
   },
   cancelButton: {
-    backgroundColor: "#2C2C2E",
+    flexDirection: "row",
+    top: 3,
   },
   centeredView: {
     flex: 1,
@@ -498,6 +643,11 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 15,
+  },
+  modalText: {
+    fontSize: 10,
     color: "#fff",
     marginBottom: 15,
   },

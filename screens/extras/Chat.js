@@ -28,7 +28,7 @@ const Chat = ({ item, isBotChat }) => {
     console.log(`Attempting to delete conversation with ID: ${item.convoID}`);
     try {
       const response = await axios.delete(
-        `http://192.168.18.124:5000/chats/deleteChat/${item.convoID}`
+        `http://192.168.1.10:5000/chats/deleteChat/${item.convoID}`
       );
       if (response.status === 200) {
         console.log("Conversation deleted successfully");
@@ -81,7 +81,15 @@ const Chat = ({ item, isBotChat }) => {
           }}
         >
           <View style={styles.container}>
-            <Image source={{ uri: item.avatar }} style={styles.avatar} />
+            <Image
+              source={{
+                uri:
+                  item?.avatar?.url?.length > 0
+                    ? item?.avatar?.url
+                    : item?.avatar,
+              }}
+              style={styles.avatar}
+            />
             <View style={styles.chatInfo}>
               <Text style={styles.name} numberOfLines={1}>
                 {item.name}

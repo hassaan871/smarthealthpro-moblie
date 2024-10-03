@@ -93,7 +93,7 @@ const ChatRoom = ({ route }) => {
 
         // Make sure the URL uses http://10.0.2.2:5000 for Android emulator
         const adjustedUrl = pdfUrl.replace(
-          "http://192.168.18.124:5000",
+          "http://192.168.1.10:5000",
           "http://10.0.2.2:5000"
         );
 
@@ -217,7 +217,7 @@ const ChatRoom = ({ route }) => {
     if (convoID) {
       try {
         const response = await axios.get(
-          `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
+          `http://192.168.1.10:5000/conversations/getMessages/${convoID}`
         );
         // Decrypt messages here before setting to state
         const decryptedMessages = response.data.map((msg) => ({
@@ -284,7 +284,7 @@ const ChatRoom = ({ route }) => {
       if (!convoID) {
         console.log("Creating new conversation");
         const response = await axios.post(
-          "http://192.168.18.124:5000/conversations",
+          "http://10.0.2.2:5000/conversations",
           {
             currentUserId: userInfo._id,
             otherUserId: item._id,
@@ -310,8 +310,9 @@ const ChatRoom = ({ route }) => {
           timestamp: new Date(),
         };
       } else if (fileInfo) {
+        console.log("file info in chatroom: ", fileInfo);
         newMessage = {
-          content: "File shared",
+          content: encrypted("File shared"),
           sender: userInfo._id,
           conversationId: convoID ? convoID : conversationId,
           timestamp: new Date(),
@@ -336,7 +337,7 @@ const ChatRoom = ({ route }) => {
 
       console.log("Sending message to server");
       const response = await axios.post(
-        `http://192.168.18.124:5000/conversations/${
+        `http://10.0.2.2:5000/conversations/${
           convoID ? convoID : conversationId
         }/messages`,
         newMessage
@@ -345,7 +346,7 @@ const ChatRoom = ({ route }) => {
 
       console.log("Updating last message");
       await axios.put(
-        `http://192.168.18.124:5000/conversations/${
+        `http://10.0.2.2:5000/conversations/${
           convoID ? convoID : conversationId
         }/lastMessage`,
         {
@@ -384,7 +385,7 @@ const ChatRoom = ({ route }) => {
         <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
       ) : (
         <ScrollView
-          ref={scrollViewRef} // Attach the ref to ScrollView
+          ref={scrollViewRef}
           onContentSizeChange={() =>
             scrollViewRef.current?.scrollToEnd({ animated: true })
           }
@@ -420,7 +421,7 @@ const ChatRoom = ({ route }) => {
                       : styles.receivedMessageContent
                   }
                 >
-                  {item.content} {/* Content is already decrypted */}
+                  {item.content}
                 </Text>
               )}
               <Text style={styles.messageTime}>
@@ -565,6 +566,21 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 50,
     // marginBottom: 4,
+  },
+  fileMessage: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  fileInfo: {
+    marginLeft: 10,
+  },
+  fileName: {
+    color: "white",
+    fontSize: 14,
+  },
+  fileSize: {
+    color: "#b0b0b0",
+    fontSize: 12,
   },
 });
 

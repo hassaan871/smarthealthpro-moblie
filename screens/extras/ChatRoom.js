@@ -31,6 +31,7 @@ import Context from "../../Helper/context";
 import * as Crypto from "expo-crypto";
 var C = require("crypto-js");
 import CryptoES from "crypto-es";
+import messaging from "@react-native-firebase/messaging";
 
 const ChatRoom = ({ route }) => {
   const { item, convoID, receiverId } = route.params;
@@ -41,6 +42,19 @@ const ChatRoom = ({ route }) => {
   const [loading, setLoading] = useState(false);
   const { socket } = useSocketContext();
   const { userInfo } = useContext(Context);
+
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+      console.log("Foreground notification received:", remoteMessage);
+      // You can show an alert or update the UI here
+      Alert.alert(
+        remoteMessage.notification.title,
+        remoteMessage.notification.body
+      );
+    });
+
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     if (convoID) {
@@ -58,7 +72,7 @@ const ChatRoom = ({ route }) => {
     useEffect(() => {
       socket?.on("newMessage", (newMessage) => {
         newMessage.shouldShake = true;
-        setMessages([...messages, newMessage]);
+        // setMessages([...messages, newMessage]);
       });
 
       // Scroll to the bottom when a new message arrives
@@ -93,7 +107,7 @@ const ChatRoom = ({ route }) => {
 
         // Make sure the URL uses http://10.0.2.2:5000 for Android emulator
         const adjustedUrl = pdfUrl.replace(
-          "http://192.168.1.10:5000",
+          "http://192.168.18.124:5000",
           "http://10.0.2.2:5000"
         );
 
@@ -217,7 +231,7 @@ const ChatRoom = ({ route }) => {
     if (convoID) {
       try {
         const response = await axios.get(
-          `http://192.168.1.10:5000/conversations/getMessages/${convoID}`
+          `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
         );
         // Decrypt messages here before setting to state
         const decryptedMessages = response.data.map((msg) => ({
@@ -263,6 +277,22 @@ const ChatRoom = ({ route }) => {
       };
     }
   }, [socket]);
+
+  const sendNotification = async (receiverId, senderName, messageContent) => {
+    try {
+      const response = await axios.post(
+        "http://10.0.2.2:5000/send-notification",
+        {
+          receiverId,
+          title: `New message from ${senderName}`,
+          body: messageContent,
+        }
+      );
+      console.log("Notification sent:", response.data);
+    } catch (error) {
+      console.error("Error sending notification:", error);
+    }
+  };
 
   const sendMessage = async (textMessage = null, fileInfo = null) => {
     console.log("Starting sendMessage function");
@@ -362,6 +392,11 @@ const ChatRoom = ({ route }) => {
         },
       });
       console.log("Message sent successfully");
+      await sendNotification(
+        receiverId,
+        userInfo.fullName,
+        textMessage || "New file shared"
+      );
     } catch (error) {
       console.error("Error in sendMessage:", error);
       if (error.response) {

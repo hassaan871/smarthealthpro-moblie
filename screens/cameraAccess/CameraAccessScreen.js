@@ -20,7 +20,7 @@ import sendImageToServer from "../../Helper/sendImageToServer";
 import { Dialog, Portal, ActivityIndicator, Text } from "react-native-paper";
 
 const CameraAccessScreen = () => {
-  const FLASK_SERVER_URL = "http://192.168.1.10";
+  const FLASK_SERVER_URL = "http://192.168.18.124";
   const [selectedImage, setSelectedImage] = useState(null);
   const [showLatestImage, setShowLatestImage] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
@@ -33,7 +33,7 @@ const CameraAccessScreen = () => {
       // dialog success here
       setShowDialog(true); // Show dialog on success
       setShowLatestImage(
-        `http://192.168.1.10/display_latest_image?v=${Math.random()}`
+        `http://192.168.18.124/display_latest_image?v=${Math.random()}`
       );
       // setTimeout(fetchLatestImage, 3000);
     } catch (error) {

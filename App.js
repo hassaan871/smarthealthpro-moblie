@@ -24,6 +24,38 @@ import { Platform, PermissionsAndroid, Alert } from "react-native";
 export default function App() {
   const [isThemeDark, setIsThemeDark] = useState(false);
 
+  useEffect(() => {
+    // Handle notifications when app is in background
+    messaging().onNotificationOpenedApp((remoteMessage) => {
+      console.log(
+        "Notification caused app to open from background state:",
+        remoteMessage
+      );
+      if (remoteMessage.data.conversationId) {
+        navigation.navigate("ChatRoom", {
+          convoID: remoteMessage.data.conversationId,
+        });
+      }
+    });
+
+    // Handle notifications when app is closed
+    messaging()
+      .getInitialNotification()
+      .then((remoteMessage) => {
+        if (remoteMessage) {
+          console.log(
+            "Notification caused app to open from quit state:",
+            remoteMessage
+          );
+          if (remoteMessage.data.conversationId) {
+            navigation.navigate("ChatRoom", {
+              convoID: remoteMessage.data.conversationId,
+            });
+          }
+        }
+      });
+  }, []);
+
   async function requestAndroidNotificationPermission() {
     if (Platform.OS === "android" && Platform.Version >= 33) {
       try {
@@ -85,7 +117,7 @@ export default function App() {
     try {
       console.log("Requesting notification permissions...");
 
-      if (Platform.OS === 'ios') {
+      if (Platform.OS === "ios") {
         const authStatus = await messaging().requestPermission({
           alert: true,
           announcement: false,
@@ -95,31 +127,30 @@ export default function App() {
           sound: true,
         });
         if (authStatus === messaging.AuthorizationStatus.AUTHORIZED) {
-          console.log('User has notification permissions enabled.');
+          console.log("User has notification permissions enabled.");
         } else if (authStatus === messaging.AuthorizationStatus.PROVISIONAL) {
-          console.log('User has provisional notification permissions.');
+          console.log("User has provisional notification permissions.");
         } else {
-          console.log('User has notification permissions disabled');
+          console.log("User has notification permissions disabled");
         }
-      } else {      
+      } else {
+        if (Platform.OS === "android") {
+          const androidPermissionGranted =
+            await requestAndroidNotificationPermission();
+          if (!androidPermissionGranted) {
+            console.log("Android notification permission not granted");
+            return false;
+          }
+        }
 
-      if (Platform.OS === "android") {
-        const androidPermissionGranted =
-          await requestAndroidNotificationPermission();
-        if (!androidPermissionGranted) {
-          console.log("Android notification permission not granted");
-          return false;
-        }
+        const authStatus = await messaging().requestPermission();
+        console.log("FCM authorization status:", authStatus);
+
+        return (
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL
+        );
       }
-
-      const authStatus = await messaging().requestPermission();
-      console.log("FCM authorization status:", authStatus);
-
-      return (
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL
-      );
-    }
     } catch (error) {
       console.error("Error in requestUserPermission:", error);
       return false;
@@ -130,7 +161,7 @@ export default function App() {
     requestUserPermission();
 
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-      Alert.alert("New Message", JSON.stringify(remoteMessage));
+      // Alert.alert("New Message", JSON.stringify(remoteMessage));
     });
 
     messaging().setBackgroundMessageHandler(async (remoteMessage) => {

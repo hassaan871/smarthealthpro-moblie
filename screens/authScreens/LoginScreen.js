@@ -43,28 +43,23 @@ const LoginScreen = () => {
     setShowAlert(false);
   };
 
-  const navigateToHomeTab = () => {
-    navigation.replace("HomeScreen");
-  };
+  const navigateToHomeTab = () => navigation.replace("HomeScreen");
 
   const getDeviceId = async () => {
-    let deviceId = await DeviceInfo.getUniqueId();
-    return deviceId;
+    return await DeviceInfo.getUniqueId();
   };
 
   async function sendFcmTokenToServer(email, fcmToken, device) {
     try {
-      const body = { email, fcmToken, device };
-      console.log("update-fcm-token body: ", body);
       const response = await axios.post(
-        "http://192.168.1.10:5000/update-fcm-token",
+        "http://192.168.18.124:5000/update-fcm-token",
         {
           email,
           fcmToken,
           device,
         }
       );
-      console.log("Server response:", response.data);
+      console.log("FCM token update response:", response.data);
     } catch (error) {
       console.error("Error sending FCM token to server:", error);
     }
@@ -100,7 +95,7 @@ const LoginScreen = () => {
 
     console.log("Entering handle submit");
     try {
-      const res = await axios.post("http://192.168.1.10:5000/user/login", {
+      const res = await axios.post("http://192.168.18.124:5000/user/login", {
         email,
         password,
       });
@@ -132,14 +127,7 @@ const LoginScreen = () => {
           "Login Success",
           "success"
         );
-
-        if (res.data.role === "doctor") {
-          // await navigate('/admin');
-          await navigateToHomeTab();
-        } else if (res.data.role === "patient") {
-          // await navigate('/');
-          await navigateToHomeTab();
-        }
+        navigateToHomeTab();
       }
     } catch (error) {
       // alert(error.response.data.error);

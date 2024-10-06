@@ -75,10 +75,21 @@ const DoctorCard = ({ item, isBook, closeModal }) => {
 
   const handleChatPress = async (item) => {
     console.log("item from doctor card: ", item);
-    navigation.navigate("ChatRoom", {
-      item: item.user,
-      convoID: null,
-    });
+
+    try {
+      const response = await axios.get(
+        `http://192.168.1.35:5000/check-conversation/${userInfo._id}/${item.user._id}`
+      );
+
+      let conversationId = response.data.conversationId;
+
+      navigation.navigate("ChatRoom", {
+        item: item.user,
+        convoID: conversationId,
+      });
+    } catch (error) {
+      console.error("Error finding conversation: ", error);
+    }
   };
 
   return (

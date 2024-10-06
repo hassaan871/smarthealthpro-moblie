@@ -107,7 +107,7 @@ const ChatRoom = ({ route }) => {
 
         // Make sure the URL uses http://10.0.2.2:5000 for Android emulator
         const adjustedUrl = pdfUrl.replace(
-          "http://192.168.18.124:5000",
+          "http://192.168.1.35:5000",
           "http://10.0.2.2:5000"
         );
 
@@ -231,7 +231,7 @@ const ChatRoom = ({ route }) => {
     if (convoID) {
       try {
         const response = await axios.get(
-          `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
+          `http://192.168.1.35:5000/conversations/getMessages/${convoID}`
         );
         // Decrypt messages here before setting to state
         const decryptedMessages = response.data.map((msg) => ({

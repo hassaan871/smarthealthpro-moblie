@@ -216,7 +216,7 @@ const LoginScreen = () => {
         </Pressable>
         <View style={styles.socialButtons}>
           <Pressable style={styles.socialButton}>
-            <Image
+            {/* <Image
               source={{ uri: "https://placehold.co/32x32" }}
               style={styles.socialIcon}
             />
@@ -231,7 +231,7 @@ const LoginScreen = () => {
             <Image
               source={{ uri: "https://placehold.co/32x32" }}
               style={styles.socialIcon}
-            />
+            /> */}
           </Pressable>
         </View>
         <Pressable

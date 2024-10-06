@@ -288,7 +288,7 @@ const SignUpScreen = ({ navigation }) => {
         <Text style={styles.orText}>Or, sign up with</Text>
         <View style={styles.socialButtons}>
           <Pressable style={styles.socialButton}>
-            <Image
+            {/* <Image
               source={{ uri: "https://placehold.co/32x32" }}
               style={styles.socialIcon}
             />
@@ -303,7 +303,7 @@ const SignUpScreen = ({ navigation }) => {
             <Image
               source={{ uri: "https://placehold.co/32x32" }}
               style={styles.socialIcon}
-            />
+            /> */}
           </Pressable>
         </View>
         <Pressable

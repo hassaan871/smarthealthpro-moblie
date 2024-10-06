@@ -28,7 +28,15 @@ const PopularCard = ({ item }) => {
     >
       <View style={styles.container}>
         <View style={{ ...styles.card, width: cardWidth }}>
-          <Image source={{ uri: item?.user?.avatar }} style={styles.image} />
+          <Image
+            source={{
+              uri:
+                item?.user?.avatar?.url?.length > 0
+                  ? item?.user?.avatar?.url
+                  : item?.user?.avatar,
+            }}
+            style={styles.image}
+          />
           <Text style={styles.name}>{item?.user?.fullName}</Text>
           <Text style={styles.specialty}>{item?.specialization}</Text>
         </View>

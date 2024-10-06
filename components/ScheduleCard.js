@@ -29,7 +29,12 @@ const ScheduleCard = ({ item }) => {
       {item ? (
         <View style={styles.scheduleCard}>
           <Image
-            source={{ uri: item?.doctor?.avatar }}
+            source={{
+              uri:
+                item?.doctor?.avatar?.url?.length > 0
+                  ? item?.doctor?.avatar?.url
+                  : item?.doctor?.avatar,
+            }}
             style={styles.doctorImage}
           />
           <View style={styles.scheduleInfo}>

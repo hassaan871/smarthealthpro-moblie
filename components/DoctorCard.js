@@ -106,7 +106,10 @@ const DoctorCard = ({ item, isBook, closeModal }) => {
       <View style={styles.doctorCard}>
         <Image
           source={{
-            uri: item?.user?.avatar,
+            uri:
+              item?.user.avatar?.url?.length > 0
+                ? item?.user.avatar?.url
+                : item?.user?.avatar,
           }}
           style={styles.doctorCardImage}
         />

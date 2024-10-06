@@ -176,7 +176,15 @@ const AppointmentsScreen = () => {
   const renderAppointment = ({ item }) => (
     <View style={styles.appointmentCard}>
       <View style={styles.profileContainer}>
-        <Image source={{ uri: item.patient.avatar }} style={styles.avatar} />
+        <Image
+          source={{
+            uri:
+              item?.patient?.avatar?.url?.length > 0
+                ? item?.patient?.avatar?.url
+                : item?.patient?.avatar,
+          }}
+          style={styles.avatar}
+        />
         <View style={styles.appointmentInfo}>
           <Text style={styles.name}>
             {userInfo.role === "doctor" ? item.patient.name : item.doctor.name}

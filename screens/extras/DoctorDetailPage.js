@@ -152,7 +152,12 @@ const DoctorDetailPage = () => {
 
         <View style={styles.doctorInfo}>
           <Image
-            source={{ uri: item.user.avatar }}
+            source={{
+              uri:
+                item?.user.avatar?.url?.length > 0
+                  ? item?.user.avatar?.url
+                  : item?.user?.avatar,
+            }}
             style={styles.doctorImage}
           />
           <Text style={styles.doctorName}>{item.user.fullName}</Text>
@@ -193,11 +198,14 @@ const DoctorDetailPage = () => {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.bookAppointmentButton} onPress={()=>{
-          navigation.navigate("BookingScreen", {
-            doctorInfo: item,
-          });
-        }}>
+        <TouchableOpacity
+          style={styles.bookAppointmentButton}
+          onPress={() => {
+            navigation.navigate("BookingScreen", {
+              doctorInfo: item,
+            });
+          }}
+        >
           <Text style={styles.bookAppointmentText}>Book Appointment</Text>
         </TouchableOpacity>
       </ScrollView>

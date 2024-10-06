@@ -4,7 +4,9 @@ import React, {
   useState,
   useRef,
   useContext,
+  useCallback,
 } from "react";
+
 import {
   Pressable,
   ScrollView,
@@ -33,6 +35,7 @@ var C = require("crypto-js");
 import CryptoES from "crypto-es";
 import messaging from "@react-native-firebase/messaging";
 import { encrypt, decrypt } from "./EncryptionUtils";
+import { useFocusEffect } from "@react-navigation/native";
 
 const ChatRoom = ({ route }) => {
   const { item, convoID, receiverId } = route.params;
@@ -41,8 +44,37 @@ const ChatRoom = ({ route }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { socket } = useSocketContext();
   const { userInfo } = useContext(Context);
+  const { socket, connectSocket } = useSocketContext();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!socket || !socket.connected) {
+        console.log("Socket not connected, attempting to reconnect...");
+        connectSocket();
+      }
+      return () => {
+        // Cleanup function if needed
+      };
+    }, [socket, connectSocket])
+  );
+
+  useEffect(() => {
+    if (socket) {
+      const handleMessageReceive = (newMessage) => {
+        console.log("Received message:", newMessage);
+        const decryptedMessage = decryptMessage(newMessage);
+        // setMessages((prevMessages) => [...prevMessages, decryptedMessage]);
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      };
+
+      socket.on("newMessage", handleMessageReceive);
+
+      return () => {
+        socket.off("newMessage", handleMessageReceive);
+      };
+    }
+  }, [socket]);
 
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
@@ -66,23 +98,6 @@ const ChatRoom = ({ route }) => {
   const scrollViewRef = useRef();
 
   // console.log("Receiver ID:", receiverId);
-
-  const listeMessages = () => {
-    const { socket } = useSocketContext();
-
-    useEffect(() => {
-      socket?.on("newMessage", (newMessage) => {
-        newMessage.shouldShake = true;
-        // setMessages([...messages, newMessage]);
-      });
-
-      // Scroll to the bottom when a new message arrives
-      scrollViewRef.current?.scrollToEnd({ animated: true });
-
-      return () => socket?.off("newMessage");
-    }, [socket, messages, setMessages]);
-  };
-  listeMessages();
 
   const handleMessagePress = async (item) => {
     console.log("Message pressed:", item);
@@ -256,9 +271,11 @@ const ChatRoom = ({ route }) => {
       };
     }
   };
-  const fetchMessages = async () => {
+
+  const fetchMessages = useCallback(async () => {
     if (convoID) {
       try {
+        setLoading(true);
         const response = await axios.get(
           `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
         );
@@ -273,7 +290,7 @@ const ChatRoom = ({ route }) => {
         }, 100);
       }
     }
-  };
+  }, [convoID]);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -282,24 +299,7 @@ const ChatRoom = ({ route }) => {
 
     fetchUserId();
     fetchMessages();
-  }, [convoID]);
-
-  useEffect(() => {
-    if (socket) {
-      const handleMessageReceive = (newMessage) => {
-        console.log("Received message:", newMessage);
-        const decryptedMessage = decryptMessage(newMessage);
-        setMessages((prevMessages) => [...prevMessages, decryptedMessage]);
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-      };
-
-      socket.on("newMessage", handleMessageReceive);
-
-      return () => {
-        socket.off("newMessage", handleMessageReceive);
-      };
-    }
-  }, [socket]);
+  }, [fetchMessages, userInfo._id]);
 
   const sendNotification = async (receiverId, senderName, messageContent) => {
     try {

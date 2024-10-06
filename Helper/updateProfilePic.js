@@ -15,7 +15,7 @@ const updateProfilePic = async (userId, file) => {
     console.log("FormData created:", formData);
 
     const response = await axios.put(
-      "http://192.168.1.35:5000/user/updateProfile",
+      "http://192.168.18.124:5000/user/updateProfile",
       formData,
       {
         headers: {

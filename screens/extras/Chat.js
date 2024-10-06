@@ -28,7 +28,7 @@ const Chat = ({ item, isBotChat }) => {
     console.log(`Attempting to delete conversation with ID: ${item.convoID}`);
     try {
       const response = await axios.delete(
-        `http://192.168.1.35:5000/chats/deleteChat/${item.convoID}`
+        `http://192.168.18.124:5000/chats/deleteChat/${item.convoID}`
       );
       if (response.status === 200) {
         console.log("Conversation deleted successfully");

@@ -19,6 +19,7 @@ import axios from "axios";
 import Context from "../Helper/context";
 import CutomBottomBar from "./tabNavScreens/CutomBottomBar";
 import { appBarClasses } from "@mui/material";
+import { encrypt, decrypt } from "./extras/EncryptionUtils";
 
 const AppointmentsScreen = () => {
   const [allAppointments, setAllAppointments] = useState([]);
@@ -50,7 +51,7 @@ const AppointmentsScreen = () => {
     try {
       const userID = userInfo._id;
       console.log("user id is from all appointments: ", userID);
-      const link = `http://192.168.1.35:5000/appointment/getAllAppointments?${
+      const link = `http://192.168.18.124:5000/appointment/getAllAppointments?${
         userInfo.role === "doctor" ? "doctorId" : "patientId"
       }=${userID}`;
 
@@ -104,7 +105,7 @@ const AppointmentsScreen = () => {
   const confirmCancellation = async () => {
     try {
       await axios.delete(
-        `http://192.168.1.35:5000/appointment/cancelAppointment/${selectedAppointment._id}`
+        `http://192.168.18.124:5000/appointment/cancelAppointment/${selectedAppointment._id}`
       );
       fetchAllAppointments(); // Refresh the list
       setCancelConfirmation(false);
@@ -115,7 +116,7 @@ const AppointmentsScreen = () => {
 
   const submitReview = async () => {
     try {
-      await axios.post("http://192.168.1.35:5000/review/addReview", {
+      await axios.post("http://192.168.18.124:5000/review/addReview", {
         appointmentId: selectedAppointment._id,
         rating,
         comment: review,
@@ -128,54 +129,50 @@ const AppointmentsScreen = () => {
       console.error("Error submitting review:", error);
     }
   };
+
   const submitNotes = async () => {
-    console.log("appointment id is: ", selectedAppointment._id);
     try {
-      await axios.post("http://192.168.1.35:5000/user/addNotes", {
+      const encryptedNote = await encrypt(note);
+      await axios.post("http://192.168.18.124:5000/user/addNotes", {
         appointmentId: selectedAppointment._id,
-        note: note,
+        note: encryptedNote,
       });
       setNotesModalVisible(false);
       setNotes("");
-      fetchAllAppointments(); // Refresh the list to show updated review status
+      fetchAllAppointments();
     } catch (error) {
-      console.error("Error submitting review:", error);
+      console.error("Error submitting encrypted notes:", error);
     }
   };
 
   const fetchNotes = async (appointment) => {
-    console.log("fetchNotes called");
-    console.log("selectedAppointment:", appointment);
-
     if (!appointment || !appointment.patient || !appointment.patient.id) {
       console.error("Invalid selectedAppointment structure");
       return;
     }
 
     const patientId = appointment.patient.id;
-    console.log("fetching notes for patient ID:", patientId);
-
-    const link = `http://192.168.1.35:5000/user/getUserInfo/${patientId}`;
-    console.log("API request URL:", link);
+    const link = `http://192.168.18.124:5000/user/getUserInfo/${patientId}`;
 
     setIsLoading(true);
     try {
       const response = await axios.get(link);
-      console.log("API response:", response.data.user.notes);
       const notes = response.data.user.notes;
-
-      console.log("notes doctor id: ", notes[0].doctorId);
-      console.log("user id: ", userInfo._id);
       const doctorNote = notes.find((note) => note.doctorId === userInfo._id);
-      console.log("doctor note: ", doctorNote.note);
-      setNotes(doctorNote.note); // Assuming the notes are in the response data
-      // fetchAllAppointments(); // This line seems unnecessary here
+
+      if (doctorNote && doctorNote.note) {
+        const decryptedNote = await decrypt(doctorNote.note);
+        setNotes(decryptedNote);
+      } else {
+        setNotes("");
+      }
     } catch (error) {
-      console.error("Error fetching notes:", error);
+      console.error("Error fetching and decrypting notes:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
   const renderAppointment = ({ item }) => (
     <View style={styles.appointmentCard}>
       <View style={styles.profileContainer}>
@@ -222,7 +219,7 @@ const AppointmentsScreen = () => {
         </Text>
       </View>
       <View style={styles.actionButtons}>
-        {item.appointmentStatus === "visited" && (
+        {item.appointmentStatus === "tbd" && (
           <>
             <TouchableOpacity
               style={styles.noteButton}

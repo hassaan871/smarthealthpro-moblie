@@ -32,6 +32,7 @@ import * as Crypto from "expo-crypto";
 var C = require("crypto-js");
 import CryptoES from "crypto-es";
 import messaging from "@react-native-firebase/messaging";
+import { encrypt, decrypt } from "./EncryptionUtils";
 
 const ChatRoom = ({ route }) => {
   const { item, convoID, receiverId } = route.params;
@@ -83,20 +84,6 @@ const ChatRoom = ({ route }) => {
   };
   listeMessages();
 
-  const encrypted = (text) => {
-    return CryptoES.AES.encrypt(text, "your-secret-key").toString();
-  };
-
-  const decrypted = (encryptedText) => {
-    try {
-      const bytes = CryptoES.AES.decrypt(encryptedText, "your-secret-key");
-      return bytes.toString(CryptoES.enc.Utf8);
-    } catch (error) {
-      console.error("Decryption failed:", error);
-      return "Error: Could not decrypt message";
-    }
-  };
-
   const handleMessagePress = async (item) => {
     console.log("Message pressed:", item);
 
@@ -107,7 +94,7 @@ const ChatRoom = ({ route }) => {
 
         // Make sure the URL uses http://10.0.2.2:5000 for Android emulator
         const adjustedUrl = pdfUrl.replace(
-          "http://192.168.1.35:5000",
+          "http://192.168.18.124:5000",
           "http://10.0.2.2:5000"
         );
 
@@ -206,8 +193,19 @@ const ChatRoom = ({ route }) => {
           JSON.stringify(uploadResponse.data, null, 2)
         );
 
+        const encryptedFileName = encrypt(
+          uploadResponse.data.file.originalName
+        );
+        const encryptedFileUrl = encrypt(uploadResponse.data.file.url);
+
+        const encryptedFileInfo = {
+          ...uploadResponse.data.file,
+          originalName: encryptedFileName,
+          url: encryptedFileUrl,
+        };
+
         console.log("Calling sendMessage with file info");
-        await sendMessage(null, uploadResponse.data.file);
+        await sendMessage(null, encryptedFileInfo);
         console.log("Message sent with file info");
       } else {
         console.log("File selection cancelled or failed");
@@ -227,17 +225,44 @@ const ChatRoom = ({ route }) => {
     }
   };
 
+  const decryptMessage = (msg) => {
+    try {
+      return {
+        ...msg,
+        content: msg.fileInfo
+          ? msg.content
+          : decrypt(msg.content) || "Decryption failed",
+        fileInfo: msg.fileInfo
+          ? {
+              ...msg.fileInfo,
+              originalName:
+                decrypt(msg.fileInfo.originalName) || "Unknown file",
+              url: decrypt(msg.fileInfo.url) || "",
+            }
+          : null,
+      };
+    } catch (error) {
+      console.error("Error decrypting message:", error);
+      return {
+        ...msg,
+        content: "Decryption failed",
+        fileInfo: msg.fileInfo
+          ? {
+              ...msg.fileInfo,
+              originalName: "Unknown file",
+              url: "",
+            }
+          : null,
+      };
+    }
+  };
   const fetchMessages = async () => {
     if (convoID) {
       try {
         const response = await axios.get(
-          `http://192.168.1.35:5000/conversations/getMessages/${convoID}`
+          `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
         );
-        // Decrypt messages here before setting to state
-        const decryptedMessages = response.data.map((msg) => ({
-          ...msg,
-          content: msg.fileInfo ? msg.content : decrypted(msg.content),
-        }));
+        const decryptedMessages = response.data.map(decryptMessage);
         setMessages(decryptedMessages);
       } catch (error) {
         console.log("Error fetching messages: ", error);
@@ -263,10 +288,8 @@ const ChatRoom = ({ route }) => {
     if (socket) {
       const handleMessageReceive = (newMessage) => {
         console.log("Received message:", newMessage);
-        if (!newMessage.fileInfo) {
-          newMessage.content = decrypted(newMessage.content);
-        }
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
+        const decryptedMessage = decryptMessage(newMessage);
+        setMessages((prevMessages) => [...prevMessages, decryptedMessage]);
         scrollViewRef.current?.scrollToEnd({ animated: true });
       };
 
@@ -332,7 +355,7 @@ const ChatRoom = ({ route }) => {
 
       let newMessage;
       if (textMessage) {
-        const encryptedContent = encrypted(textMessage);
+        const encryptedContent = encrypt(textMessage);
         newMessage = {
           content: encryptedContent,
           sender: userInfo._id,
@@ -342,13 +365,14 @@ const ChatRoom = ({ route }) => {
       } else if (fileInfo) {
         console.log("file info in chatroom: ", fileInfo);
         newMessage = {
-          content: encrypted("File shared"),
+          content: encrypt("File shared"),
           sender: userInfo._id,
           conversationId: convoID ? convoID : conversationId,
           timestamp: new Date(),
           fileInfo: fileInfo,
         };
       }
+
       console.log("New message object:", JSON.stringify(newMessage, null, 2));
 
       setMessage("");
@@ -356,7 +380,14 @@ const ChatRoom = ({ route }) => {
         ...prevMessages,
         {
           ...newMessage,
-          content: textMessage || newMessage.content,
+          content: textMessage || decrypt(newMessage.content),
+          fileInfo: fileInfo
+            ? {
+                ...fileInfo,
+                originalName: decrypt(fileInfo.originalName),
+                url: decrypt(fileInfo.url),
+              }
+            : null,
         },
       ]);
       console.log("Message added to local state");

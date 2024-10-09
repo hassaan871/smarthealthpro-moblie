@@ -17,6 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as DocumentPicker from "expo-document-picker"
 import updateProfilePic from "../../Helper/updateProfilePic";
+import axios from "axios";
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
@@ -73,7 +74,27 @@ const SettingsScreen = () => {
     checkIfTop();
   }, [userInfo, popularDoctors]);
 
+  const deleteUser = async () => {
+    try {
+      const deleteResponse = await axios.delete(`http://192.168.100.135:5000/user/deleteUser/${userInfo._id}`);
+      console.log('User deleted successfully', deleteResponse.data);
+      // You can handle further actions after deletion, like navigation or UI updates.
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    }
+  };
 
+  const confirmDelete = () => {
+    Alert.alert(
+      'Delete User',
+      'Are you sure you want to delete your account? your data will be deleted permenantly',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Yes', onPress: deleteUser }
+      ],
+      { cancelable: false }
+    );
+  };
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -158,7 +179,7 @@ const SettingsScreen = () => {
   <Icon name="chevron-forward" size={24} color="#B0B0B0" />
 </TouchableOpacity>
 
-          <TouchableOpacity style={styles.settingItem}>
+          <TouchableOpacity onPress={confirmDelete} style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <Icon name="trash-bin-outline" size={24} color="#E74C3C" />
               <Text style={[styles.settingText, styles.deleteAccountText]}>

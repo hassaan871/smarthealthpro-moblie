@@ -120,7 +120,7 @@ const BotChattingScreen = ({ route }) => {
 
       // Send request to the backend with the chat message
       const response = await axios.post(
-        "http://192.168.18.124:8082/chat",
+        "http://192.168.100.6:8082/chat",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -194,7 +194,7 @@ const BotChattingScreen = ({ route }) => {
         console.log("Payload to backend:", payload);
 
         const doctorResponse = await axios.post(
-          "http://192.168.18.124:5000/appointment/getAvailableDoctors",
+          "http://192.168.100.6:5000/appointment/getAvailableDoctors",
           payload
         );
 
@@ -275,7 +275,7 @@ const BotChattingScreen = ({ route }) => {
 
           console.log("Sending request to server");
           const chatResponse = await axios.post(
-            "http://192.168.18.124:8082/chat",
+            "http://192.168.100.6:8082/chat",
             formData,
             {
               headers: {

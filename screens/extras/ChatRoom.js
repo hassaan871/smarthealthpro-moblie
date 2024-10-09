@@ -4,7 +4,9 @@ import React, {
   useState,
   useRef,
   useContext,
+  useCallback,
 } from "react";
+
 import {
   Pressable,
   ScrollView,
@@ -16,7 +18,11 @@ import {
   Platform,
   ActivityIndicator,
   Image,
+  Alert,
 } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
+import * as DocumentPicker from "expo-document-picker";
+import * as FileSystem from "expo-file-system";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Entypo from "react-native-vector-icons/Entypo";
@@ -27,6 +33,9 @@ import Context from "../../Helper/context";
 import * as Crypto from "expo-crypto";
 var C = require("crypto-js");
 import CryptoES from "crypto-es";
+import messaging from "@react-native-firebase/messaging";
+import { encrypt, decrypt } from "./EncryptionUtils";
+import { useFocusEffect } from "@react-navigation/native";
 
 const ChatRoom = ({ route }) => {
   const { item, convoID, receiverId } = route.params;
@@ -35,8 +44,50 @@ const ChatRoom = ({ route }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { socket } = useSocketContext();
   const { userInfo } = useContext(Context);
+  const { socket, connectSocket } = useSocketContext();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (!socket || !socket.connected) {
+        console.log("Socket not connected, attempting to reconnect...");
+        connectSocket();
+      }
+      return () => {
+        // Cleanup function if needed
+      };
+    }, [socket, connectSocket])
+  );
+
+  useEffect(() => {
+    if (socket) {
+      const handleMessageReceive = (newMessage) => {
+        console.log("Received message:", newMessage);
+        const decryptedMessage = decryptMessage(newMessage);
+        // setMessages((prevMessages) => [...prevMessages, decryptedMessage]);
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      };
+
+      socket.on("newMessage", handleMessageReceive);
+
+      return () => {
+        socket.off("newMessage", handleMessageReceive);
+      };
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+      console.log("Foreground notification received:", remoteMessage);
+      // You can show an alert or update the UI here
+      Alert.alert(
+        remoteMessage.notification.title,
+        remoteMessage.notification.body
+      );
+    });
+
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     if (convoID) {
@@ -48,91 +99,31 @@ const ChatRoom = ({ route }) => {
 
   // console.log("Receiver ID:", receiverId);
 
-  const listeMessages = () => {
-    const { socket } = useSocketContext();
+  const handleMessagePress = async (item) => {
+    console.log("Message pressed:", item);
 
-    useEffect(() => {
-      socket?.on("newMessage", (newMessage) => {
-        newMessage.shouldShake = true;
-        setMessages([...messages, newMessage]);
-      });
-
-      // Scroll to the bottom when a new message arrives
-      scrollViewRef.current?.scrollToEnd({ animated: true });
-
-      return () => socket?.off("newMessage");
-    }, [socket, messages, setMessages]);
-  };
-  listeMessages();
-
-  const encrypted = (mytexttoEncryption) => {
-    const encryptedMessage = CryptoES.AES.encrypt(
-      mytexttoEncryption,
-      "your password"
-    ).toString();
-    console.log("res of en", encryptedMessage);
-    return encryptedMessage;
-  };
-
-  const decrypted = (decryptText) => {
-    console.log("decrypt text", decryptText);
-    try {
-      const bytes = CryptoES.AES.decrypt(decryptText, "your password");
-      const result = bytes.toString(CryptoES.enc.Utf8);
-      console.log("result of de ", result);
-      return result;
-    } catch (error) {
-      console.error("Decryption failed:", error);
-      return "Error: Could not decrypt message";
-    }
-  };
-
-  const fetchMessages = async () => {
-    if (convoID) {
+    if (item.fileInfo && item.fileInfo.mimetype === "application/pdf") {
       try {
-        const response = await axios.get(
-          `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
+        const pdfUrl = item.fileInfo.url;
+        console.log("Attempting to open PDF:", pdfUrl);
+
+        // Make sure the URL uses http://10.0.2.2:5000 for Android emulator
+        const adjustedUrl = pdfUrl.replace(
+          "http://192.168.100.6:5000",
+          "http://10.0.2.2:5000"
         );
-        setMessages(response.data);
+
+        navigation.navigate("PdfViewer", { uri: adjustedUrl });
       } catch (error) {
-        console.log("No conversation found: ", error);
-      } finally {
-        setLoading(false);
-        // Scroll to the bottom after messages are loaded
-        setTimeout(() => {
-          scrollViewRef.current?.scrollToEnd({ animated: true });
-        }, 100);
+        console.error("Error opening PDF:", error);
+        Alert.alert("Error", "Unable to open PDF file. Please try again.");
       }
+    } else if (item.fileInfo) {
+      Alert.alert("File", `This is a ${item.fileInfo.mimetype} file.`);
+    } else {
+      Alert.alert("Message", item.content);
     }
   };
-
-  useEffect(() => {
-    const fetchUserId = async () => {
-      setUserId(userInfo._id);
-    };
-
-    fetchUserId();
-    fetchMessages();
-  }, [convoID]);
-
-  useEffect(() => {
-    if (socket) {
-      const handleMessageReceive = (newMessage) => {
-        console.log("rec", newMessage);
-        const decryptedContent = decrypted(newMessage.content);
-        newMessage.content = decryptedContent; // Replace the encrypted content with the decrypted content
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
-      };
-
-      socket.on("newMessage", handleMessageReceive);
-
-      return () => {
-        socket.off("newMessage", handleMessageReceive);
-      };
-    } else {
-      console.warn("Socket is not initialized.");
-    }
-  }, [socket]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -174,16 +165,179 @@ const ChatRoom = ({ route }) => {
     });
   }, [navigation, item]);
 
-  const sendMessage = async () => {
-    if (socket) {
-      if (!message.trim()) {
-        console.log("Message is empty, not sending");
-        return;
-      }
+  const formatTime = (time) => {
+    const options = {
+      hour: "numeric",
+      minute: "numeric",
+      timeZone: "Asia/Karachi",
+      hour12: true,
+    };
+    return new Date(time).toLocaleString("en-US", options);
+  };
 
+  const handleFileSelection = async () => {
+    console.log("Starting file selection process");
+    try {
+      console.log("Calling DocumentPicker.getDocumentAsync");
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "application/pdf",
+      });
+      console.log("DocumentPicker result:", JSON.stringify(result, null, 2));
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        console.log("File selected successfully");
+        const file = result.assets[0];
+        const formData = new FormData();
+        formData.append("file", {
+          uri: file.uri,
+          type: file.mimeType,
+          name: file.name,
+        });
+        console.log("FormData created:", formData);
+
+        console.log("Sending POST request to upload file");
+        const uploadResponse = await axios.post(
+          `http://10.0.2.2:5000/upload`,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+        console.log(
+          "Upload response:",
+          JSON.stringify(uploadResponse.data, null, 2)
+        );
+
+        const encryptedFileName = encrypt(
+          uploadResponse.data.file.originalName
+        );
+        const encryptedFileUrl = encrypt(uploadResponse.data.file.url);
+
+        const encryptedFileInfo = {
+          ...uploadResponse.data.file,
+          originalName: encryptedFileName,
+          url: encryptedFileUrl,
+        };
+
+        console.log("Calling sendMessage with file info");
+        await sendMessage(null, encryptedFileInfo);
+        console.log("Message sent with file info");
+      } else {
+        console.log("File selection cancelled or failed");
+      }
+    } catch (error) {
+      console.error("Error in handleFileSelection:", error);
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+        console.error("Error response headers:", error.response.headers);
+      } else if (error.request) {
+        console.error("Error request:", error.request);
+      } else {
+        console.error("Error message:", error.message);
+      }
+      Alert.alert("Error", "Failed to select or upload file: " + error.message);
+    }
+  };
+
+  const decryptMessage = (msg) => {
+    try {
+      return {
+        ...msg,
+        content: msg.fileInfo
+          ? msg.content
+          : decrypt(msg.content) || "Decryption failed",
+        fileInfo: msg.fileInfo
+          ? {
+              ...msg.fileInfo,
+              originalName:
+                decrypt(msg.fileInfo.originalName) || "Unknown file",
+              url: decrypt(msg.fileInfo.url) || "",
+            }
+          : null,
+      };
+    } catch (error) {
+      console.error("Error decrypting message:", error);
+      return {
+        ...msg,
+        content: "Decryption failed",
+        fileInfo: msg.fileInfo
+          ? {
+              ...msg.fileInfo,
+              originalName: "Unknown file",
+              url: "",
+            }
+          : null,
+      };
+    }
+  };
+
+  const fetchMessages = useCallback(async () => {
+    if (convoID) {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          `http://192.168.100.6:5000/conversations/getMessages/${convoID}`
+        );
+        const decryptedMessages = response.data.map(decryptMessage);
+        setMessages(decryptedMessages);
+      } catch (error) {
+        console.log("Error fetching messages: ", error);
+      } finally {
+        setLoading(false);
+        setTimeout(() => {
+          scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 100);
+      }
+    }
+  }, [convoID]);
+
+  useEffect(() => {
+    const fetchUserId = async () => {
+      setUserId(userInfo._id);
+    };
+
+    fetchUserId();
+    fetchMessages();
+  }, [fetchMessages, userInfo._id]);
+
+  const sendNotification = async (receiverId, senderName, messageContent) => {
+    try {
+      const response = await axios.post(
+        "http://10.0.2.2:5000/send-notification",
+        {
+          receiverId,
+          title: `New message from ${senderName}`,
+          body: messageContent,
+        }
+      );
+      console.log("Notification sent:", response.data);
+    } catch (error) {
+      console.error("Error sending notification:", error);
+    }
+  };
+
+  const sendMessage = async (textMessage = null, fileInfo = null) => {
+    console.log("Starting sendMessage function");
+    console.log("textMessage:", textMessage);
+    console.log("fileInfo:", JSON.stringify(fileInfo, null, 2));
+
+    if (!socket) {
+      console.log("socket does not exist");
+      return;
+    }
+
+    if (!textMessage && !fileInfo) {
+      console.log("No message or file to send");
+      return;
+    }
+
+    let conversationId;
+    try {
       if (!convoID) {
+        console.log("Creating new conversation");
         const response = await axios.post(
-          "http://192.168.18.124:5000/conversations",
+          "http://10.0.2.2:5000/conversations",
           {
             currentUserId: userInfo._id,
             otherUserId: item._id,
@@ -193,91 +347,99 @@ const ChatRoom = ({ route }) => {
             otherUserObjectIdName: item?.fullName,
           }
         );
-        console.log(
-          `creating conversation btw ${userInfo._id} and ${item._id}:  ${response.data?._id}`
-        );
-        conversationID = response.data?._id;
+        conversationId = response.data?._id;
+        console.log("New conversation created with ID:", conversationId);
+      } else {
+        console.log("Using existing conversation ID:", convoID);
       }
 
-      try {
-        console.log("Attempting to encrypt message:", message);
-        // Encrypt the message content before sending
-        const encryptedMessage = await encrypted(message);
-
-        if (!encryptedMessage) {
-          console.error("Failed to encrypt message");
-          return;
-        }
-
-        console.log("Message encrypted successfully");
-
-        const newMessage = {
-          content: message, // Store the original message for display
-          encryptedContent: encryptedMessage, // Store encrypted content for sending
+      let newMessage;
+      if (textMessage) {
+        const encryptedContent = encrypt(textMessage);
+        newMessage = {
+          content: encryptedContent,
           sender: userInfo._id,
-          conversationId: convoID ? convoID : conversationID,
+          conversationId: convoID ? convoID : conversationId,
           timestamp: new Date(),
         };
-
-        console.log("New message object:", newMessage);
-
-        setMessage(""); // Clear the input right after sending the message
-        setMessages((prevMessages) => [...prevMessages, newMessage]); // Optimistically update the UI
-
-        // Scroll to the bottom after sending a message
-        setTimeout(() => {
-          scrollViewRef.current?.scrollToEnd({ animated: true });
-        }, 100);
-
-        // Send the message
-        console.log("Sending message to server");
-        const response = await axios.post(
-          `http://192.168.18.124:5000/conversations/${
-            convoID ? convoID : conversationID
-          }/messages`,
-          {
-            content: newMessage.encryptedContent,
-            sender: newMessage.sender,
-            receiverId: receiverId,
-          }
-        );
-        console.log("Server response:", response.data);
-
-        // Update the last message of the conversation
-        console.log("Updating last message");
-        await axios.put(
-          `http://192.168.18.124:5000/conversations/${
-            convoID ? convoID : conversationID
-          }/lastMessage`,
-          {
-            lastMessage: newMessage.content,
-          }
-        );
-
-        console.log("Emitting sendMessage event");
-        socket?.emit("sendMessage", { newMessage });
-
-        console.log("Fetching messages");
-        setTimeout(() => {
-          fetchMessages();
-        }, 100);
-      } catch (error) {
-        console.error("Error sending message:", error);
-        alert("Failed to send the message. Please try again.");
+      } else if (fileInfo) {
+        console.log("file info in chatroom: ", fileInfo);
+        newMessage = {
+          content: encrypt("File shared"),
+          sender: userInfo._id,
+          conversationId: convoID ? convoID : conversationId,
+          timestamp: new Date(),
+          fileInfo: fileInfo,
+        };
       }
-    } else {
-      console.log("socket does not exist");
-    }
-  };
 
-  const formatTime = (time) => {
-    const options = {
-      hour: "numeric",
-      minute: "numeric",
-      timeZone: "Asia/Karachi",
-      hour12: true,
-    };
-    return new Date(time).toLocaleString("en-US", options);
+      console.log("New message object:", JSON.stringify(newMessage, null, 2));
+
+      setMessage("");
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          ...newMessage,
+          content: textMessage || decrypt(newMessage.content),
+          fileInfo: fileInfo
+            ? {
+                ...fileInfo,
+                originalName: decrypt(fileInfo.originalName),
+                url: decrypt(fileInfo.url),
+              }
+            : null,
+        },
+      ]);
+      console.log("Message added to local state");
+
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+
+      console.log("Sending message to server");
+      const response = await axios.post(
+        `http://10.0.2.2:5000/conversations/${
+          convoID ? convoID : conversationId
+        }/messages`,
+        newMessage
+      );
+      console.log("Server response:", JSON.stringify(response.data, null, 2));
+
+      console.log("Updating last message");
+      await axios.put(
+        `http://10.0.2.2:5000/conversations/${
+          convoID ? convoID : conversationId
+        }/lastMessage`,
+        {
+          lastMessage: textMessage || "File shared",
+        }
+      );
+
+      console.log("Emitting sendMessage event to socket");
+      socket?.emit("sendMessage", {
+        newMessage: {
+          ...newMessage,
+          content: textMessage || newMessage.content,
+        },
+      });
+      console.log("Message sent successfully");
+      await sendNotification(
+        receiverId,
+        userInfo.fullName,
+        textMessage || "New file shared"
+      );
+    } catch (error) {
+      console.error("Error in sendMessage:", error);
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+      } else if (error.request) {
+        console.error("Error request:", error.request);
+      } else {
+        console.error("Error message:", error.message);
+      }
+      Alert.alert("Error", "Failed to send the message. Please try again.");
+    }
   };
 
   return (
@@ -289,13 +451,14 @@ const ChatRoom = ({ route }) => {
         <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
       ) : (
         <ScrollView
-          ref={scrollViewRef} // Attach the ref to ScrollView
+          ref={scrollViewRef}
           onContentSizeChange={() =>
             scrollViewRef.current?.scrollToEnd({ animated: true })
           }
         >
           {messages.map((item, index) => (
             <Pressable
+              onPress={() => handleMessagePress(item)}
               key={index}
               style={[
                 styles.message,
@@ -304,15 +467,29 @@ const ChatRoom = ({ route }) => {
                   : styles.receivedMessage,
               ]}
             >
-              <Text
-                style={
-                  item.sender === userId
-                    ? styles.messageContent
-                    : styles.receivedMessageContent
-                }
-              >
-                {decrypted(item.content)}
-              </Text>
+              {item.fileInfo ? (
+                <View style={styles.fileMessage}>
+                  <FontAwesome name="file-o" size={24} color="red" />
+                  <View style={styles.fileInfo}>
+                    <Text style={styles.fileName}>
+                      {item.fileInfo.originalName}
+                    </Text>
+                    <Text style={styles.fileSize}>
+                      {(item.fileInfo.size / 1024).toFixed(2)} KB
+                    </Text>
+                  </View>
+                </View>
+              ) : (
+                <Text
+                  style={
+                    item.sender === userId
+                      ? styles.messageContent
+                      : styles.receivedMessageContent
+                  }
+                >
+                  {item.content}
+                </Text>
+              )}
               <Text style={styles.messageTime}>
                 {formatTime(item.timestamp)}
               </Text>
@@ -322,7 +499,13 @@ const ChatRoom = ({ route }) => {
       )}
 
       <View style={styles.inputContainer}>
-        <Entypo name="emoji-happy" size={24} color="gray" />
+        {/* <Entypo name="emoji-happy" size={24} color="gray" /> */}
+        <FontAwesome
+          onPress={handleFileSelection}
+          name="file-pdf-o"
+          size={24}
+          color="gray"
+        />
         <TextInput
           placeholder="Type your message..."
           value={message}
@@ -333,7 +516,10 @@ const ChatRoom = ({ route }) => {
           <Entypo name="camera" size={24} color="gray" />
           <Feather name="mic" size={24} color="gray" />
         </View>
-        <Pressable style={styles.sendButton} onPress={sendMessage}>
+        <Pressable
+          style={styles.sendButton}
+          onPress={() => sendMessage(message)}
+        >
           <Text style={styles.sendButtonText}>Send</Text>
         </Pressable>
       </View>
@@ -446,6 +632,21 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 50,
     // marginBottom: 4,
+  },
+  fileMessage: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  fileInfo: {
+    marginLeft: 10,
+  },
+  fileName: {
+    color: "white",
+    fontSize: 14,
+  },
+  fileSize: {
+    color: "#b0b0b0",
+    fontSize: 12,
   },
 });
 

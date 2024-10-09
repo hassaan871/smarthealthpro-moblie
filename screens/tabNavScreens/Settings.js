@@ -15,7 +15,7 @@ import CutomBottomBar from "./CutomBottomBar";
 import Context from "../../Helper/context";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as DocumentPicker from "expo-document-picker"
+import * as DocumentPicker from "expo-document-picker";
 import updateProfilePic from "../../Helper/updateProfilePic";
 import axios from "axios";
 
@@ -26,41 +26,41 @@ const SettingsScreen = () => {
   const { userInfo, popularDoctors } = useContext(Context);
   const [isTopFiveDoctor, setIsTopFiveDoctor] = useState(false);
   const [imageUri, setImageUri] = useState(null);
-  const [statusMessage, setStatusMessage] = useState('');
+  const [statusMessage, setStatusMessage] = useState("");
 
   const handlePickImage = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: 'image/*',
+        type: "image/*",
       });
-  
+
       if (result.assets && result.assets.length > 0) {
         const pickedFile = result.assets[0];
         setImageUri(pickedFile.uri);
-  
+
         const file = {
           uri: pickedFile.uri,
           name: pickedFile.name,
-          type: pickedFile.mimeType
+          type: pickedFile.mimeType,
         };
-  
+
         try {
           const response = await updateProfilePic(userInfo._id, file);
           setStatusMessage(response.message);
-          navigation.navigate("HomeScreen")
+          navigation.navigate("HomeScreen");
         } catch (error) {
           console.error("Error updating profile picture:", error);
-          setStatusMessage('Failed to update profile picture.');
+          setStatusMessage("Failed to update profile picture.");
         }
       } else {
         console.log("No file selected");
       }
     } catch (error) {
       console.error("Error in handlePickImage:", error);
-      setStatusMessage('An error occurred while picking the image.');
+      setStatusMessage("An error occurred while picking the image.");
     }
   };
-  
+
   const checkIfTop = () => {
     const topFiveDoctors = popularDoctors.slice(0, 3);
     const isTop = topFiveDoctors.some(
@@ -68,7 +68,7 @@ const SettingsScreen = () => {
     );
     setIsTopFiveDoctor(isTop);
   };
-  
+
   useEffect(() => {
     console.log("user from setting: ", userInfo);
     checkIfTop();
@@ -76,7 +76,7 @@ const SettingsScreen = () => {
 
   const deleteUser = async () => {
     try {
-      const deleteResponse = await axios.delete(`http://192.168.100.135:5000/user/deleteUser/${userInfo._id}`);
+      const deleteResponse = await axios.delete(`http://192.168.100.6:5000/user/deleteUser/${userInfo._id}`);
       console.log('User deleted successfully', deleteResponse.data);
       // You can handle further actions after deletion, like navigation or UI updates.
     } catch (error) {
@@ -103,13 +103,31 @@ const SettingsScreen = () => {
         </View>
 
         <View style={styles.userInfo}>
-        <Image source={{ uri: userInfo.avatar?.url?.length > 0 ?userInfo.avatar.url : userInfo.avatar  }} style={styles.userImage} />
-        <Icon name="camera" size={16} color={"white"} 
-        onPress={handlePickImage}
-        style={{marginLeft:48,marginTop:-16,backgroundColor:"#4A90E2",padding:6,borderRadius:16}}/>
+          <Image
+            source={{
+              uri:
+                userInfo?.avatar?.url?.length > 0
+                  ? userInfo?.avatar.url
+                  : userInfo?.avatar,
+            }}
+            style={styles.userImage}
+          />
+          <Icon
+            name="camera"
+            size={16}
+            color={"white"}
+            onPress={handlePickImage}
+            style={{
+              marginLeft: 48,
+              marginTop: -16,
+              backgroundColor: "#4A90E2",
+              padding: 6,
+              borderRadius: 16,
+            }}
+          />
 
           <Text style={styles.userName}>{userInfo?.fullName}</Text>
-          <Text style={styles.userEmail}>{userInfo.email}</Text>
+          <Text style={styles.userEmail}>{userInfo?.email}</Text>
           {isTopFiveDoctor && (
             <View style={styles.topDoctorBadge}>
               <Icon name="star" size={20} color="#FFD700" />
@@ -140,44 +158,44 @@ const SettingsScreen = () => {
             <Icon name="chevron-forward" size={24} color="#B0B0B0" />
           </TouchableOpacity>
 
-          <TouchableOpacity 
-  style={styles.settingItem} 
-  onPress={() => {
-    Alert.alert(
-      "Confirm Logout",
-      "Are you sure you want to log out?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        {
-          text: "Logout",
-          onPress: async () => {
-            try {
-              await AsyncStorage.removeItem("isThemeDark");
-              await AsyncStorage.removeItem("authToken");
-              await AsyncStorage.removeItem("userToken");
-              navigation.navigate("Login");
-            } catch (error) {
+          <TouchableOpacity
+            style={styles.settingItem}
+            onPress={() => {
               Alert.alert(
-                "Logout Failed",
-                "There was an error during logout. Please try again.",
-                [{ text: "OK" }]
+                "Confirm Logout",
+                "Are you sure you want to log out?",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Logout",
+                    onPress: async () => {
+                      try {
+                        await AsyncStorage.removeItem("isThemeDark");
+                        await AsyncStorage.removeItem("authToken");
+                        await AsyncStorage.removeItem("userToken");
+                        navigation.navigate("Login");
+                      } catch (error) {
+                        Alert.alert(
+                          "Logout Failed",
+                          "There was an error during logout. Please try again.",
+                          [{ text: "OK" }]
+                        );
+                      }
+                    },
+                  },
+                ]
               );
-            }
-          }
-        }
-      ]
-    );
-  }}
->
-  <View style={styles.settingLeft}>
-    <Icon name="log-out-outline" size={24} color="#4A90E2" />
-    <Text style={styles.settingText}>Logout</Text>
-  </View>
-  <Icon name="chevron-forward" size={24} color="#B0B0B0" />
-</TouchableOpacity>
+            }}
+          >
+            <View style={styles.settingLeft}>
+              <Icon name="log-out-outline" size={24} color="#4A90E2" />
+              <Text style={styles.settingText}>Logout</Text>
+            </View>
+            <Icon name="chevron-forward" size={24} color="#B0B0B0" />
+          </TouchableOpacity>
 
           <TouchableOpacity onPress={confirmDelete} style={styles.settingItem}>
             <View style={styles.settingLeft}>

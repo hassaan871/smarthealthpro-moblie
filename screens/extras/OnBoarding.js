@@ -5,21 +5,21 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const items = [
   {
-    title: "Your Health, Simplified!",
+    title: "Chat with Real Doctors Instantly!",
     description:
-      "Chat with our AI bot for instant medical support and appointment bookings. Snap a pic of your prescription, and we'll handle the rest. It's that easy!",
+      "Connect with qualified doctors anytime, anywhere! Use our chat feature to ask questions, share documents. Get immediate support for your health concerns with personalized advice at your fingertips!",
     image: require("../../assets/Chat bot-rafiki.png"),
   },
   {
-    title: "Doctor in Your Pocket!",
+    title: "Personal Health Assistant!",
     description:
-      "Connect with real doctors in seconds for consultations, anytime, anywhere. Need a prescription decoded? We've got you covered – just snap and send!",
+      "Get instant answers to health questions with our AI bot! It prioritizes you by asking smart questions, helping you understand your symptoms and guiding you to the right care!",
     image: require("../../assets/Medical prescription-rafiki.png"),
   },
   {
-    title: "Healthcare, Made Effortless!",
+    title: "Book Appointments with Ease!",
     description:
-      "Say goodbye to paperwork and confusion. Chat with our AI for all your health needs, and breeze through prescriptions with our image recognition tech. Welcome to hassle-free healthcare!",
+      "Scheduling health appointments has never been easier! Simply choose preferred doctor, select a time, and book your visit from the comfort of home. Let us handle the rest so you can focus on what matters, your health!",
     image: require("../../assets/Medicine-rafiki.png"),
   },
 ];

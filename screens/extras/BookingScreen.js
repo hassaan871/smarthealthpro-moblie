@@ -156,7 +156,7 @@ export default function BookingScreen({ route, navigation }) {
     //   });
 
     //   const response = await axios.post(
-    //     "http://192.168.100.6:5000/appointment/postAppointment",
+    //     "http://192.168.18.124:5000/appointment/postAppointment",
     //     {
     //       doctor: {
     //         // id: doctorInfo._id,

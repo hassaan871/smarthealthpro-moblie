@@ -19,6 +19,7 @@ import {
   ActivityIndicator,
   Image,
   Alert,
+  SafeAreaView,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
@@ -36,6 +37,7 @@ import CryptoES from "crypto-es";
 import messaging from "@react-native-firebase/messaging";
 import { encrypt, decrypt } from "./EncryptionUtils";
 import { useFocusEffect } from "@react-navigation/native";
+import { debounce } from "lodash";
 
 const ChatRoom = ({ route }) => {
   const { item, convoID, receiverId } = route.params;
@@ -44,8 +46,27 @@ const ChatRoom = ({ route }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const { userInfo } = useContext(Context);
   const { socket, connectSocket } = useSocketContext();
+
+  const joinRoom = useCallback(() => {
+    if (socket && convoID) {
+      socket.emit("joinRoom", convoID);
+    }
+  }, [socket, convoID]);
+
+  const leaveRoom = useCallback(() => {
+    if (socket && convoID) {
+      socket.emit("leaveRoom", convoID);
+    }
+  }, [socket, convoID]);
+
+  useEffect(() => {
+    joinRoom();
+    return () => leaveRoom();
+  }, [joinRoom, leaveRoom]);
+  0;
 
   useFocusEffect(
     React.useCallback(() => {
@@ -64,8 +85,18 @@ const ChatRoom = ({ route }) => {
       const handleMessageReceive = (newMessage) => {
         console.log("Received message:", newMessage);
         const decryptedMessage = decryptMessage(newMessage);
-        // setMessages((prevMessages) => [...prevMessages, decryptedMessage]);
-        scrollViewRef.current?.scrollToEnd({ animated: true });
+        if (decryptedMessage) {
+          setMessages((prevMessages) => {
+            // Check if the message already exists in the array
+            if (!prevMessages.some((msg) => msg._id === decryptedMessage._id)) {
+              return [...prevMessages, decryptedMessage];
+            }
+            return prevMessages;
+          });
+          scrollViewRef.current?.scrollToEnd({ animated: true });
+        } else {
+          console.error("Failed to decrypt message:", newMessage);
+        }
       };
 
       socket.on("newMessage", handleMessageReceive);
@@ -80,10 +111,10 @@ const ChatRoom = ({ route }) => {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
       console.log("Foreground notification received:", remoteMessage);
       // You can show an alert or update the UI here
-      Alert.alert(
-        remoteMessage.notification.title,
-        remoteMessage.notification.body
-      );
+      // Alert.alert(
+      //   remoteMessage.notification.title,
+      //   remoteMessage.notification.body
+      // );
     });
 
     return unsubscribe;
@@ -109,7 +140,7 @@ const ChatRoom = ({ route }) => {
 
         // Make sure the URL uses http://10.0.2.2:5000 for Android emulator
         const adjustedUrl = pdfUrl.replace(
-          "http://192.168.100.6:5000",
+          "http://192.168.18.124:5000",
           "http://10.0.2.2:5000"
         );
 
@@ -244,31 +275,18 @@ const ChatRoom = ({ route }) => {
     try {
       return {
         ...msg,
-        content: msg.fileInfo
-          ? msg.content
-          : decrypt(msg.content) || "Decryption failed",
+        content: msg.fileInfo ? msg.content : decrypt(msg.content),
         fileInfo: msg.fileInfo
           ? {
               ...msg.fileInfo,
-              originalName:
-                decrypt(msg.fileInfo.originalName) || "Unknown file",
-              url: decrypt(msg.fileInfo.url) || "",
+              originalName: decrypt(msg.fileInfo.originalName),
+              url: decrypt(msg.fileInfo.url),
             }
           : null,
       };
     } catch (error) {
       console.error("Error decrypting message:", error);
-      return {
-        ...msg,
-        content: "Decryption failed",
-        fileInfo: msg.fileInfo
-          ? {
-              ...msg.fileInfo,
-              originalName: "Unknown file",
-              url: "",
-            }
-          : null,
-      };
+      return null;
     }
   };
 
@@ -277,7 +295,7 @@ const ChatRoom = ({ route }) => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `http://192.168.100.6:5000/conversations/getMessages/${convoID}`
+          `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
         );
         const decryptedMessages = response.data.map(decryptMessage);
         setMessages(decryptedMessages);
@@ -290,7 +308,7 @@ const ChatRoom = ({ route }) => {
         }, 100);
       }
     }
-  }, [convoID]);
+  }, []);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -327,10 +345,12 @@ const ChatRoom = ({ route }) => {
       return;
     }
 
-    if (!textMessage && !fileInfo) {
+    if (!textMessage?.trim() && !fileInfo) {
       console.log("No message or file to send");
       return;
     }
+
+    setIsSending(true);
 
     let conversationId;
     try {
@@ -376,20 +396,20 @@ const ChatRoom = ({ route }) => {
       console.log("New message object:", JSON.stringify(newMessage, null, 2));
 
       setMessage("");
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          ...newMessage,
-          content: textMessage || decrypt(newMessage.content),
-          fileInfo: fileInfo
-            ? {
-                ...fileInfo,
-                originalName: decrypt(fileInfo.originalName),
-                url: decrypt(fileInfo.url),
-              }
-            : null,
-        },
-      ]);
+      // setMessages((prevMessages) => [
+      //   ...prevMessages,
+      //   {
+      //     ...newMessage,
+      //     content: textMessage || decrypt(newMessage.content),
+      //     fileInfo: fileInfo
+      //       ? {
+      //           ...fileInfo,
+      //           originalName: decrypt(fileInfo.originalName),
+      //           url: decrypt(fileInfo.url),
+      //         }
+      //       : null,
+      //   },
+      // ]);
       console.log("Message added to local state");
 
       setTimeout(() => {
@@ -403,6 +423,17 @@ const ChatRoom = ({ route }) => {
         }/messages`,
         newMessage
       );
+
+      // setMessages((prevMessages) => [
+      //   ...prevMessages,
+      //   {
+      //     ...newMessage,
+      //     _id: response.data._id, // Use the ID from the server response
+      //     content: textMessage, // Use the unencrypted text for display
+      //     isSender: true, // Flag to identify sender's messages
+      //   },
+      // ]);
+
       console.log("Server response:", JSON.stringify(response.data, null, 2));
 
       console.log("Updating last message");
@@ -416,12 +447,13 @@ const ChatRoom = ({ route }) => {
       );
 
       console.log("Emitting sendMessage event to socket");
-      socket?.emit("sendMessage", {
-        newMessage: {
-          ...newMessage,
-          content: textMessage || newMessage.content,
-        },
-      });
+      // socket?.emit("sendMessage", {
+      //   newMessage: {
+      //     ...newMessage,
+      //     content: textMessage || newMessage.content,
+      //   },
+      //   room: convoID,
+      // });
       console.log("Message sent successfully");
       await sendNotification(
         receiverId,
@@ -439,95 +471,125 @@ const ChatRoom = ({ route }) => {
         console.error("Error message:", error.message);
       }
       Alert.alert("Error", "Failed to send the message. Please try again.");
+    } finally {
+      setIsSending(false);
     }
   };
 
-  return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
-      ) : (
-        <ScrollView
-          ref={scrollViewRef}
-          onContentSizeChange={() =>
-            scrollViewRef.current?.scrollToEnd({ animated: true })
-          }
-        >
-          {messages.map((item, index) => (
-            <Pressable
-              onPress={() => handleMessagePress(item)}
-              key={index}
-              style={[
-                styles.message,
-                item.sender === userId
-                  ? styles.sentMessage
-                  : styles.receivedMessage,
-              ]}
-            >
-              {item.fileInfo ? (
-                <View style={styles.fileMessage}>
-                  <FontAwesome name="file-o" size={24} color="red" />
-                  <View style={styles.fileInfo}>
-                    <Text style={styles.fileName}>
-                      {item.fileInfo.originalName}
-                    </Text>
-                    <Text style={styles.fileSize}>
-                      {(item.fileInfo.size / 1024).toFixed(2)} KB
-                    </Text>
-                  </View>
-                </View>
-              ) : (
-                <Text
-                  style={
-                    item.sender === userId
-                      ? styles.messageContent
-                      : styles.receivedMessageContent
-                  }
-                >
-                  {item.content}
-                </Text>
-              )}
-              <Text style={styles.messageTime}>
-                {formatTime(item.timestamp)}
-              </Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-      )}
+  const debouncedSendMessage = useCallback(
+    debounce((message) => sendMessage(message), 300, {
+      leading: true,
+      trailing: false,
+    }),
+    []
+  );
 
-      <View style={styles.inputContainer}>
-        {/* <Entypo name="emoji-happy" size={24} color="gray" /> */}
-        <FontAwesome
-          onPress={handleFileSelection}
-          name="file-pdf-o"
-          size={24}
-          color="gray"
-        />
-        <TextInput
-          placeholder="Type your message..."
-          value={message}
-          onChangeText={setMessage}
-          style={styles.textInput}
-        />
-        <View style={styles.iconContainer}>
-          <Entypo name="camera" size={24} color="gray" />
-          <Feather name="mic" size={24} color="gray" />
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : null}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+      >
+        {loading ? (
+          <ActivityIndicator
+            size="large"
+            color="#0000ff"
+            style={styles.loader}
+          />
+        ) : (
+          <ScrollView
+            ref={scrollViewRef}
+            contentContainerStyle={styles.scrollViewContent}
+            onContentSizeChange={() =>
+              scrollViewRef.current?.scrollToEnd({ animated: true })
+            }
+          >
+            {messages.map((item, index) => (
+              <Pressable
+                onPress={() => handleMessagePress(item)}
+                key={index}
+                style={[
+                  styles.message,
+                  item.sender === userId
+                    ? styles.sentMessage
+                    : styles.receivedMessage,
+                ]}
+              >
+                {item.fileInfo ? (
+                  <View style={styles.fileMessage}>
+                    <FontAwesome name="file-o" size={24} color="red" />
+                    <View style={styles.fileInfo}>
+                      <Text style={styles.fileName}>
+                        {item.fileInfo.originalName}
+                      </Text>
+                      <Text style={styles.fileSize}>
+                        {(item.fileInfo.size / 1024).toFixed(2)} KB
+                      </Text>
+                    </View>
+                  </View>
+                ) : (
+                  <Text
+                    style={
+                      item.sender === userId
+                        ? styles.messageContent
+                        : styles.receivedMessageContent
+                    }
+                  >
+                    {item.content}
+                  </Text>
+                )}
+                <Text style={styles.messageTime}>
+                  {formatTime(item.timestamp)}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        )}
+
+        <View style={styles.inputContainer}>
+          <FontAwesome
+            onPress={handleFileSelection}
+            name="file-pdf-o"
+            size={24}
+            color="gray"
+            style={styles.fileIcon}
+          />
+          <TextInput
+            placeholder="Type your message..."
+            value={message}
+            onChangeText={setMessage}
+            style={styles.textInput}
+          />
+          <View style={styles.iconContainer}>
+            <Entypo name="camera" size={24} color="gray" />
+            <Feather name="mic" size={24} color="gray" />
+          </View>
+
+          <Pressable
+            style={styles.sendButton}
+            onPress={() => debouncedSendMessage(message)}
+          >
+            <Text style={styles.sendButtonText}>Send</Text>
+          </Pressable>
         </View>
-        <Pressable
-          style={styles.sendButton}
-          onPress={() => sendMessage(message)}
-        >
-          <Text style={styles.sendButtonText}>Send</Text>
-        </Pressable>
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#121212",
+  },
+  container: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    paddingBottom: 20,
+  },
   container: {
     flex: 1,
     backgroundColor: "#121212",
@@ -605,6 +667,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#333333",
   },
+  fileIcon: {
+    marginRight: 10,
+  },
   textInput: {
     flex: 1,
     height: 40,
@@ -614,14 +679,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     backgroundColor: "#333333",
     color: "white",
-    marginLeft: 10,
+    marginRight: 10,
   },
   sendButton: {
     backgroundColor: "#3777f0",
     paddingHorizontal: 15,
     paddingVertical: 10,
     borderRadius: 20,
-    marginLeft: 10,
+  },
+  sendButtonText: {
+    color: "white",
+    fontWeight: "bold",
   },
   loader: {
     flex: 1,

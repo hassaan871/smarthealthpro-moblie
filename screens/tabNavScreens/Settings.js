@@ -76,21 +76,23 @@ const SettingsScreen = () => {
 
   const deleteUser = async () => {
     try {
-      const deleteResponse = await axios.delete(`http://192.168.100.6:5000/user/deleteUser/${userInfo._id}`);
-      console.log('User deleted successfully', deleteResponse.data);
+      const deleteResponse = await axios.delete(
+        `http://192.168.18.124:5000/user/deleteUser/${userInfo._id}`
+      );
+      console.log("User deleted successfully", deleteResponse.data);
       // You can handle further actions after deletion, like navigation or UI updates.
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error("Error deleting user:", error);
     }
   };
 
   const confirmDelete = () => {
     Alert.alert(
-      'Delete User',
-      'Are you sure you want to delete your account? your data will be deleted permenantly',
+      "Delete User",
+      "Are you sure you want to delete your account? your data will be deleted permenantly",
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Yes', onPress: deleteUser }
+        { text: "Cancel", style: "cancel" },
+        { text: "Yes", onPress: deleteUser },
       ],
       { cancelable: false }
     );

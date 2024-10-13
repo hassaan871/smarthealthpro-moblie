@@ -22,7 +22,7 @@ export const SocketContextProvider = ({ children }) => {
     try {
       const userId = await AsyncStorage.getItem("userToken");
       if (userId) {
-        const newSocket = io("http://192.168.100.6:5000", {
+        const newSocket = io("http://192.168.18.124:5000", {
           query: { userId: userId },
           reconnection: true,
           reconnectionAttempts: 5,

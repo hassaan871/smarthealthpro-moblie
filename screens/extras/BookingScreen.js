@@ -132,70 +132,75 @@ export default function BookingScreen({ route, navigation }) {
       return;
     }
 
-    // setLoading(true);
-    // try {
+    setLoading(true);
+    try {
+      console.log("sdsdsd", {
+        // doctor: {
+        //   id: item.user._id,
+        //   name: item.user.fullName,
+        //   avatar: item.user.avatar,
+        //   specialization: item.specialization,
+        // },
+        patient: {
+          id: userInfo?._id,
+          name:
+            userInfo?.fullName ||
+            "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+          avatar: userInfo?.avatar,
+        },
+        // date: selected,
+        // appointmentStatus: "tbd",
+        // description: "Appointment with " + item.user.fullName,
+        // location:  doctorInfo.address,
+        // priority: extractPriority,
+        // bookedOn: selected,
+      });
 
-    //   console.log("sdsdsd",{
-    //     // doctor: {
-    //     //   id: item.user._id,
-    //     //   name: item.user.fullName,
-    //     //   avatar: item.user.avatar,
-    //     //   specialization: item.specialization,
-    //     // },
-    //     patient: {
-    //       id: userInfo?._id,
-    //       name: userInfo?.fullName || "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
-    //       avatar: userInfo?.avatar
-    //     },
-    //     // date: selected,
-    //     // appointmentStatus: "tbd",
-    //     // description: "Appointment with " + item.user.fullName,
-    //     // location:  doctorInfo.address,
-    //     // priority: extractPriority,
-    //     // bookedOn: selected,
-    //   });
+      const body = {
+        doctor: {
+          // id: doctorInfo._id,
+          // name: doctorInfo.fullName,
+          // avatar:doctorInfo.avatar ,
+          // specialization: doctorInfo.specialization
+          id: doctorInfo._id,
+          name: doctorInfo.user.fullName,
+          avatar: doctorInfo.user.avatar,
+          specialization: doctorInfo.specialization,
+        },
+        patient: {
+          id: userInfo._id,
+          name: userInfo.fullName,
+          avatar: userInfo.avatar,
+        },
+        date: selected,
+        appointmentStatus: "tbd",
+        description: "Appointment for a check-up",
+        location: doctorInfo.address,
+        priority: extractPriority,
+        bookedOn: selected,
+      };
 
-    //   const response = await axios.post(
-    //     "http://10.135.89.29:5000/appointment/postAppointment",
-    //     {
-    //       doctor: {
-    //         // id: doctorInfo._id,
-    //         // name: doctorInfo.fullName,
-    //         // avatar:doctorInfo.avatar ,
-    //         // specialization: doctorInfo.specialization
-    //         id: doctorInfo._id,
-    //         name: doctorInfo.user.fullName,
-    //         avatar: doctorInfo.user.avatar,
-    //         specialization: doctorInfo.specialization
-    //       },
-    //       patient: {
-    //         id: userInfo._id,
-    //         name: userInfo.fullName,
-    //         avatar: userInfo. avatar
-    //       },
-    //       date: selected,
-    //       appointmentStatus: "tbd",
-    //       description: "Appointment for a check-up",
-    //       location:doctorInfo.address,
-    //       priority: extractPriority,
-    //       bookedOn: selected
-    //     }
-    //   );
+      // console.log("body of booking: ", body);
 
-    //   setLoading(false);
-    //   if (response.status === 201) {
-    //     setModalVisible(true);
-    //   } else {
-    //     Alert.alert("Error", "Failed to create appointment. Please try again.");
-    //   }
-    // } catch (error) {
-    //   setLoading(false);
-    //   console.error("Error creating appointment:", error);
-    //   Alert.alert(
-    //     "Error",
-    //     "An error occurred while creating the appointment. Please try again."
-    //   );
-    // }
+      const response = await axios.post(
+        "http://192.168.18.124:5000/appointment/postAppointment",
+        body
+      );
+
+      setLoading(false);
+      if (response.status === 201) {
+        setModalVisible(true);
+      } else {
+        Alert.alert("Error", "Failed to create appointment. Please try again.");
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Error creating appointment:", error);
+      Alert.alert(
+        "Error",
+        "An error occurred while creating the appointment. Please try again."
+      );
+    }
   };
 
   return (

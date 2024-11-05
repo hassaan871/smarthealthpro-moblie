@@ -25,6 +25,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Context from "../../Helper/context";
 import { BottomSheet, ListItem } from "react-native-elements";
 import { FontAwesome } from "@expo/vector-icons";
+import * as Speech from 'expo-speech';
 
 const uuidv4 = () => {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
@@ -71,6 +72,7 @@ const BotChattingScreen = ({ route }) => {
   };
 
   const addMessage = (message) => {
+    speak(message)
     setMessages((prevMessages) => [...prevMessages, message]);
     setTimeout(() => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -120,7 +122,7 @@ const BotChattingScreen = ({ route }) => {
 
       // Send request to the backend with the chat message
       const response = await axios.post(
-        "http://192.168.18.124:8082/chat",
+        "http://10.135.89.29:8082/chat",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -194,7 +196,7 @@ const BotChattingScreen = ({ route }) => {
         console.log("Payload to backend:", payload);
 
         const doctorResponse = await axios.post(
-          "http://192.168.18.124:5000/appointment/getAvailableDoctors",
+          "http://10.135.89.29:5000/appointment/getAvailableDoctors",
           payload
         );
 
@@ -212,6 +214,7 @@ const BotChattingScreen = ({ route }) => {
         type: "text",
       };
       addMessage(receivedMessage);
+      // speak("hell2")
     } catch (error) {
       console.error("Error sending message to backend:", error);
     }
@@ -275,7 +278,7 @@ const BotChattingScreen = ({ route }) => {
 
           console.log("Sending request to server");
           const chatResponse = await axios.post(
-            "http://192.168.18.124:8082/chat",
+            "http://10.135.89.29:8082/chat",
             formData,
             {
               headers: {
@@ -370,6 +373,11 @@ const BotChattingScreen = ({ route }) => {
     </ListItem>
   );
 
+  const speak = (thingToSay) => {
+    console.log("thing",thingToSay.text)
+    Speech.speak(thingToSay.text);
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -411,7 +419,9 @@ const BotChattingScreen = ({ route }) => {
                   ? styles.sentMessage
                   : styles.receivedMessage,
               ]}
-              onPress={() => handleMessagePress(item)}
+              onPress={() => {
+                handleMessagePress(item)
+              }}
             >
               {item.type === "file" ? (
                 <View style={styles.fileMessage}>
@@ -467,7 +477,9 @@ const BotChattingScreen = ({ route }) => {
           /> */}
           <Feather name="mic" size={24} color="gray" />
         </View>
-        <Pressable style={styles.sendButton} onPress={handleSendPress}>
+        <Pressable style={styles.sendButton} onPress={()=>{
+          handleSendPress()
+          }}>
           <Text style={styles.sendButtonText}>Send</Text>
         </Pressable>
       </View>

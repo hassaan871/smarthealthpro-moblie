@@ -77,7 +77,7 @@ const SettingsScreen = () => {
   const deleteUser = async () => {
     try {
       const deleteResponse = await axios.delete(
-        `http://192.168.18.124:5000/user/deleteUser/${userInfo._id}`
+        `http://10.135.89.29:5000/user/deleteUser/${userInfo._id}`
       );
       console.log("User deleted successfully", deleteResponse.data);
       // You can handle further actions after deletion, like navigation or UI updates.

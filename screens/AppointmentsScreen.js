@@ -51,7 +51,7 @@ const AppointmentsScreen = () => {
     try {
       const userID = userInfo._id;
       console.log("user id is from all appointments: ", userID);
-      const link = `http://10.135.89.29:5000/appointment/getAllAppointments?${
+      const link = `http://192.168.18.124:5000/appointment/getAllAppointments?${
         userInfo.role === "doctor" ? "doctorId" : "patientId"
       }=${userID}`;
 
@@ -105,7 +105,7 @@ const AppointmentsScreen = () => {
   const confirmCancellation = async () => {
     try {
       await axios.delete(
-        `http://10.135.89.29:5000/appointment/cancelAppointment/${selectedAppointment._id}`
+        `http://192.168.18.124:5000/appointment/cancelAppointment/${selectedAppointment._id}`
       );
       fetchAllAppointments(); // Refresh the list
       setCancelConfirmation(false);
@@ -116,7 +116,7 @@ const AppointmentsScreen = () => {
 
   const submitReview = async () => {
     try {
-      await axios.post("http://10.135.89.29:5000/review/addReview", {
+      await axios.post("http://192.168.18.124:5000/review/addReview", {
         appointmentId: selectedAppointment._id,
         rating,
         comment: review,
@@ -133,7 +133,7 @@ const AppointmentsScreen = () => {
   const submitNotes = async () => {
     try {
       const encryptedNote = await encrypt(note);
-      await axios.post("http://10.135.89.29:5000/user/addNotes", {
+      await axios.post("http://192.168.18.124:5000/user/addNotes", {
         appointmentId: selectedAppointment._id,
         note: encryptedNote,
       });
@@ -152,7 +152,7 @@ const AppointmentsScreen = () => {
     }
 
     const patientId = appointment.patient.id;
-    const link = `http://10.135.89.29:5000/user/getUserInfo/${patientId}`;
+    const link = `http://192.168.18.124:5000/user/getUserInfo/${patientId}`;
 
     setIsLoading(true);
     try {

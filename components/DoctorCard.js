@@ -78,7 +78,7 @@ const DoctorCard = ({ item, isBook, closeModal }) => {
 
     try {
       const response = await axios.get(
-        `http://10.135.89.29:5000/check-conversation/${userInfo._id}/${item.user._id}`
+        `http://192.168.18.124:5000/check-conversation/${userInfo._id}/${item.user._id}`
       );
 
       let conversationId = response.data.conversationId;

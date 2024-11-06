@@ -105,9 +105,10 @@ const BotChattingScreen = ({ route }) => {
     return new Date(time).toLocaleString("en-US", options);
   };
 
-  const speak = (thingToSay) => {
-    if (thingToSay.text) {
-      Speech.speak(thingToSay.text);
+  const speak = (message) => {
+    if (message.author === chatbot && message.text) {
+      // Extra safety check
+      Speech.speak(message.text);
     }
   };
 

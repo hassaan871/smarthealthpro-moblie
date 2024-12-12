@@ -17,8 +17,8 @@ const DoctorCard = ({ item, isBook, closeModal }) => {
   const { userInfo } = useContext(Context);
 
   useEffect(() => {
-    console.log("Data from doctor card: ", item);
-    console.log("item rating is not null: ", item?.rating);
+    // console.log("Data from doctor card: ", item);
+    // console.log("item rating is not null: ", item?.rating);
   }, [item]);
 
   const renderStars = (rating) => {
@@ -46,9 +46,9 @@ const DoctorCard = ({ item, isBook, closeModal }) => {
     const halfStar = sanitizedRating % 1 !== 0; // Determine if there is a half star
     const emptyStars = Math.max(0, 5 - fullStars - (halfStar ? 1 : 0)); // Remaining empty stars
 
-    console.log(
-      `Sanitized Rating: ${sanitizedRating}, Full Stars: ${fullStars}, Half Star: ${halfStar}, Empty Stars: ${emptyStars}`
-    );
+    // console.log(
+    //   `Sanitized Rating: ${sanitizedRating}, Full Stars: ${fullStars}, Half Star: ${halfStar}, Empty Stars: ${emptyStars}`
+    // );
 
     return (
       <View style={styles.ratingContainer}>

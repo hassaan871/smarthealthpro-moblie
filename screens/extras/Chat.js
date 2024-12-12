@@ -15,7 +15,6 @@ const Chat = ({ item, isBotChat }) => {
 
   const handleChatPress = async () => {
     try {
-      // Navigate to your chatbot screen
       navigation.navigate("BotChattingScreen", {
         botName: "ChatBot",
       });
@@ -64,6 +63,18 @@ const Chat = ({ item, isBotChat }) => {
     );
   };
 
+  const updateLastRead = async (conversationId) => {
+    try {
+      const userId = userInfo._id; // Add this line to get current user's ID
+      await axios.post(
+        `http://192.168.18.124:5000/conversations/${conversationId}/read/${userId}`
+      );
+    } catch (error) {
+      console.error("Error updating read status:", error);
+    }
+  };
+  console.log("Item unread count:", item);
+
   return (
     <GestureHandlerRootView>
       <Swipeable renderRightActions={renderRightActions}>
@@ -72,6 +83,7 @@ const Chat = ({ item, isBotChat }) => {
             if (isBotChat) {
               handleChatPress();
             } else {
+              updateLastRead(item.convoID); // Call this immediately
               navigation.navigate("ChatRoom", {
                 item,
                 convoID: item?.convoID,
@@ -81,24 +93,35 @@ const Chat = ({ item, isBotChat }) => {
           }}
         >
           <View style={styles.container}>
-            <Image
-              source={{
-                uri:
-                  item?.avatar?.url?.length > 0
-                    ? item?.avatar?.url
-                    : item?.avatar,
-              }}
-              style={styles.avatar}
-            />
-            <View style={styles.chatInfo}>
-              <Text style={styles.name} numberOfLines={1}>
-                {item.name}
-              </Text>
-              <Text style={styles.lastMessage} numberOfLines={1}>
-                {item.lastMessage}
-              </Text>
+            <View style={styles.leftContent}>
+              <Image
+                source={{
+                  uri:
+                    item?.avatar?.url?.length > 0
+                      ? item?.avatar?.url
+                      : item?.avatar,
+                }}
+                style={styles.avatar}
+              />
+              <View style={styles.chatInfo}>
+                <Text style={styles.name} numberOfLines={1}>
+                  {item.name}
+                </Text>
+                <Text style={styles.lastMessage} numberOfLines={1}>
+                  {item.lastMessage}
+                </Text>
+              </View>
             </View>
-            <Text style={styles.timestamp}>{item?.time}</Text>
+            <View style={styles.rightContent}>
+              <Text style={styles.timestamp}>{item?.time}</Text>
+              {item.unreadCount > 0 && (
+                <View style={styles.unreadBadge}>
+                  <Text style={styles.unreadCount}>
+                    {item.unreadCount > 99 ? "99+" : item.unreadCount}
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
         </Pressable>
       </Swipeable>
@@ -110,11 +133,17 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingVertical: 12,
     paddingHorizontal: 16,
     backgroundColor: "#2C2C2E",
     borderRadius: 13,
     marginBottom: 20,
+  },
+  leftContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
   },
   avatar: {
     width: 50,
@@ -124,6 +153,7 @@ const styles = StyleSheet.create({
   chatInfo: {
     flex: 1,
     marginLeft: 12,
+    marginRight: 12,
   },
   name: {
     fontSize: 16,
@@ -135,9 +165,14 @@ const styles = StyleSheet.create({
     color: "#999",
     marginTop: 4,
   },
+  rightContent: {
+    alignItems: "flex-end",
+    minWidth: 65,
+  },
   timestamp: {
     fontSize: 12,
     color: "#999",
+    marginBottom: 4,
   },
   deleteButton: {
     backgroundColor: "red",
@@ -150,6 +185,20 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     color: "white",
+    fontWeight: "bold",
+  },
+  unreadBadge: {
+    backgroundColor: "#007bff",
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 6,
+  },
+  unreadCount: {
+    color: "white",
+    fontSize: 12,
     fontWeight: "bold",
   },
 });

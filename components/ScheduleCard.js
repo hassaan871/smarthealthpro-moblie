@@ -7,8 +7,8 @@ const ScheduleCard = ({ item }) => {
   const { userInfo } = useContext(Context);
 
   useEffect(() => {
-    console.log("userInfo from context: ", userInfo);
-    console.log("item from schedule: ", item);
+    // console.log("userInfo from context: ", userInfo);
+    // console.log("item from schedule: ", item);
   }, [item, userInfo]);
 
   function formatDateAndTime(isoString) {

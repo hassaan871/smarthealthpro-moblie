@@ -45,7 +45,7 @@ const ChatsScreen = () => {
           const formattedChats = response.data.map((chat) => {
             const participantIndex = chat.participants.indexOf(userInfo?._id);
             const avatar =
-              participantIndex === 0 ? chat.avatar[1] : chat.avatar[0];
+              participantIndex === 0 ? chat?.avatar[1] : chat?.avatar[0];
             const name = participantIndex === 0 ? chat.name[1] : chat.name[0];
 
             const receiverID =
@@ -72,6 +72,7 @@ const ChatsScreen = () => {
               avatar: avatar,
               receiverId: receiverID,
               time: formattedTime,
+              unreadCount: chat.unreadCount || 0,
             };
           });
 
@@ -84,6 +85,10 @@ const ChatsScreen = () => {
       };
 
       fetchChats();
+      // Set up periodic refresh if needed
+      const interval = setInterval(fetchChats, 30000); // Refresh every 30 seconds
+
+      return () => clearInterval(interval);
     }, [userInfo?._id]) // Add userInfo?._id as a dependency
   );
 
@@ -100,7 +105,7 @@ const ChatsScreen = () => {
         const formattedChats = response.data.map((chat) => {
           const participantIndex = chat.participants.indexOf(userInfo?._id);
           const avatar =
-            participantIndex === 0 ? chat.avatar[1] : chat.avatar[0];
+            participantIndex === 0 ? chat?.avatar[1] : chat?.avatar[0];
           const name = participantIndex === 0 ? chat.name[1] : chat.name[0];
 
           const receiverID =
@@ -127,6 +132,7 @@ const ChatsScreen = () => {
             avatar: avatar,
             receiverId: receiverID,
             time: formattedTime,
+            unreadCount: chat.unreadCount?.[userInfo._id] || 0,
           };
         });
 
@@ -168,9 +174,9 @@ const ChatsScreen = () => {
             style={styles.avatar}
             source={{
               uri:
-                userInfo.avatar?.url?.length > 0
-                  ? userInfo.avatar.url
-                  : userInfo.avatar,
+                userInfo?.avatar?.url?.length > 0
+                  ? userInfo?.avatar.url
+                  : userInfo?.avatar,
             }}
           />
         </Pressable>
@@ -232,7 +238,9 @@ const ChatsScreen = () => {
         )}
         data={options.includes("Chats") ? searchResults : []}
         keyExtractor={(item) => item?._id}
-        renderItem={({ item }) => <Chat item={item} isSearch={false} />}
+        renderItem={({ item }) => (
+          <Chat item={item} isSearch={false} unreadCount={item.unreadCount} />
+        )}
         ListEmptyComponent={() => (
           <View style={styles.emptyChatsContainer}>
             <Text style={styles.emptyChatsText}>No Chats yet</Text>

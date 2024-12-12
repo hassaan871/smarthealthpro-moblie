@@ -1,5 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useCallback, useMemo, useState, useEffect } from "react";
+import React, {
+  useCallback,
+  useMemo,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeContext } from "./Helper/ThemeContext";
 import { MyContextProvider } from "./Helper/context";
@@ -20,41 +26,12 @@ import { SocketContextProvider } from "./SocketContext"; // Import your SocketCo
 import messaging from "@react-native-firebase/messaging";
 import axios from "axios"; // Make sure to install axios if you haven't already
 import { Platform, PermissionsAndroid, Alert } from "react-native";
+import PushNotification from "react-native-push-notification";
+import { createNavigationContainerRef } from "@react-navigation/native";
 
 export default function App() {
   const [isThemeDark, setIsThemeDark] = useState(false);
-
-  useEffect(() => {
-    // Handle notifications when app is in background
-    messaging().onNotificationOpenedApp((remoteMessage) => {
-      console.log(
-        "Notification caused app to open from background state:",
-        remoteMessage
-      );
-      if (remoteMessage.data.conversationId) {
-        navigation.navigate("ChatRoom", {
-          convoID: remoteMessage.data.conversationId,
-        });
-      }
-    });
-
-    // Handle notifications when app is closed
-    messaging()
-      .getInitialNotification()
-      .then((remoteMessage) => {
-        if (remoteMessage) {
-          console.log(
-            "Notification caused app to open from quit state:",
-            remoteMessage
-          );
-          if (remoteMessage.data.conversationId) {
-            navigation.navigate("ChatRoom", {
-              convoID: remoteMessage.data.conversationId,
-            });
-          }
-        }
-      });
-  }, []);
+  const navigationRef = createNavigationContainerRef();
 
   async function requestAndroidNotificationPermission() {
     if (Platform.OS === "android" && Platform.Version >= 33) {
@@ -157,34 +134,78 @@ export default function App() {
     }
   }
 
+  PushNotification.configure({
+    onRegister: function (token) {
+      console.log("TOKEN:", token);
+    },
+    onNotification: async function (notification) {
+      console.log("NOTIFICATION:", notification);
+
+      if (notification.userInteraction) {
+        const userToken = await AsyncStorage.getItem("userToken");
+        if (userToken && navigationRef.isReady()) {
+          console.log("Navigating from onNotification handler");
+          navigationRef.navigate("ChatsScreen");
+        }
+      }
+    },
+    popInitialNotification: true,
+    requestPermissions: true,
+    permissions: {
+      alert: true,
+      badge: true,
+      sound: true,
+    },
+  });
+
   useEffect(() => {
     requestUserPermission();
 
+    // For foreground notifications
+    // Also modify your foreground notification:
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-      // Alert.alert("New Message", JSON.stringify(remoteMessage));
+      console.log("Foreground message received:", remoteMessage);
+
+      PushNotification.localNotification({
+        channelId: "default",
+        title: remoteMessage.notification?.title,
+        message: remoteMessage.notification?.body,
+        playSound: true,
+        importance: "high",
+        priority: "high",
+        userInteraction: true,
+        data: remoteMessage.data, // Pass through the data
+        // Remove onPress from here as it's handled in onNotification above
+      });
     });
 
-    messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-      console.log("Message handled in the background!", remoteMessage);
-    });
-
+    // For background notifications
     messaging().onNotificationOpenedApp((remoteMessage) => {
-      console.log(
-        "Notification caused app to open from background state:",
-        remoteMessage.notification
-      );
-      // Navigate to appropriate screen based on the notification
+      AsyncStorage.getItem("userToken").then((userToken) => {
+        if (userToken) {
+          setTimeout(() => {
+            if (navigationRef.isReady()) {
+              navigationRef.navigate("ChatsScreen");
+            }
+          }, 1000);
+        }
+      });
     });
 
+    // For quit state notifications
     messaging()
       .getInitialNotification()
       .then((remoteMessage) => {
         if (remoteMessage) {
-          console.log(
-            "Notification caused app to open from quit state:",
-            remoteMessage.notification
-          );
-          // Navigate to appropriate screen based on the notification
+          AsyncStorage.getItem("userToken").then((userToken) => {
+            if (userToken) {
+              setTimeout(() => {
+                if (navigationRef.isReady()) {
+                  navigationRef.navigate("ChatsScreen");
+                }
+              }, 1000);
+            }
+          });
         }
       });
 
@@ -243,7 +264,7 @@ export default function App() {
           >
             <MyContextProvider>
               <SocketContextProvider>
-                <NavigationContainer theme={navTheme}>
+                <NavigationContainer ref={navigationRef} theme={navTheme}>
                   <GestureHandlerRootView style={{ flex: 1 }}>
                     <AppNavigator />
                   </GestureHandlerRootView>

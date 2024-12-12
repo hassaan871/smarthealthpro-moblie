@@ -39,26 +39,26 @@ const HomeScreen = () => {
     setAppointments,
   } = useContext(Context);
 
-  console.log("user ingo", userInfo);
+  // console.log("user ingo", userInfo);
 
   const modalSearchInputRef = useRef(null);
 
   useEffect(() => {
-    console.log("use effect from homesceen ");
+    // console.log("use effect from homesceen ");
 
     const fetchUser = async () => {
-      console.log("entering fetchuser from homescreen ");
+      // console.log("entering fetchuser from homescreen ");
       const userID = await AsyncStorage.getItem("userToken");
-      console.log("user id is from async: ", userID);
+      // console.log("user id is from async: ", userID);
       if (userID !== null) {
         const response = await axios.get(
           `http://192.168.18.124:5000/user/getUserInfo/${userID}`
         );
 
-        console.log("response users data: ", response.data.user);
+        // console.log("response users data: ", response.data.user);
         setUserInfo(response.data.user);
       } else {
-        console.log("User token not available");
+        // console.log("User token not available");
       }
     };
 
@@ -68,18 +68,18 @@ const HomeScreen = () => {
   useEffect(() => {
     const fetchAppointment = async () => {
       const userID = userInfo._id;
-      console.log("user id is from userinfo: ", userID);
+      // console.log("user id is from userinfo: ", userID);
       const link = `http://192.168.18.124:5000/appointment/getAllAppointments?${
         userInfo.role === "doctor" ? "doctorId" : "patientId"
       }=${userID}`;
 
-      console.log("link from userinfo: ", link);
+      // console.log("link from userinfo: ", link);
 
       if (userID !== null) {
         try {
           const response = await axios.get(link);
 
-          console.log("response appointment: ", response.data.appointments);
+          // console.log("response appointment: ", response.data.appointments);
 
           // Filter appointments
           const filteredAppointments = response.data.appointments
@@ -101,7 +101,7 @@ const HomeScreen = () => {
           console.error("Error fetching appointments:", error);
         }
       } else {
-        console.log("User token not available");
+        // console.log("User token not available");
       }
     };
 
@@ -110,17 +110,17 @@ const HomeScreen = () => {
 
   useEffect(() => {
     const fetchPopularDoctors = async () => {
-      console.log("Fetching popular doctor");
+      // console.log("Fetching popular doctor");
       try {
         const response = await axios.get(
           `http://192.168.18.124:5000/user/getDoctorsBySatisfaction`
         );
 
-        console.log("response doctors: ", response.data[0]);
+        // console.log("response doctors: ", response.data[0]);
         let doctorsInfo = response.data;
         setPopularDoctors(doctorsInfo);
         setSearchResults(popularDoctors);
-        console.log("popular doctors: ", doctorsInfo);
+        // console.log("popular doctors: ", doctorsInfo);
       } catch (error) {
         console.error("Error fetching popular doctors:", error);
       }
@@ -130,7 +130,7 @@ const HomeScreen = () => {
   }, []);
 
   useEffect(() => {
-    console.log("popular doctor: ", popularDoctors[0]);
+    // console.log("popular doctor: ", popularDoctors[0]);
     // console.log("userinfo id: ", userInfo._id);
 
     setSearchResults(
@@ -165,8 +165,8 @@ const HomeScreen = () => {
 
       // Check if the doctor's full name matches userInfo?.fullName
       const isCurrentUser = item.user?.fullName === userInfo?.fullName;
-      console.log("item full name: ", item.user?.fullName);
-      console.log("userinfo full name: ", userInfo?.fullName);
+      // console.log("item full name: ", item.user?.fullName);
+      // console.log("userinfo full name: ", userInfo?.fullName);
       // Check if either the fullName or specialization includes the search query
       // and exclude the current user
       return (

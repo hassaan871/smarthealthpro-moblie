@@ -2,6 +2,9 @@ package com.arif_nawaz.smarthealthpro
 
 import android.os.Build
 import android.os.Bundle
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -17,6 +20,24 @@ class MainActivity : ReactActivity() {
     // This is required for expo-splash-screen.
     setTheme(R.style.AppTheme);
     super.onCreate(null)
+
+    createNotificationChannel()
+  }
+
+    private fun createNotificationChannel() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      val channel = NotificationChannel(
+        "default",
+        "Default Channel",
+        NotificationManager.IMPORTANCE_HIGH
+      ).apply {
+        description = "Default notification channel"
+        enableVibration(true)
+      }
+      
+      val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+      notificationManager.createNotificationChannel(channel)
+    }
   }
 
   /**

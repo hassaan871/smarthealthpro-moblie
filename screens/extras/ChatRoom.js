@@ -37,7 +37,6 @@ import CryptoES from "crypto-es";
 import messaging from "@react-native-firebase/messaging";
 import { encrypt, decrypt } from "./EncryptionUtils";
 import { useFocusEffect } from "@react-navigation/native";
-import { debounce } from "lodash";
 
 const ChatRoom = ({ route }) => {
   const { item, convoID, receiverId } = route.params;
@@ -47,6 +46,8 @@ const ChatRoom = ({ route }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [messageReadStatus, setMessageReadStatus] = useState({});
+  const [sentMessageIds] = useState(new Set());
   const { userInfo } = useContext(Context);
   const { socket, connectSocket } = useSocketContext();
 
@@ -66,8 +67,32 @@ const ChatRoom = ({ route }) => {
     joinRoom();
     return () => leaveRoom();
   }, [joinRoom, leaveRoom]);
-  0;
 
+  // Add this effect to mark messages as read when entering chat
+  useEffect(() => {
+    if (convoID && userInfo?._id) {
+      axios
+        .post(
+          `http://192.168.18.124:5000/conversations/${convoID}/mark-messages-read`,
+          {
+            conversationId: convoID,
+            userId: userInfo._id,
+          }
+        )
+        .catch((error) => {
+          console.error("Error marking messages as read:", error);
+        });
+
+      // Reset unread count
+      axios
+        .post(
+          `http://192.168.18.124:5000/conversations/${convoID}/read/${userInfo._id}`
+        )
+        .catch((error) => {
+          console.error("Error resetting unread count:", error);
+        });
+    }
+  }, [convoID, userInfo?._id]);
   useFocusEffect(
     React.useCallback(() => {
       if (!socket || !socket.connected) {
@@ -82,30 +107,77 @@ const ChatRoom = ({ route }) => {
 
   useEffect(() => {
     if (socket) {
+      const handleMessageRead = (data) => {
+        console.log("Received message read event:", data);
+
+        // Update messages state to reflect read status
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg._id === data.messageId
+              ? {
+                  ...msg,
+                  readStatus: data.readStatus,
+                  status: data.status,
+                }
+              : msg
+          )
+        );
+      };
+
+      socket.on("messageRead", handleMessageRead);
+      return () => socket.off("messageRead", handleMessageRead);
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
       const handleMessageReceive = (newMessage) => {
         console.log("Received message:", newMessage);
+
+        // If this is our own message and we already have it, skip
+        if (
+          newMessage.sender === userInfo._id &&
+          messages.some(
+            (msg) =>
+              msg._id === newMessage._id || msg._id === Date.now().toString()
+          )
+        ) {
+          return;
+        }
+
+        // For messages from others, check if we already have it
+        if (
+          newMessage.sender !== userInfo._id &&
+          messages.some((msg) => msg._id === newMessage._id)
+        ) {
+          return;
+        }
+
         const decryptedMessage = decryptMessage(newMessage);
         if (decryptedMessage) {
           setMessages((prevMessages) => {
-            // Check if the message already exists in the array
-            if (!prevMessages.some((msg) => msg._id === decryptedMessage._id)) {
-              return [...prevMessages, decryptedMessage];
+            // One final check to prevent duplicates
+            if (prevMessages.some((msg) => msg._id === decryptedMessage._id)) {
+              return prevMessages;
             }
-            return prevMessages;
+            return [
+              ...prevMessages,
+              {
+                ...decryptedMessage,
+                readStatus: {
+                  [userInfo._id]: true,
+                  [receiverId]: false,
+                },
+              },
+            ];
           });
-          scrollViewRef.current?.scrollToEnd({ animated: true });
-        } else {
-          console.error("Failed to decrypt message:", newMessage);
         }
       };
 
       socket.on("newMessage", handleMessageReceive);
-
-      return () => {
-        socket.off("newMessage", handleMessageReceive);
-      };
+      return () => socket.off("newMessage", handleMessageReceive);
     }
-  }, [socket]);
+  }, [socket, userInfo._id, receiverId, messages]);
 
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
@@ -120,12 +192,6 @@ const ChatRoom = ({ route }) => {
     return unsubscribe;
   }, []);
 
-  useEffect(() => {
-    if (convoID) {
-      setLoading(true);
-    }
-  }, []);
-
   const scrollViewRef = useRef();
 
   // console.log("Receiver ID:", receiverId);
@@ -138,10 +204,10 @@ const ChatRoom = ({ route }) => {
         const pdfUrl = item.fileInfo.url;
         console.log("Attempting to open PDF:", pdfUrl);
 
-        // Make sure the URL uses http://10.0.2.2:5000 for Android emulator
+        // Make sure the URL uses http://192.168.18.124:5000 for Android emulator
         const adjustedUrl = pdfUrl.replace(
           "http://192.168.18.124:5000",
-          "http://10.0.2.2:5000"
+          "http://192.168.18.124:5000"
         );
 
         navigation.navigate("PdfViewer", { uri: adjustedUrl });
@@ -228,7 +294,7 @@ const ChatRoom = ({ route }) => {
 
         console.log("Sending POST request to upload file");
         const uploadResponse = await axios.post(
-          `http://10.0.2.2:5000/upload`,
+          `http://192.168.18.124:5000/upload`,
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -322,7 +388,7 @@ const ChatRoom = ({ route }) => {
   const sendNotification = async (receiverId, senderName, messageContent) => {
     try {
       const response = await axios.post(
-        "http://10.0.2.2:5000/send-notification",
+        "http://192.168.18.124:5000/send-notification",
         {
           receiverId,
           title: `New message from ${senderName}`,
@@ -336,153 +402,85 @@ const ChatRoom = ({ route }) => {
   };
 
   const sendMessage = async (textMessage = null, fileInfo = null) => {
-    console.log("Starting sendMessage function");
-    console.log("textMessage:", textMessage);
-    console.log("fileInfo:", JSON.stringify(fileInfo, null, 2));
-
-    if (!socket) {
-      console.log("socket does not exist");
-      return;
-    }
-
-    if (!textMessage?.trim() && !fileInfo) {
-      console.log("No message or file to send");
+    if (!socket || (!textMessage?.trim() && !fileInfo) || isSending) {
       return;
     }
 
     setIsSending(true);
+    const messageId = Date.now().toString();
 
-    let conversationId;
     try {
-      if (!convoID) {
-        console.log("Creating new conversation");
-        const response = await axios.post(
-          "http://10.0.2.2:5000/conversations",
-          {
-            currentUserId: userInfo._id,
-            otherUserId: item._id,
-            currentUserObjectIdAvatar: userInfo?.avatar,
-            otherUserObjectIdAvatar: item?.avatar,
-            currentUserObjectIdName: userInfo?.fullName,
-            otherUserObjectIdName: item?.fullName,
-          }
-        );
-        conversationId = response.data?._id;
-        console.log("New conversation created with ID:", conversationId);
-      } else {
-        console.log("Using existing conversation ID:", convoID);
-      }
+      const newMessage = {
+        _id: messageId,
+        content: textMessage ? encrypt(textMessage) : encrypt("File shared"),
+        sender: userInfo._id,
+        conversationId: convoID,
+        timestamp: new Date(),
+        fileInfo: fileInfo || null,
+        readStatus: {
+          [userInfo._id]: true,
+        },
+      };
 
-      let newMessage;
-      if (textMessage) {
-        const encryptedContent = encrypt(textMessage);
-        newMessage = {
-          content: encryptedContent,
-          sender: userInfo._id,
-          conversationId: convoID ? convoID : conversationId,
-          timestamp: new Date(),
-        };
-      } else if (fileInfo) {
-        console.log("file info in chatroom: ", fileInfo);
-        newMessage = {
-          content: encrypt("File shared"),
-          sender: userInfo._id,
-          conversationId: convoID ? convoID : conversationId,
-          timestamp: new Date(),
-          fileInfo: fileInfo,
-        };
-      }
-
-      console.log("New message object:", JSON.stringify(newMessage, null, 2));
-
+      // Clear input immediately
       setMessage("");
-      // setMessages((prevMessages) => [
-      //   ...prevMessages,
-      //   {
-      //     ...newMessage,
-      //     content: textMessage || decrypt(newMessage.content),
-      //     fileInfo: fileInfo
-      //       ? {
-      //           ...fileInfo,
-      //           originalName: decrypt(fileInfo.originalName),
-      //           url: decrypt(fileInfo.url),
-      //         }
-      //       : null,
-      //   },
-      // ]);
-      console.log("Message added to local state");
 
-      setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-      }, 100);
-
-      console.log("Sending message to server");
-      const response = await axios.post(
-        `http://10.0.2.2:5000/conversations/${
-          convoID ? convoID : conversationId
-        }/messages`,
+      // Send to server first
+      const messageResponse = await axios.post(
+        `http://192.168.18.124:5000/conversations/${convoID}/messages`,
         newMessage
       );
 
-      // setMessages((prevMessages) => [
-      //   ...prevMessages,
-      //   {
-      //     ...newMessage,
-      //     _id: response.data._id, // Use the ID from the server response
-      //     content: textMessage, // Use the unencrypted text for display
-      //     isSender: true, // Flag to identify sender's messages
-      //   },
-      // ]);
+      // After server confirms, emit to socket
+      socket?.emit("newMessage", {
+        ...newMessage,
+        _id: messageResponse.data._id,
+      });
 
-      console.log("Server response:", JSON.stringify(response.data, null, 2));
+      // Update lastMessage in background
+      axios
+        .put(
+          `http://192.168.18.124:5000/conversations/${convoID}/lastMessage`,
+          { lastMessage: textMessage || "File shared" }
+        )
+        .catch(console.error);
 
-      console.log("Updating last message");
-      await axios.put(
-        `http://10.0.2.2:5000/conversations/${
-          convoID ? convoID : conversationId
-        }/lastMessage`,
-        {
-          lastMessage: textMessage || "File shared",
-        }
-      );
-
-      console.log("Emitting sendMessage event to socket");
-      // socket?.emit("sendMessage", {
-      //   newMessage: {
-      //     ...newMessage,
-      //     content: textMessage || newMessage.content,
-      //   },
-      //   room: convoID,
-      // });
-      console.log("Message sent successfully");
-      await sendNotification(
+      // Send notification in background
+      sendNotification(
         receiverId,
         userInfo.fullName,
         textMessage || "New file shared"
-      );
+      ).catch(console.error);
     } catch (error) {
-      console.error("Error in sendMessage:", error);
-      if (error.response) {
-        console.error("Error response data:", error.response.data);
-        console.error("Error response status:", error.response.status);
-      } else if (error.request) {
-        console.error("Error request:", error.request);
-      } else {
-        console.error("Error message:", error.message);
-      }
-      Alert.alert("Error", "Failed to send the message. Please try again.");
+      Alert.alert("Error", "Failed to send message. Please try again.");
+      console.error("Send message error:", error);
     } finally {
       setIsSending(false);
     }
   };
 
-  const debouncedSendMessage = useCallback(
-    debounce((message) => sendMessage(message), 300, {
-      leading: true,
-      trailing: false,
-    }),
-    []
-  );
+  const markMessageAsRead = async (messageId) => {
+    if (socket && messageId) {
+      console.log("Attempting to mark message as read:", messageId);
+      socket.emit("messageRead", {
+        messageId,
+        conversationId: convoID,
+        userId: userInfo._id,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (messages.length > 0 && !loading) {
+      const lastMessage = messages[messages.length - 1];
+
+      // Only mark as read if it's not the current user's message
+      if (lastMessage.sender !== userInfo._id) {
+        console.log("Attempting to mark last message as read:", lastMessage);
+        markMessageAsRead(lastMessage._id);
+      }
+    }
+  }, [messages, loading, userInfo._id]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -505,45 +503,59 @@ const ChatRoom = ({ route }) => {
               scrollViewRef.current?.scrollToEnd({ animated: true })
             }
           >
-            {messages.map((item, index) => (
-              <Pressable
-                onPress={() => handleMessagePress(item)}
-                key={index}
-                style={[
-                  styles.message,
-                  item.sender === userId
-                    ? styles.sentMessage
-                    : styles.receivedMessage,
-                ]}
-              >
-                {item.fileInfo ? (
-                  <View style={styles.fileMessage}>
-                    <FontAwesome name="file-o" size={24} color="red" />
-                    <View style={styles.fileInfo}>
-                      <Text style={styles.fileName}>
-                        {item.fileInfo.originalName}
-                      </Text>
-                      <Text style={styles.fileSize}>
-                        {(item.fileInfo.size / 1024).toFixed(2)} KB
-                      </Text>
+            {messages.map((item, index) => {
+              const isLastMessage = index === messages.length - 1;
+
+              return (
+                <Pressable
+                  onPress={() => handleMessagePress(item)}
+                  key={index}
+                  style={[
+                    styles.message,
+                    item.sender === userId
+                      ? styles.sentMessage
+                      : styles.receivedMessage,
+                  ]}
+                >
+                  {item.fileInfo ? (
+                    <View style={styles.fileMessage}>
+                      <FontAwesome name="file-o" size={24} color="red" />
+                      <View style={styles.fileInfo}>
+                        <Text style={styles.fileName}>
+                          {item.fileInfo.originalName}
+                        </Text>
+                        <Text style={styles.fileSize}>
+                          {(item.fileInfo.size / 1024).toFixed(2)} KB
+                        </Text>
+                      </View>
                     </View>
+                  ) : (
+                    <Text
+                      style={
+                        item.sender === userId
+                          ? styles.messageContent
+                          : styles.receivedMessageContent
+                      }
+                    >
+                      {item.content}
+                    </Text>
+                  )}
+                  <View style={styles.messageFooter}>
+                    <Text style={styles.messageTime}>
+                      {formatTime(item.timestamp)}
+                      {item.sender === userId && isLastMessage && (
+                        <Text style={styles.messageStatus}>
+                          {" • "}
+                          {item.readStatus && item.readStatus[receiverId]
+                            ? "Read"
+                            : "Delivered"}
+                        </Text>
+                      )}
+                    </Text>
                   </View>
-                ) : (
-                  <Text
-                    style={
-                      item.sender === userId
-                        ? styles.messageContent
-                        : styles.receivedMessageContent
-                    }
-                  >
-                    {item.content}
-                  </Text>
-                )}
-                <Text style={styles.messageTime}>
-                  {formatTime(item.timestamp)}
-                </Text>
-              </Pressable>
-            ))}
+                </Pressable>
+              );
+            })}
           </ScrollView>
         )}
 
@@ -560,6 +572,13 @@ const ChatRoom = ({ route }) => {
             value={message}
             onChangeText={setMessage}
             style={styles.textInput}
+            editable={!isSending}
+            onSubmitEditing={() => {
+              if (!isSending && message.trim()) {
+                sendMessage(message);
+              }
+            }}
+            returnKeyType="send"
           />
           <View style={styles.iconContainer}>
             <Entypo name="camera" size={24} color="gray" />
@@ -567,10 +586,17 @@ const ChatRoom = ({ route }) => {
           </View>
 
           <Pressable
-            style={styles.sendButton}
-            onPress={() => debouncedSendMessage(message)}
+            style={[styles.sendButton, isSending && styles.sendButtonDisabled]}
+            onPress={() => {
+              if (!isSending && message.trim()) {
+                sendMessage(message);
+              }
+            }}
+            disabled={isSending}
           >
-            <Text style={styles.sendButtonText}>Send</Text>
+            <Text style={styles.sendButtonText}>
+              {isSending ? "Sending..." : "Send"}
+            </Text>
           </Pressable>
         </View>
       </KeyboardAvoidingView>
@@ -630,19 +656,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   message: {
-    padding: 10,
-    marginVertical: 5,
-    marginHorizontal: 10,
-    borderRadius: 20,
+    padding: 8,
+    marginVertical: 2,
+    marginHorizontal: 8,
+    borderRadius: 16,
     maxWidth: "75%",
   },
+
   sentMessage: {
     alignSelf: "flex-end",
-    backgroundColor: "#3777f0",
+    backgroundColor: "#0084ff", // Facebook Messenger blue
   },
+
   receivedMessage: {
     alignSelf: "flex-start",
-    backgroundColor: "#2e2e2e",
+    backgroundColor: "#3a3b3c", // Darker gray for dark theme
   },
   messageContent: {
     fontSize: 15,
@@ -715,6 +743,26 @@ const styles = StyleSheet.create({
   fileSize: {
     color: "#b0b0b0",
     fontSize: 12,
+  },
+  messageFooter: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    marginTop: 2,
+  },
+
+  messageTime: {
+    fontSize: 11,
+    color: "rgba(255, 255, 255, 0.7)",
+  },
+
+  messageStatus: {
+    fontSize: 11,
+    color: "rgba(255, 255, 255, 0.7)",
+  },
+  sendButtonDisabled: {
+    backgroundColor: "#2a5aa9",
+    opacity: 0.7,
   },
 });
 

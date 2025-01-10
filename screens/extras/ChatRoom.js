@@ -31,12 +31,80 @@ import Feather from "react-native-vector-icons/Feather";
 import axios from "axios";
 import { useSocketContext } from "../../SocketContext";
 import Context from "../../Helper/context";
-import * as Crypto from "expo-crypto";
-var C = require("crypto-js");
-import CryptoES from "crypto-es";
 import messaging from "@react-native-firebase/messaging";
 import { encrypt, decrypt } from "./EncryptionUtils";
 import { useFocusEffect } from "@react-navigation/native";
+
+// OnlineStatusIndicator component
+const OnlineStatusIndicator = ({ userId }) => {
+  const [isOnline, setIsOnline] = useState(false);
+  const { socket } = useSocketContext();
+  const { userInfo } = useContext(Context);
+
+  useEffect(() => {
+    if (!socket || !userId || !userInfo?._id) return;
+
+    // Emit user's own online status when component mounts
+    socket.emit("userOnline", {
+      userId: userInfo._id,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Check the other user's status
+    socket.emit("checkOnlineStatus", {
+      checkUserId: userId,
+      currentUserId: userInfo._id,
+    });
+
+    // Listen for status updates
+    const handleUserStatus = (data) => {
+      if (data.userId === userId) {
+        console.log(
+          "Received status update for:",
+          data.userId,
+          "Status:",
+          data.isOnline
+        );
+        setIsOnline(data.isOnline);
+      }
+    };
+
+    socket.on("userStatus", handleUserStatus);
+
+    // Heartbeat to keep connection alive and status updated
+    const heartbeatInterval = setInterval(() => {
+      socket.emit("heartbeat", {
+        userId: userInfo._id,
+        timestamp: new Date().toISOString(),
+      });
+    }, 30000); // Every 30 seconds
+
+    return () => {
+      socket.off("userStatus", handleUserStatus);
+      clearInterval(heartbeatInterval);
+
+      // Emit offline status when component unmounts
+      socket.emit("userOffline", {
+        userId: userInfo._id,
+        timestamp: new Date().toISOString(),
+      });
+    };
+  }, [socket, userId, userInfo?._id]);
+
+  return (
+    <View style={styles.onlineStatusContainer}>
+      <View
+        style={[
+          styles.statusDot,
+          isOnline ? styles.onlineDot : styles.offlineDot,
+        ]}
+      />
+      <Text style={styles.headerSubtext}>
+        {isOnline ? "Online" : "Offline"}
+      </Text>
+    </View>
+  );
+};
 
 const ChatRoom = ({ route }) => {
   const { item, convoID, receiverId } = route.params;
@@ -47,6 +115,7 @@ const ChatRoom = ({ route }) => {
   const [loading, setLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [messageReadStatus, setMessageReadStatus] = useState({});
+  const [otherUserOnline, setOtherUserOnline] = useState(false);
   const [sentMessageIds] = useState(new Set());
   const { userInfo } = useContext(Context);
   const { socket, connectSocket } = useSocketContext();
@@ -62,6 +131,45 @@ const ChatRoom = ({ route }) => {
       socket.emit("leaveRoom", convoID);
     }
   }, [socket, convoID]);
+
+  useEffect(() => {
+    if (!socket || !userInfo?._id) return;
+
+    const handleConnect = () => {
+      console.log("Socket connected");
+      // Emit online status when socket connects
+      socket.emit("userOnline", {
+        userId: userInfo._id,
+        timestamp: new Date().toISOString(),
+      });
+    };
+
+    const handleDisconnect = () => {
+      console.log("Socket disconnected");
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+
+    // Initial online status emission
+    if (socket.connected) {
+      socket.emit("userOnline", {
+        userId: userInfo._id,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+
+      // Emit offline status when component unmounts
+      socket.emit("userOffline", {
+        userId: userInfo._id,
+        timestamp: new Date().toISOString(),
+      });
+    };
+  }, [socket, userInfo?._id]);
 
   useEffect(() => {
     joinRoom();
@@ -249,7 +357,7 @@ const ChatRoom = ({ route }) => {
             <Text numberOfLines={1} style={styles.headerName}>
               {item?.name || item?.fullName}
             </Text>
-            <Text style={styles.headerSubtext}>Online</Text>
+            <OnlineStatusIndicator userId={receiverId} />
           </View>
         </View>
       ),
@@ -763,6 +871,48 @@ const styles = StyleSheet.create({
   sendButtonDisabled: {
     backgroundColor: "#2a5aa9",
     opacity: 0.7,
+  },
+
+  onlineStatusContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  onlineDot: {
+    backgroundColor: "#4CAF50", // Green for online
+  },
+  offlineDot: {
+    backgroundColor: "#9e9e9e", // Grey for offline
+  },
+  headerSubtext: {
+    color: "#aaaaaa",
+    fontSize: 14,
+  },
+
+  onlineStatusContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  onlineDot: {
+    backgroundColor: "#4CAF50",
+  },
+  offlineDot: {
+    backgroundColor: "#9e9e9e",
+  },
+  headerSubtext: {
+    color: "#aaaaaa",
+    fontSize: 14,
   },
 });
 

@@ -27,9 +27,16 @@ export const SocketContextProvider = ({ children }) => {
           reconnection: true,
           reconnectionAttempts: 5,
           reconnectionDelay: 1000,
+          reconnectionDelayMax: 5000,
+          timeout: 20000,
         });
 
         newSocket.on("connect", () => {
+          newSocket.emit("updateStatus", {
+            userId: userId,
+            isOnline: true,
+            timestamp: new Date(),
+          });
           console.log("Connected to the socket server");
           setError(null);
         });
@@ -40,6 +47,12 @@ export const SocketContextProvider = ({ children }) => {
         });
 
         newSocket.on("disconnect", (reason) => {
+          newSocket.emit("updateStatus", {
+            userId: userId,
+            isOnline: false,
+            timestamp: new Date(),
+          });
+
           console.warn("Disconnected from the socket server: ", reason);
         });
 
@@ -47,7 +60,17 @@ export const SocketContextProvider = ({ children }) => {
           console.log("Attempting to reconnect...");
         });
 
-        // Add more socket event listeners here as needed
+        newSocket.on("heartbeat", () => {
+          newSocket.emit("heartbeat_response");
+        });
+
+        newSocket.on("userStatus", (data) => {
+          console.log("User status update:", data);
+        });
+
+        newSocket.on("userTyping", (data) => {
+          console.log("User typing update:", data);
+        });
 
         setSocket(newSocket);
       } else {
@@ -59,6 +82,17 @@ export const SocketContextProvider = ({ children }) => {
       setError("An unexpected error occurred. Please try again later.");
     }
   }, []);
+
+  // Add this heartbeat response setup
+  useEffect(() => {
+    if (socket) {
+      const heartbeatInterval = setInterval(() => {
+        socket.emit("heartbeat_response");
+      }, 30000);
+
+      return () => clearInterval(heartbeatInterval);
+    }
+  }, [socket]);
 
   useEffect(() => {
     connectSocket();

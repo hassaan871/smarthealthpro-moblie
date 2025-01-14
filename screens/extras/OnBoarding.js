@@ -83,10 +83,10 @@ const OnBoardingScreen = () => {
           />
         </View>
         <View style={{ alignItems: "center", paddingHorizontal: 24 }}>
-          <Text style={{ fontSize: 20, fontWeight: "bold",  color: "#fff" }}>
+          <Text style={{ fontSize: 20, fontWeight: "bold", color: "#fff" }}>
             {items[currentItemIndex].title}
           </Text>
-          <Text style={{ fontSize: 16, color: "#fff", marginTop: 10 }}>
+          <Text style={{ fontSize: 14, color: "#fff", marginTop: 10 }}>
             {items[currentItemIndex].description}
           </Text>
           <View

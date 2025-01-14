@@ -181,7 +181,7 @@ const ChatRoom = ({ route }) => {
     if (convoID && userInfo?._id) {
       axios
         .post(
-          `http://192.168.18.124:5000/conversations/${convoID}/mark-messages-read`,
+          `http://10.135.8.107:5000/conversations/${convoID}/mark-messages-read`,
           {
             conversationId: convoID,
             userId: userInfo._id,
@@ -194,7 +194,7 @@ const ChatRoom = ({ route }) => {
       // Reset unread count
       axios
         .post(
-          `http://192.168.18.124:5000/conversations/${convoID}/read/${userInfo._id}`
+          `http://10.135.8.107:5000/conversations/${convoID}/read/${userInfo._id}`
         )
         .catch((error) => {
           console.error("Error resetting unread count:", error);
@@ -312,10 +312,10 @@ const ChatRoom = ({ route }) => {
         const pdfUrl = item.fileInfo.url;
         console.log("Attempting to open PDF:", pdfUrl);
 
-        // Make sure the URL uses http://192.168.18.124:5000 for Android emulator
+        // Make sure the URL uses http://10.135.8.107:5000 for Android emulator
         const adjustedUrl = pdfUrl.replace(
-          "http://192.168.18.124:5000",
-          "http://192.168.18.124:5000"
+          "http://10.135.8.107:5000",
+          "http://10.135.8.107:5000"
         );
 
         navigation.navigate("PdfViewer", { uri: adjustedUrl });
@@ -402,7 +402,7 @@ const ChatRoom = ({ route }) => {
 
         console.log("Sending POST request to upload file");
         const uploadResponse = await axios.post(
-          `http://192.168.18.124:5000/upload`,
+          `http://10.135.8.107:5000/upload`,
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -469,7 +469,7 @@ const ChatRoom = ({ route }) => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `http://192.168.18.124:5000/conversations/getMessages/${convoID}`
+          `http://10.135.8.107:5000/conversations/getMessages/${convoID}`
         );
         const decryptedMessages = response.data.map(decryptMessage);
         setMessages(decryptedMessages);
@@ -496,7 +496,7 @@ const ChatRoom = ({ route }) => {
   const sendNotification = async (receiverId, senderName, messageContent) => {
     try {
       const response = await axios.post(
-        "http://192.168.18.124:5000/send-notification",
+        "http://10.135.8.107:5000/send-notification",
         {
           receiverId,
           title: `New message from ${senderName}`,
@@ -535,7 +535,7 @@ const ChatRoom = ({ route }) => {
 
       // Send to server first
       const messageResponse = await axios.post(
-        `http://192.168.18.124:5000/conversations/${convoID}/messages`,
+        `http://10.135.8.107:5000/conversations/${convoID}/messages`,
         newMessage
       );
 
@@ -547,10 +547,9 @@ const ChatRoom = ({ route }) => {
 
       // Update lastMessage in background
       axios
-        .put(
-          `http://192.168.18.124:5000/conversations/${convoID}/lastMessage`,
-          { lastMessage: textMessage || "File shared" }
-        )
+        .put(`http://10.135.8.107:5000/conversations/${convoID}/lastMessage`, {
+          lastMessage: textMessage || "File shared",
+        })
         .catch(console.error);
 
       // Send notification in background

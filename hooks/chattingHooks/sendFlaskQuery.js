@@ -3,7 +3,7 @@ import axios from "axios";
 const sendQueryToFlask = async (query) => {
   try {
     console.log("queru", query.text);
-    const response = await axios.post("http://192.168.18.124/query", {
+    const response = await axios.post("http://10.135.8.107/query", {
       query: query.text,
     });
     console.log("Response:", response.data.answer);
@@ -17,7 +17,7 @@ const sendQueryToFlask = async (query) => {
 
 const getFlaskResponse = async () => {
   try {
-    const response = await axios.get("http://192.168.18.124");
+    const response = await axios.get("http://10.135.8.107");
     console.log("Response:", response.data);
     return response.data;
   } catch (error) {

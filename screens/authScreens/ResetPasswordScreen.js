@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons"; // Import Ionicons for the back button icon
 
 const ResetPasswordScreen = ({ route }) => {
   const navigation = useNavigation();
@@ -23,7 +24,7 @@ const ResetPasswordScreen = ({ route }) => {
 
     try {
       const response = await axios.post(
-        `http://192.168.18.124:5000/user/reset-password/${userId}/${token}`,
+        `http://10.135.8.107:5000/user/reset-password/${userId}/${token}`,
         {
           password: newPassword,
         }
@@ -53,6 +54,12 @@ const ResetPasswordScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Ionicons name="arrow-back" size={24} color="white" />
+      </TouchableOpacity>
       <Text style={styles.title}>Reset Password</Text>
       <TextInput
         style={styles.input}
@@ -76,6 +83,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#000",
+  },
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+  },
+  backButtonText: {
+    color: "#fff",
+    fontSize: 16,
   },
   title: {
     fontSize: 24,

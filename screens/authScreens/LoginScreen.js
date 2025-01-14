@@ -52,7 +52,7 @@ const LoginScreen = () => {
   async function sendFcmTokenToServer(email, fcmToken, device) {
     try {
       const response = await axios.post(
-        "http://192.168.18.124:5000/update-fcm-token",
+        "http://10.135.8.107:5000/update-fcm-token",
         {
           email,
           fcmToken,
@@ -95,7 +95,7 @@ const LoginScreen = () => {
 
     console.log("Entering handle submit");
     try {
-      const res = await axios.post("http://192.168.18.124:5000/user/login", {
+      const res = await axios.post("http://10.135.8.107:5000/user/login", {
         email,
         password,
       });
@@ -187,7 +187,7 @@ const LoginScreen = () => {
                 navigation.navigate("ForgotScreen");
               }}
             >
-              <Text style={styles.forgotPassword}>forgotPassword?</Text>
+              <Text style={styles.forgotPassword}>forgot?</Text>
             </Pressable>
           </View>
         </View>
@@ -210,13 +210,13 @@ const LoginScreen = () => {
             <Text style={styles.loginText}>Login</Text>
           )}
         </Pressable>
-
+        {/*
         <Pressable onPress={() => navigateToHomeTab()}>
           <Text style={styles.orText}>Or, login with</Text>
         </Pressable>
         <View style={styles.socialButtons}>
           <Pressable style={styles.socialButton}>
-            {/* <Image
+ <Image
               source={{ uri: "https://placehold.co/32x32" }}
               style={styles.socialIcon}
             />
@@ -231,9 +231,10 @@ const LoginScreen = () => {
             <Image
               source={{ uri: "https://placehold.co/32x32" }}
               style={styles.socialIcon}
-            /> */}
+            /> 
           </Pressable>
         </View>
+        */}
         <Pressable
           onPress={() => {
             navigation.navigate("SignUp");

@@ -8,6 +8,11 @@ import {
   Dimensions,
   TextInput,
   Modal,
+  KeyboardAvoidingView, // Add this import
+  Platform,
+  ScrollView,
+  ActivityIndicator,
+  Keyboard, // Add this import
 } from "react-native";
 import signupLogo from "../../assets/signupLogo.jpg";
 import checked from "../../assets/checked.png";
@@ -38,6 +43,7 @@ const SignUpScreen = ({ navigation }) => {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success"); // success or error
   const [selectedBlood, setSelectedBlood] = useState();
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigation();
 
@@ -78,8 +84,23 @@ const SignUpScreen = ({ navigation }) => {
     return `${month}/${day}/${year}`;
   };
 
+  const calculateAge = (date) => {
+    const today = new Date();
+    const birthDate = new Date(date);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    return age;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLoading(true); // Start loading
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!name || name.length < 3 || name.length > 20) {
@@ -90,6 +111,7 @@ const SignUpScreen = ({ navigation }) => {
         "Name should be between 3 and 20 characters",
         "error"
       );
+      setLoading(false); // Stop loading
       return;
     }
 
@@ -101,17 +123,43 @@ const SignUpScreen = ({ navigation }) => {
         "Please enter a valid email address",
         "error"
       );
+      setLoading(false); // Stop loading
       return;
     }
 
-    if (password?.length < 8 && password != confirmPassword) {
+    if (!password || password.length < 8) {
       showAlertMessage(
         setShowAlert,
         setAlertMessage,
         setAlertType,
-        "Password should be at least 8 characters or Passwords do not match",
+        "Password should be at least 8 characters",
         "error"
       );
+      setLoading(false); // Stop loading
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      showAlertMessage(
+        setShowAlert,
+        setAlertMessage,
+        setAlertType,
+        "Passwords do not match",
+        "error"
+      );
+      setLoading(false); // Stop loading
+      return;
+    }
+
+    if (calculateAge(birthday) < 18) {
+      showAlertMessage(
+        setShowAlert,
+        setAlertMessage,
+        setAlertType,
+        "You must be at least 18 years old",
+        "error"
+      );
+      setLoading(false); // Stop loading
       return;
     }
 
@@ -125,7 +173,7 @@ const SignUpScreen = ({ navigation }) => {
     });
 
     axios
-      .post("http://192.168.18.124:5000/user/register", {
+      .post("http://10.135.8.107:5000/user/register", {
         fullName: name,
         email: email,
         password: password,
@@ -140,194 +188,212 @@ const SignUpScreen = ({ navigation }) => {
       })
       .catch((error) => {
         console.log("Error:", error);
-        showAlertMessage(
-          setShowAlert,
-          setAlertMessage,
-          setAlertType,
-          "Email Already Exists!",
-          "Failed"
-        );
         if (error.response) {
+          // Server responded with a status other than 200 range
           console.log("Server Error:", error.response.data);
+          if (error.response.data.message === "Email already exists") {
+            showAlertMessage(
+              setShowAlert,
+              setAlertMessage,
+              setAlertType,
+              "Email Already Exists!",
+              "error"
+            );
+          } else {
+            showAlertMessage(
+              setShowAlert,
+              setAlertMessage,
+              setAlertType,
+              error.response.data.message || "An error occurred",
+              "error"
+            );
+          }
+        } else if (error.request) {
+          // Request was made but no response received
+          console.log("Request Error:", error.request);
           showAlertMessage(
             setShowAlert,
             setAlertMessage,
             setAlertType,
-            "Email Already exists",
-            "Failed"
+            "No response from server. Please try again later.",
+            "error"
           );
-        } else if (error.request) {
-          console.log("Request Error:", error.request);
         } else {
+          // Something else happened while setting up the request
           console.log("Error Message:", error.message);
+          showAlertMessage(
+            setShowAlert,
+            setAlertMessage,
+            setAlertType,
+            error.message,
+            "error"
+          );
         }
+      })
+      .finally(() => {
+        setLoading(false); // Stop loading
       });
   };
 
   const showDateTimePickerHandler = () => {
+    Keyboard.dismiss(); // Dismiss the keyboard
     setShowDateTimePicker(true);
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        {/* <View style={styles.imageContainer}>
-          <Image source={signupLogo} style={styles.image} />
-        </View> */}
-        <Text style={styles.title}>Sign Up</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            placeholder="Full Name"
-            placeholderTextColor={"#666"}
-            onChangeText={(text) => setName(text)}
-            style={styles.input}
-          />
-          {/* <TextInput placeholder="Date of Birth" style={styles.input} /> */}
-          <TextInput
-            placeholder="Email address"
-            keyboardType="email-address"
-            style={styles.input}
-            placeholderTextColor={"#666"}
-            onChangeText={(text) => setEmail(text)}
-          />
-
-          <View style={[styles.input, { padding: 0 }]}>
-            <Picker
-              selectedValue={selectedBlood}
-              onValueChange={(itemValue) => setSelectedBlood(itemValue)}
-              style={{ color: "#fff" }}
-            >
-              <Picker.Item
-                style={{ color: "#666" }}
-                label="Blood Group..."
-                value=""
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.container}>
+          <View style={styles.card}>
+            <Text style={styles.title}>Sign Up</Text>
+            <View style={styles.inputContainer}>
+              <TextInput
+                placeholder="Full Name"
+                placeholderTextColor={"#666"}
+                onChangeText={(text) => setName(text)}
+                style={styles.input}
               />
-              <Picker.Item label="A+" value="A+" />
-              <Picker.Item label="A-" value="A-" />
-              <Picker.Item label="B+" value="B+" />
-              <Picker.Item label="B-" value="B-" />
-              <Picker.Item label="O+" value="O+" />
-              <Picker.Item label="O-" value="O-" />
-              <Picker.Item label="AB+" value="AB+" />
-              <Picker.Item label="AB-" value="AB-" />
-            </Picker>
-          </View>
-
-          <TextInput
-            placeholder="Select Birthday"
-            onPress={showDateTimePickerHandler}
-            value={formatDate(birthday)}
-            // mode="outlined"
-            style={styles.input}
-            // left={<TextInput.Icon icon="cake" color={"#8C52FF"} paddingTop={4} />}
-            // right={<TextInput.Icon onPress={showDateTimePickerHandler} icon="calendar" color={"#8C52FF"} paddingTop={4} />}
-            // outlineStyle={{ borderRadius: 15, borderColor: "#F4F4F4" }}
-          />
-
-          <View>
-            {showDateTimePicker && (
-              <DateTimePicker
-                testID="dateTimePicker"
-                value={birthday}
-                mode="date"
-                display="spinner"
-                onChange={handleDateChange}
+              <TextInput
+                placeholder="Email address"
+                keyboardType="email-address"
+                style={styles.input}
+                placeholderTextColor={"#666"}
+                onChangeText={(text) => setEmail(text)}
               />
-            )}
-          </View>
-          <View>
-            <TextInput
-              placeholder="Password"
-              secureTextEntry={!passwordVisible}
-              placeholderTextColor={"#666"}
-              style={styles.input}
-              onChangeText={(text) => setPassword(text)}
+
+              <View style={[styles.input, { padding: 0 }]}>
+                <Picker
+                  selectedValue={selectedBlood}
+                  onValueChange={(itemValue) => setSelectedBlood(itemValue)}
+                  style={{ color: "#fff" }}
+                >
+                  <Picker.Item
+                    style={{ color: "#666" }}
+                    label="Blood Group..."
+                    value=""
+                  />
+                  <Picker.Item label="A+" value="A+" />
+                  <Picker.Item label="A-" value="A-" />
+                  <Picker.Item label="B+" value="B+" />
+                  <Picker.Item label="B-" value="B-" />
+                  <Picker.Item label="O+" value="O+" />
+                  <Picker.Item label="O-" value="O-" />
+                  <Picker.Item label="AB+" value="AB+" />
+                  <Picker.Item label="AB-" value="AB-" />
+                </Picker>
+              </View>
+
+              <TextInput
+                placeholder="Select Birthday"
+                onPress={showDateTimePickerHandler}
+                value={formatDate(birthday)}
+                style={styles.input}
+              />
+
+              <View>
+                {showDateTimePicker && (
+                  <DateTimePicker
+                    testID="dateTimePicker"
+                    value={birthday}
+                    mode="date"
+                    display="spinner"
+                    onChange={handleDateChange}
+                  />
+                )}
+              </View>
+              <View>
+                <TextInput
+                  placeholder="Password"
+                  secureTextEntry={!passwordVisible}
+                  placeholderTextColor={"#666"}
+                  style={styles.input}
+                  onChangeText={(text) => setPassword(text)}
+                />
+                <Pressable
+                  onPress={() => setPasswordVisible(!passwordVisible)}
+                  style={styles.iconButton}
+                >
+                  <Ionicons
+                    name={passwordVisible ? "eye-off-outline" : "eye-outline"}
+                    size={24}
+                    color="#718096"
+                  />
+                </Pressable>
+              </View>
+              <View>
+                <TextInput
+                  placeholder="Confirm Password"
+                  secureTextEntry={!passwordVisible2}
+                  placeholderTextColor={"#666"}
+                  style={styles.input}
+                  onChangeText={(text) => setConfirmPassword(text)}
+                />
+                <Pressable
+                  onPress={() => setPasswordVisible2(!passwordVisible2)}
+                  style={styles.iconButton}
+                >
+                  <Ionicons
+                    name={passwordVisible2 ? "eye-off-outline" : "eye-outline"}
+                    size={24}
+                    color="#718096"
+                  />
+                </Pressable>
+              </View>
+            </View>
+
+            <Alert
+              visible={showAlert}
+              onDismiss={handleDismissAlert}
+              message={alertMessage}
+              type={alertType}
             />
+
             <Pressable
-              onPress={() => setPasswordVisible(!passwordVisible)}
-              style={styles.iconButton}
+              onPress={handleSubmit}
+              style={styles.loginButton}
+              disabled={loading}
             >
-              <Ionicons
-                name={passwordVisible ? "eye-off-outline" : "eye-outline"}
-                size={24}
-                color="#718096"
-              />
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.loginText}>Sign Up</Text>
+              )}
+            </Pressable>
+            {/* <Text style={styles.orText}>Or, sign up with</Text>
+            <View style={styles.socialButtons}>
+              <Pressable style={styles.socialButton}></Pressable>
+            </View> */}
+            <Pressable
+              onPress={() => {
+                navigation.navigate("Login");
+              }}
+            >
+              <Text
+                style={{ textAlign: "center", color: "#6B7280", marginTop: 5 }}
+              >
+                Already have an account?{" "}
+                <Text style={{ fontWeight: "bold", color: "#4A90E2" }}>
+                  Login
+                </Text>
+              </Text>
             </Pressable>
           </View>
-          <View>
-            <TextInput
-              placeholder="Confirm Password"
-              secureTextEntry={!passwordVisible2}
-              placeholderTextColor={"#666"}
-              style={styles.input}
-              onChangeText={(text) => setConfirmPassword(text)}
-            />
-            <Pressable
-              onPress={() => setPasswordVisible2(!passwordVisible2)}
-              style={styles.iconButton}
-            >
-              <Ionicons
-                name={passwordVisible2 ? "eye-off-outline" : "eye-outline"}
-                size={24}
-                color="#718096"
-              />
-            </Pressable>
-          </View>
+          <ReusableModal
+            modalVisible={modalVisible}
+            setModalVisible={setModalVisible}
+            title={"Sign Up Successful"}
+            message={
+              "You have successfully signed up for an account. Welcome aboard!"
+            }
+            imageSource={checked}
+            onClose={() => navigation.navigate("Login")}
+          />
         </View>
-
-        <Alert
-          visible={showAlert}
-          onDismiss={handleDismissAlert}
-          message={alertMessage}
-          type={alertType}
-        />
-
-        <Pressable onPress={handleSubmit} style={styles.loginButton}>
-          <Text style={styles.loginText}>Sign Up</Text>
-        </Pressable>
-        <Text style={styles.orText}>Or, sign up with</Text>
-        <View style={styles.socialButtons}>
-          <Pressable style={styles.socialButton}>
-            {/* <Image
-              source={{ uri: "https://placehold.co/32x32" }}
-              style={styles.socialIcon}
-            />
-          </Pressable>
-          <Pressable style={styles.socialButton}>
-            <Image
-              source={{ uri: "https://placehold.co/32x32" }}
-              style={styles.socialIcon}
-            />
-          </Pressable>
-          <Pressable style={styles.socialButton}>
-            <Image
-              source={{ uri: "https://placehold.co/32x32" }}
-              style={styles.socialIcon}
-            /> */}
-          </Pressable>
-        </View>
-        <Pressable
-          onPress={() => {
-            navigation.navigate("Login");
-          }}
-        >
-          <Text style={{ textAlign: "center", color: "#6B7280", marginTop: 5 }}>
-            Already have an account?{" "}
-            <Text style={{ fontWeight: "bold", color: "#4A90E2" }}>Login</Text>
-          </Text>
-        </Pressable>
-      </View>
-      <ReusableModal
-        modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
-        title={"Sign Up Successful"}
-        message={
-          "You have successfully signed up for an account. Welcome aboard!"
-        }
-        imageSource={checked}
-        onClose={() => navigation.navigate("Login")}
-      />
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -339,7 +405,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
   },
   card: {
-    // backgroundColor: "#fff",
     backgroundColor: "#1E1E1E",
     padding: 16,
     borderRadius: 8,
@@ -351,7 +416,6 @@ const styles = StyleSheet.create({
     maxWidth: 340,
   },
   imageContainer: {
-    // marginBottom: 16,
     alignItems: "center",
   },
   image: {
@@ -374,7 +438,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   input: {
-    // backgroundColor: "#edf2f7",
     backgroundColor: "#2C2C2E",
     color: "#fff",
     borderColor: "#cbd5e0",

@@ -70,7 +70,7 @@ const AppointmentsScreen = () => {
     try {
       const userID = userInfo._id;
       console.log("user id is from all appointments: ", userID);
-      const link = `http://192.168.18.124:5000/appointment/getAllAppointments?${
+      const link = `http://10.135.8.107:5000/appointment/getAllAppointments?${
         userInfo.role === "doctor" ? "doctorId" : "patientId"
       }=${userID}`;
 
@@ -124,7 +124,7 @@ const AppointmentsScreen = () => {
   const confirmCancellation = async () => {
     try {
       await axios.delete(
-        `http://192.168.18.124:5000/appointment/cancelAppointment/${selectedAppointment._id}`
+        `http://10.135.8.107:5000/appointment/cancelAppointment/${selectedAppointment._id}`
       );
       fetchAllAppointments(); // Refresh the list
       setCancelConfirmation(false);
@@ -135,7 +135,7 @@ const AppointmentsScreen = () => {
 
   const submitReview = async () => {
     try {
-      await axios.post("http://192.168.18.124:5000/review/addReview", {
+      await axios.post("http://10.135.8.107:5000/review/addReview", {
         appointmentId: selectedAppointment._id,
         rating,
         comment: review,
@@ -168,7 +168,7 @@ const AppointmentsScreen = () => {
         doctorId = appointment.doctor.id;
       }
 
-      const link = `http://192.168.18.124:5000/user/getMatchingNotes`;
+      const link = `http://10.135.8.107:5000/user/getMatchingNotes`;
       const response = await axios.get(link, {
         params: {
           doctorId,
@@ -207,7 +207,7 @@ const AppointmentsScreen = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `http://192.168.18.124:5000/appointment/${appointment.patient.id}/prescription`
+        `http://10.135.8.107:5000/appointment/${appointment.patient.id}/prescription`
       );
 
       if (response.data.success) {

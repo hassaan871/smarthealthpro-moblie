@@ -11,6 +11,7 @@ import {
   Modal,
   Pressable,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import Icon2 from "react-native-vector-icons/SimpleLineIcons";
@@ -31,6 +32,11 @@ const HomeScreen = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [upcomingSchedule, setUpcomingSchedule] = useState([]);
   const [selectedSpecialization, setSelectedSpecialization] = useState("All");
+  const [isLoading, setIsLoading] = useState({
+    user: true,
+    appointments: true,
+    doctors: true,
+  });
   const {
     userInfo,
     setUserInfo,
@@ -44,95 +50,52 @@ const HomeScreen = () => {
   const modalSearchInputRef = useRef(null);
 
   useEffect(() => {
-    // console.log("use effect from homesceen ");
-
-    const fetchUser = async () => {
-      // console.log("entering fetchuser from homescreen ");
+    const fetchAllData = async () => {
       const userID = await AsyncStorage.getItem("userToken");
-      // console.log("user id is from async: ", userID);
-      if (userID !== null) {
-        const response = await axios.get(
-          `http://10.135.8.107:5000/user/getUserInfo/${userID}`
-        );
+      if (!userID) return;
 
-        // console.log("response users data: ", response.data.user);
-        setUserInfo(response.data.user);
-      } else {
-        // console.log("User token not available");
-      }
-    };
-
-    fetchUser();
-  }, []);
-
-  useEffect(() => {
-    const fetchAppointment = async () => {
-      const userID = userInfo._id;
-      // console.log("user id is from userinfo: ", userID);
-      const link = `http://10.135.8.107:5000/appointment/getAllAppointments?${
-        userInfo.role === "doctor" ? "doctorId" : "patientId"
-      }=${userID}`;
-
-      // console.log("link from userinfo: ", link);
-
-      if (userID !== null) {
-        try {
-          const response = await axios.get(link);
-
-          // console.log("response appointment: ", response.data.appointments);
-
-          // Filter appointments
-          const filteredAppointments = response.data.appointments
-            .filter(
-              (appointment) => appointment.appointmentStatus === "pending"
-            )
-            .sort((a, b) => {
-              // Compare dates
-              const dateComparison = new Date(a.date) - new Date(b.date);
-              if (dateComparison !== 0) return dateComparison;
-
-              // If dates are the same, compare times
-              return a.time.localeCompare(b.time);
-            });
-
-          setUpcomingSchedule(filteredAppointments);
-          setAppointments(response.data.appointments);
-        } catch (error) {
-          console.error("Error fetching appointments:", error);
-        }
-      } else {
-        // console.log("User token not available");
-      }
-    };
-
-    fetchAppointment();
-  }, [userInfo]);
-
-  useEffect(() => {
-    const fetchPopularDoctors = async () => {
-      // console.log("Fetching popular doctor");
       try {
-        const response = await axios.get(
-          `http://10.135.8.107:5000/user/getDoctorsBySatisfaction`
-        );
+        const [userResponse, doctorsResponse] = await Promise.all([
+          axios.get(`http://192.168.18.124:5000/user/getUserInfo/${userID}`),
+          axios.get(`http://192.168.18.124:5000/user/getDoctorsBySatisfaction`),
+        ]);
 
-        // console.log("response doctors: ", response.data[0]);
-        let doctorsInfo = response.data;
-        setPopularDoctors(doctorsInfo);
-        setSearchResults(popularDoctors);
-        // console.log("popular doctors: ", doctorsInfo);
+        setUserInfo(userResponse.data.user);
+        setPopularDoctors(doctorsResponse.data);
+        setSearchResults(doctorsResponse.data);
+
+        // Fetch appointments after we have user info
+        const link = `http://192.168.18.124:5000/appointment/getAllAppointments?${
+          userResponse.data.user.role === "doctor" ? "doctorId" : "patientId"
+        }=${userID}`;
+
+        const appointmentsResponse = await axios.get(link);
+        const filteredAppointments = appointmentsResponse.data.appointments
+          .filter((appointment) => appointment.appointmentStatus === "pending")
+          .sort((a, b) => {
+            const dateComparison = new Date(a.date) - new Date(b.date);
+            return dateComparison !== 0
+              ? dateComparison
+              : a.time.localeCompare(b.time);
+          });
+
+        setUpcomingSchedule(filteredAppointments);
+        setAppointments(appointmentsResponse.data.appointments);
       } catch (error) {
-        console.error("Error fetching popular doctors:", error);
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading({
+          user: false,
+          appointments: false,
+          doctors: false,
+        });
       }
     };
 
-    fetchPopularDoctors();
+    fetchAllData();
   }, []);
 
   useEffect(() => {
-    // console.log("popular doctor: ", popularDoctors[0]);
-    // console.log("userinfo id: ", userInfo._id);
-
     setSearchResults(
       popularDoctors.filter(
         (doctor) => doctor.user?.fullName !== userInfo?.fullName
@@ -193,84 +156,93 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Hello, {userInfo?.fullName} 👋</Text>
+      {Object.values(isLoading).some((loading) => loading) ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#4A90E2" />
+          <Text style={styles.loadingText}>Loading...</Text>
         </View>
-
-        <View style={styles.searchBar}>
-          <Icon name="search-outline" size={20} color="#666" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search a doctor"
-            placeholderTextColor="#666"
-            onFocus={openModal}
-          />
-        </View>
-
-        <ScheduleCard item={upcomingSchedule[0]} />
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Talk to a Doctor</Text>
-          <View style={styles.categoryButtons}>
-            <TouchableOpacity
-              style={[styles.categoryButton, { backgroundColor: "#8E44AD" }]}
-              onPress={() => setSelectedSpecialization("All")}
-            >
-              <Icon name="call-outline" size={16} color="#fff" />
-              <Text style={styles.categoryButtonText}>All</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.categoryButton, { backgroundColor: "#E74C3C" }]}
-              onPress={() => setSelectedSpecialization("Diabetes")}
-            >
-              <Icon2 name="drop" size={16} color="#fff" />
-              <Text style={styles.categoryButtonText}>Diabetes</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.categoryButton, { backgroundColor: "#3498DB" }]}
-              onPress={() => setSelectedSpecialization("Hypertension")}
-            >
-              <Icon name="pulse-outline" size={16} color="#fff" />
-              <Text style={styles.categoryButtonText}>Hypertension</Text>
-            </TouchableOpacity>
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.header}>
+            <Text style={styles.headerText}>
+              Hello, {userInfo?.fullName} 👋
+            </Text>
           </View>
 
-          {filterDoctors().map((doctor, index) => (
-            <DoctorCard key={index} item={doctor} />
-          ))}
-        </View>
-        <Modal visible={modalVisible} animationType="slide">
-          <SafeAreaView style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Pressable onPress={closeModal}>
-                <Icon name="arrow-back" size={24} color="#666" />
-              </Pressable>
-
-              <TextInput
-                ref={modalSearchInputRef}
-                style={{ ...styles.modalSearchInput, paddingLeft: 40 }}
-                placeholder="Search a doctor"
-                placeholderTextColor="#666"
-                onChangeText={handleSearch}
-              />
-              <Icon
-                name="search"
-                size={24}
-                color="#718096"
-                style={{ position: "absolute", left: 60 }}
-              />
-            </View>
-            <FlatList
-              data={searchResults}
-              keyExtractor={(item) => item._id}
-              renderItem={({ item }) => (
-                <DoctorCard item={item} closeModal={closeModal} />
-              )}
+          <View style={styles.searchBar}>
+            <Icon name="search-outline" size={20} color="#666" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search a doctor"
+              placeholderTextColor="#666"
+              onFocus={openModal}
             />
-          </SafeAreaView>
-        </Modal>
-      </ScrollView>
+          </View>
+
+          <ScheduleCard item={upcomingSchedule[0]} />
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Talk to a Doctor</Text>
+            <View style={styles.categoryButtons}>
+              <TouchableOpacity
+                style={[styles.categoryButton, { backgroundColor: "#8E44AD" }]}
+                onPress={() => setSelectedSpecialization("All")}
+              >
+                <Icon name="call-outline" size={16} color="#fff" />
+                <Text style={styles.categoryButtonText}>All</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.categoryButton, { backgroundColor: "#E74C3C" }]}
+                onPress={() => setSelectedSpecialization("Diabetes")}
+              >
+                <Icon2 name="drop" size={16} color="#fff" />
+                <Text style={styles.categoryButtonText}>Diabetes</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.categoryButton, { backgroundColor: "#3498DB" }]}
+                onPress={() => setSelectedSpecialization("Hypertension")}
+              >
+                <Icon name="pulse-outline" size={16} color="#fff" />
+                <Text style={styles.categoryButtonText}>Hypertension</Text>
+              </TouchableOpacity>
+            </View>
+
+            {filterDoctors().map((doctor, index) => (
+              <DoctorCard key={index} item={doctor} />
+            ))}
+          </View>
+          <Modal visible={modalVisible} animationType="slide">
+            <SafeAreaView style={styles.modalContainer}>
+              <View style={styles.modalHeader}>
+                <Pressable onPress={closeModal}>
+                  <Icon name="arrow-back" size={24} color="#666" />
+                </Pressable>
+
+                <TextInput
+                  ref={modalSearchInputRef}
+                  style={{ ...styles.modalSearchInput, paddingLeft: 40 }}
+                  placeholder="Search a doctor"
+                  placeholderTextColor="#666"
+                  onChangeText={handleSearch}
+                />
+                <Icon
+                  name="search"
+                  size={24}
+                  color="#718096"
+                  style={{ position: "absolute", left: 60 }}
+                />
+              </View>
+              <FlatList
+                data={searchResults}
+                keyExtractor={(item) => item._id}
+                renderItem={({ item }) => (
+                  <DoctorCard item={item} closeModal={closeModal} />
+                )}
+              />
+            </SafeAreaView>
+          </Modal>
+        </ScrollView>
+      )}
 
       <CutomBottomBar active={"home"} />
     </SafeAreaView>
@@ -464,6 +436,17 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     padding: 10,
     elevation: 5,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#1E1E1E",
+  },
+  loadingText: {
+    color: "#fff",
+    marginTop: 10,
+    fontSize: 16,
   },
 });
 

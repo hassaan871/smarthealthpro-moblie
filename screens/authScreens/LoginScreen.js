@@ -17,7 +17,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import Icon from "react-native-vector-icons/AntDesign";
-// import CookieManager from 'react-native-cookies';
 import Context from "../../Helper/context";
 import lightTheme from "../../Themes/LightTheme";
 import Alert from "../../components/Alert";
@@ -31,13 +30,14 @@ const LoginScreen = () => {
     useContext(Context);
 
   const navigation = useNavigation();
-  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false); // Corrected typo
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [loading, setLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success"); // success or error
+  const [alertActions, setAlertActions] = useState([]); // actions for alert buttons
 
   const handleDismissAlert = () => {
     setShowAlert(false);
@@ -52,7 +52,7 @@ const LoginScreen = () => {
   async function sendFcmTokenToServer(email, fcmToken, device) {
     try {
       const response = await axios.post(
-        "http://10.135.8.107:5000/update-fcm-token",
+        "http://192.168.18.124:5000/update-fcm-token",
         {
           email,
           fcmToken,
@@ -86,6 +86,7 @@ const LoginScreen = () => {
         setShowAlert,
         setAlertMessage,
         setAlertType,
+        setAlertActions,
         "Please fill in both email and password.",
         "error"
       );
@@ -95,7 +96,7 @@ const LoginScreen = () => {
 
     console.log("Entering handle submit");
     try {
-      const res = await axios.post("http://10.135.8.107:5000/user/login", {
+      const res = await axios.post("http://192.168.18.124:5000/user/login", {
         email,
         password,
       });
@@ -124,10 +125,11 @@ const LoginScreen = () => {
           setShowAlert,
           setAlertMessage,
           setAlertType,
+          setAlertActions,
           "Login Success",
-          "success"
+          "success",
+          [{ text: "OK", onPress: navigateToHomeTab }]
         );
-        navigateToHomeTab();
       }
     } catch (error) {
       // alert(error.response.data.error);
@@ -135,6 +137,7 @@ const LoginScreen = () => {
         setShowAlert,
         setAlertMessage,
         setAlertType,
+        setAlertActions,
         "Login failed. Please try again.",
         "error"
       );
@@ -197,6 +200,7 @@ const LoginScreen = () => {
           onDismiss={handleDismissAlert}
           message={alertMessage}
           type={alertType}
+          actions={alertActions}
         />
 
         <Pressable

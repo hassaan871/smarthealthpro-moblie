@@ -183,7 +183,7 @@ export default function BookingScreen({ route, navigation }) {
       // console.log("body of booking: ", body);
 
       const response = await axios.post(
-        "http://10.135.8.107:5000/appointment/postAppointment",
+        "http://192.168.18.124:5000/appointment/postAppointment",
         body
       );
 

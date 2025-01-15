@@ -26,6 +26,8 @@ import {
   getStatusStyle,
   styles,
 } from "./extras/appointment-styles";
+import Alert from "../components/Alert";
+import showAlertMessage from "../Helper/AlertHelper";
 
 const AppointmentsScreen = () => {
   const [allAppointments, setAllAppointments] = useState([]);
@@ -58,6 +60,11 @@ const AppointmentsScreen = () => {
   const [newNote, setNewNote] = useState("");
 
   const [selectedNote, setSelectedNote] = useState(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("success"); // success or error
+  const [alertActions, setAlertActions] = useState([]); // actions for alert buttons
+
   useEffect(() => {
     fetchAllAppointments();
   }, [userInfo]);
@@ -70,7 +77,7 @@ const AppointmentsScreen = () => {
     try {
       const userID = userInfo._id;
       console.log("user id is from all appointments: ", userID);
-      const link = `http://10.135.8.107:5000/appointment/getAllAppointments?${
+      const link = `http://192.168.18.124:5000/appointment/getAllAppointments?${
         userInfo.role === "doctor" ? "doctorId" : "patientId"
       }=${userID}`;
 
@@ -117,25 +124,81 @@ const AppointmentsScreen = () => {
   }, []);
 
   const cancelAppointment = async (appointmentId) => {
+    console.log("appointmentId: ", appointmentId);
     setCancelConfirmation(true);
     setSelectedAppointment({ _id: appointmentId });
+    try {
+      setIsLoading(true);
+      await confirmCancellation(appointmentId);
+    } catch (error) {
+      console.error("Error canceling appointment:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const confirmCancellation = async () => {
+  const confirmCancellation = async (appointmentId) => {
     try {
-      await axios.delete(
-        `http://10.135.8.107:5000/appointment/cancelAppointment/${selectedAppointment._id}`
+      await axios.patch(
+        `http://192.168.18.124:5000/appointment/${appointmentId}/cancel`
       );
       fetchAllAppointments(); // Refresh the list
       setCancelConfirmation(false);
+      showAlertMessage(
+        setShowAlert,
+        setAlertMessage,
+        setAlertType,
+        setAlertActions,
+        "Appointment canceled successfully.",
+        "success",
+        [{ text: "OK", onPress: () => setShowAlert(false) }]
+      );
     } catch (error) {
-      console.error("Error canceling appointment:", error);
+      if (error.response) {
+        // Server responded with a status other than 200 range
+        showAlertMessage(
+          setShowAlert,
+          setAlertMessage,
+          setAlertType,
+          setAlertActions,
+          `Error canceling appointment: ${error.response.data.message}`,
+          "error",
+          [{ text: "OK", onPress: () => setShowAlert(false) }]
+        );
+      } else if (error.request) {
+        // Request was made but no response received
+        showAlertMessage(
+          setShowAlert,
+          setAlertMessage,
+          setAlertType,
+          setAlertActions,
+          "Error canceling appointment: No response received from server.",
+          "error",
+          [{ text: "OK", onPress: () => setShowAlert(false) }]
+        );
+        console.error(
+          "Error canceling appointment: No response received",
+          error.request
+        );
+      } else {
+        // Something else happened while setting up the request
+        showAlertMessage(
+          setShowAlert,
+          setAlertMessage,
+          setAlertType,
+          setAlertActions,
+          `Error canceling appointment: ${error.message}`,
+          "error",
+          [{ text: "OK", onPress: () => setShowAlert(false) }]
+        );
+        console.error("Error canceling appointment:", error.message);
+      }
     }
   };
 
   const submitReview = async () => {
     try {
-      await axios.post("http://10.135.8.107:5000/review/addReview", {
+      await axios.post("http://192.168.18.124:5000/review/addReview", {
         appointmentId: selectedAppointment._id,
         rating,
         comment: review,
@@ -168,7 +231,7 @@ const AppointmentsScreen = () => {
         doctorId = appointment.doctor.id;
       }
 
-      const link = `http://10.135.8.107:5000/user/getMatchingNotes`;
+      const link = `http://192.168.18.124:5000/user/getMatchingNotes`;
       const response = await axios.get(link, {
         params: {
           doctorId,
@@ -207,7 +270,7 @@ const AppointmentsScreen = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `http://10.135.8.107:5000/appointment/${appointment.patient.id}/prescription`
+        `http://192.168.18.124:5000/appointment/${appointment.patient.id}/prescription`
       );
 
       if (response.data.success) {
@@ -646,6 +709,14 @@ const AppointmentsScreen = () => {
       <ReviewModal />
 
       <CutomBottomBar active={"appointments"} />
+
+      <Alert
+        visible={showAlert}
+        onDismiss={() => setShowAlert(false)}
+        message={alertMessage}
+        type={alertType}
+        actions={alertActions}
+      />
     </SafeAreaView>
   );
 };

@@ -131,7 +131,7 @@ const BotChattingScreen = ({ route }) => {
       formData.append("patient_id", patientId);
 
       const response = await axios.post(
-        "http://10.135.8.107:8082/chat",
+        "http://192.168.18.124:8082/chat",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -189,7 +189,7 @@ const BotChattingScreen = ({ route }) => {
         };
 
         const doctorResponse = await axios.post(
-          "http://10.135.8.107:5000/appointment/getAvailableDoctors",
+          "http://192.168.18.124:5000/appointment/getAvailableDoctors",
           payload
         );
 
@@ -253,7 +253,7 @@ const BotChattingScreen = ({ route }) => {
           });
 
           const chatResponse = await axios.post(
-            "http://10.135.8.107:8082/chat",
+            "http://192.168.18.124:8082/chat",
             formData,
             {
               headers: {
@@ -331,7 +331,7 @@ Please analyze this data and provide an initial assessment.`;
       formData.append("patient_id", patientId);
 
       const response = await axios.post(
-        "http://10.135.8.107:8082/chat",
+        "http://192.168.18.124:8082/chat",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -383,7 +383,7 @@ Please analyze this data and provide an initial assessment.`;
         });
 
         const doctorResponse = await axios.post(
-          "http://10.135.8.107:5000/appointment/getAvailableDoctors",
+          "http://192.168.18.124:5000/appointment/getAvailableDoctors",
           { specializations: diseaseData }
         );
 

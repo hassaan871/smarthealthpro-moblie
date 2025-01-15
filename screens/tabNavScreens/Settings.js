@@ -8,7 +8,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Switch,
-  Alert,
+  Platform,
+  PermissionsAndroid,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import CutomBottomBar from "./CutomBottomBar";
@@ -18,15 +19,22 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as DocumentPicker from "expo-document-picker";
 import updateProfilePic from "../../Helper/updateProfilePic";
 import axios from "axios";
+import Alert from "../../components/Alert";
+import showAlertMessage from "../../Helper/AlertHelper";
+import messaging from "@react-native-firebase/messaging";
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
 
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const { userInfo, popularDoctors } = useContext(Context);
   const [isTopFiveDoctor, setIsTopFiveDoctor] = useState(false);
   const [imageUri, setImageUri] = useState(null);
   const [statusMessage, setStatusMessage] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("success"); // success or error
+  const [alertActions, setAlertActions] = useState([]); // actions for alert buttons
 
   const handlePickImage = async () => {
     try {
@@ -77,7 +85,7 @@ const SettingsScreen = () => {
   const deleteUser = async () => {
     try {
       const deleteResponse = await axios.delete(
-        `http://10.135.8.107:5000/user/deleteUser/${userInfo._id}`
+        `http://192.168.18.124:5000/user/deleteUser/${userInfo._id}`
       );
       console.log("User deleted successfully", deleteResponse.data);
       // You can handle further actions after deletion, like navigation or UI updates.
@@ -87,16 +95,142 @@ const SettingsScreen = () => {
   };
 
   const confirmDelete = () => {
-    Alert.alert(
-      "Delete User",
-      "Are you sure you want to delete your account? your data will be deleted permenantly",
+    showAlertMessage(
+      setShowAlert,
+      setAlertMessage,
+      setAlertType,
+      setAlertActions,
+      "Are you sure you want to delete your account? Your data will be deleted permanently.",
+      "warning",
       [
-        { text: "Cancel", style: "cancel" },
+        { text: "Cancel", onPress: () => setShowAlert(false) },
         { text: "Yes", onPress: deleteUser },
-      ],
-      { cancelable: false }
+      ]
     );
   };
+
+  const handleLogout = () => {
+    showAlertMessage(
+      setShowAlert,
+      setAlertMessage,
+      setAlertType,
+      setAlertActions,
+      "Are you sure you want to log out?",
+      "warning",
+      [
+        {
+          text: "Cancel",
+          onPress: () => setShowAlert(false),
+        },
+        {
+          text: "Logout",
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem("isThemeDark");
+              await AsyncStorage.removeItem("authToken");
+              await AsyncStorage.removeItem("userToken");
+              setShowAlert(false); // Dismiss the alert before navigating
+              navigation.navigate("Login");
+            } catch (error) {
+              showAlertMessage(
+                setShowAlert,
+                setAlertMessage,
+                setAlertType,
+                setAlertActions,
+                "Logout Failed. Please try again.",
+                "error"
+              );
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const checkNotificationPermission = async () => {
+    try {
+      let isEnabled = false;
+
+      if (Platform.OS === "android" && Platform.Version >= 33) {
+        const granted = await PermissionsAndroid.check(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+        );
+        isEnabled = granted;
+      } else {
+        const authStatus = await messaging().hasPermission();
+        isEnabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+      }
+
+      setNotificationsEnabled(isEnabled);
+      await AsyncStorage.setItem("notificationEnabled", String(isEnabled));
+    } catch (error) {
+      console.error("Error checking notification permission:", error);
+    }
+  };
+
+  const handleNotificationToggle = async () => {
+    if (!notificationsEnabled) {
+      try {
+        let permissionGranted = false;
+
+        if (Platform.OS === "android" && Platform.Version >= 33) {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+          );
+          permissionGranted = granted === PermissionsAndroid.RESULTS.GRANTED;
+        } else {
+          const authStatus = await messaging().requestPermission();
+          permissionGranted =
+            authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+            authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+        }
+
+        if (permissionGranted) {
+          setNotificationsEnabled(true);
+          await AsyncStorage.setItem("notificationEnabled", "true");
+        } else {
+          showAlertMessage(
+            setShowAlert,
+            setAlertMessage,
+            setAlertType,
+            setAlertActions,
+            "Please enable notifications in your phone settings to receive important updates.",
+            "warning",
+            [{ text: "OK", onPress: () => setShowAlert(false) }]
+          );
+        }
+      } catch (error) {
+        console.error("Error requesting notification permission:", error);
+      }
+    } else {
+      showAlertMessage(
+        setShowAlert,
+        setAlertMessage,
+        setAlertType,
+        setAlertActions,
+        "Are you sure you want to disable notifications?",
+        "warning",
+        [
+          { text: "Cancel", onPress: () => setShowAlert(false) },
+          {
+            text: "Disable",
+            onPress: async () => {
+              await AsyncStorage.setItem("notificationEnabled", "false");
+              setNotificationsEnabled(false);
+              setShowAlert(false);
+            },
+          },
+        ]
+      );
+    }
+  };
+
+  useEffect(() => {
+    checkNotificationPermission();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -146,7 +280,7 @@ const SettingsScreen = () => {
             </View>
             <Switch
               value={notificationsEnabled}
-              onValueChange={setNotificationsEnabled}
+              onValueChange={handleNotificationToggle}
               trackColor={{ false: "#767577", true: "#4A90E2" }}
               thumbColor={notificationsEnabled ? "#f4f3f4" : "#f4f3f4"}
             />
@@ -160,38 +294,7 @@ const SettingsScreen = () => {
             <Icon name="chevron-forward" size={24} color="#B0B0B0" />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.settingItem}
-            onPress={() => {
-              Alert.alert(
-                "Confirm Logout",
-                "Are you sure you want to log out?",
-                [
-                  {
-                    text: "Cancel",
-                    style: "cancel",
-                  },
-                  {
-                    text: "Logout",
-                    onPress: async () => {
-                      try {
-                        await AsyncStorage.removeItem("isThemeDark");
-                        await AsyncStorage.removeItem("authToken");
-                        await AsyncStorage.removeItem("userToken");
-                        navigation.navigate("Login");
-                      } catch (error) {
-                        Alert.alert(
-                          "Logout Failed",
-                          "There was an error during logout. Please try again.",
-                          [{ text: "OK" }]
-                        );
-                      }
-                    },
-                  },
-                ]
-              );
-            }}
-          >
+          <TouchableOpacity style={styles.settingItem} onPress={handleLogout}>
             <View style={styles.settingLeft}>
               <Icon name="log-out-outline" size={24} color="#4A90E2" />
               <Text style={styles.settingText}>Logout</Text>
@@ -213,6 +316,13 @@ const SettingsScreen = () => {
         <Text style={styles.versionText}>Version 1.0.0</Text>
       </ScrollView>
       <CutomBottomBar active={"setting"} />
+      <Alert
+        visible={showAlert}
+        onDismiss={() => setShowAlert(false)}
+        message={alertMessage}
+        type={alertType}
+        actions={alertActions}
+      />
     </SafeAreaView>
   );
 };

@@ -36,60 +36,33 @@ import { encrypt, decrypt } from "./EncryptionUtils";
 import { useFocusEffect } from "@react-navigation/native";
 
 // OnlineStatusIndicator component
-const OnlineStatusIndicator = ({ userId }) => {
+const OnlineStatusIndicator = ({ userId, onStatusChange }) => {
   const [isOnline, setIsOnline] = useState(false);
   const { socket } = useSocketContext();
-  const { userInfo } = useContext(Context);
 
   useEffect(() => {
-    if (!socket || !userId || !userInfo?._id) return;
+    if (!socket || !userId) {
+      console.log("Missing socket or userId:", { socket: !!socket, userId });
+      return;
+    }
 
-    // Emit user's own online status when component mounts
-    socket.emit("userOnline", {
-      userId: userInfo._id,
-      timestamp: new Date().toISOString(),
-    });
-
-    // Check the other user's status
-    socket.emit("checkOnlineStatus", {
-      checkUserId: userId,
-      currentUserId: userInfo._id,
-    });
+    // Check initial status
+    socket.emit("checkOnlineStatus", userId);
 
     // Listen for status updates
     const handleUserStatus = (data) => {
       if (data.userId === userId) {
-        console.log(
-          "Received status update for:",
-          data.userId,
-          "Status:",
-          data.isOnline
-        );
         setIsOnline(data.isOnline);
+        onStatusChange(data.isOnline); // Pass the status back to the parent
       }
     };
 
     socket.on("userStatus", handleUserStatus);
 
-    // Heartbeat to keep connection alive and status updated
-    const heartbeatInterval = setInterval(() => {
-      socket.emit("heartbeat", {
-        userId: userInfo._id,
-        timestamp: new Date().toISOString(),
-      });
-    }, 30000); // Every 30 seconds
-
     return () => {
       socket.off("userStatus", handleUserStatus);
-      clearInterval(heartbeatInterval);
-
-      // Emit offline status when component unmounts
-      socket.emit("userOffline", {
-        userId: userInfo._id,
-        timestamp: new Date().toISOString(),
-      });
     };
-  }, [socket, userId, userInfo?._id]);
+  }, [socket, userId, onStatusChange]);
 
   return (
     <View style={styles.onlineStatusContainer}>
@@ -119,6 +92,7 @@ const ChatRoom = ({ route }) => {
   const [sentMessageIds] = useState(new Set());
   const { userInfo } = useContext(Context);
   const { socket, connectSocket } = useSocketContext();
+  const prevMessagesLength = useRef(messages.length);
 
   const joinRoom = useCallback(() => {
     if (socket && convoID) {
@@ -218,9 +192,8 @@ const ChatRoom = ({ route }) => {
       const handleMessageRead = (data) => {
         console.log("Received message read event:", data);
 
-        // Update messages state to reflect read status
-        setMessages((prevMessages) =>
-          prevMessages.map((msg) =>
+        setMessages((prevMessages) => {
+          const updatedMessages = prevMessages.map((msg) =>
             msg._id === data.messageId
               ? {
                   ...msg,
@@ -228,8 +201,16 @@ const ChatRoom = ({ route }) => {
                   status: data.status,
                 }
               : msg
-          )
-        );
+          );
+
+          // Only update state if messages have changed
+          if (
+            JSON.stringify(prevMessages) !== JSON.stringify(updatedMessages)
+          ) {
+            return updatedMessages;
+          }
+          return prevMessages;
+        });
       };
 
       socket.on("messageRead", handleMessageRead);
@@ -261,6 +242,15 @@ const ChatRoom = ({ route }) => {
           return;
         }
 
+        if (newMessage.sender !== userInfo._id) {
+          // Immediately mark message as read since we're in the chat room
+          socket.emit("messageRead", {
+            messageId: newMessage._id,
+            conversationId: convoID,
+            userId: userInfo._id,
+          });
+        }
+
         const decryptedMessage = decryptMessage(newMessage);
         if (decryptedMessage) {
           setMessages((prevMessages) => {
@@ -274,7 +264,7 @@ const ChatRoom = ({ route }) => {
                 ...decryptedMessage,
                 readStatus: {
                   [userInfo._id]: true,
-                  [receiverId]: false,
+                  [receiverId]: otherUserOnline,
                 },
               },
             ];
@@ -285,7 +275,7 @@ const ChatRoom = ({ route }) => {
       socket.on("newMessage", handleMessageReceive);
       return () => socket.off("newMessage", handleMessageReceive);
     }
-  }, [socket, userInfo._id, receiverId, messages]);
+  }, [socket, userInfo._id, receiverId, messages, otherUserOnline]);
 
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
@@ -357,7 +347,10 @@ const ChatRoom = ({ route }) => {
             <Text numberOfLines={1} style={styles.headerName}>
               {item?.name || item?.fullName}
             </Text>
-            <OnlineStatusIndicator userId={receiverId} />
+            <OnlineStatusIndicator
+              userId={receiverId}
+              onStatusChange={setOtherUserOnline}
+            />
           </View>
         </View>
       ),
@@ -590,6 +583,9 @@ const ChatRoom = ({ route }) => {
         markMessageAsRead(lastMessage._id);
       }
     }
+
+    // Update the ref with the current messages length
+    prevMessagesLength.current = messages.length;
   }, [messages, loading, userInfo._id]);
 
   return (
@@ -690,10 +686,6 @@ const ChatRoom = ({ route }) => {
             }}
             returnKeyType="send"
           />
-          <View style={styles.iconContainer}>
-            <Entypo name="camera" size={24} color="gray" />
-            <Feather name="mic" size={24} color="gray" />
-          </View>
 
           <Pressable
             style={[styles.sendButton, isSending && styles.sendButtonDisabled]}

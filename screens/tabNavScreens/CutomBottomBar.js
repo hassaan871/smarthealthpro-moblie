@@ -44,6 +44,20 @@ const CutomBottomBar = ({ active }) => {
           color={active === "chat" ? "#4A90E2" : "#666"}
         />
       </TouchableOpacity>
+
+      {/* <TouchableOpacity
+        style={styles.navItem}
+        onPress={() => {
+          navigation.navigate("SettingScreen");
+        }}
+      >
+        <Icon
+          name="camera"
+          size={24}
+          color={active === "setting" ? "#4A90E2" : "#666"}
+        />
+      </TouchableOpacity> */}
+
       <TouchableOpacity
         style={styles.navItem}
         onPress={() => {

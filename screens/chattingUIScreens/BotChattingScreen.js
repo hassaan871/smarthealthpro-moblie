@@ -131,7 +131,7 @@ const BotChattingScreen = ({ route }) => {
       formData.append("patient_id", patientId); // Replace 'patientId' with your patient ID variable
 
       const response = await axios.post(
-        "http://192.168.100.5:5000/chat",
+        "http://10.135.16.49:5000/chat",
         formData,
         {
           headers: {
@@ -255,7 +255,7 @@ const BotChattingScreen = ({ route }) => {
           });
 
           const chatResponse = await axios.post(
-            "http://192.168.100.5:5000/chat",
+            "http://10.135.16.49:5000/chat",
             formData,
             {
               headers: {
@@ -333,7 +333,7 @@ Please analyze this data and provide an initial assessment.`;
       formData.append("patient_id", patientId);
 
       const response = await axios.post(
-        "http://192.168.100.5:5000/chat",
+        "http://10.135.16.49:5000/chat",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

@@ -18,6 +18,7 @@ import moment from "moment";
 import Icon from "react-native-vector-icons/Ionicons";
 import axios from "axios";
 import Context from "../../Helper/context";
+import { useStripe } from "@stripe/stripe-react-native";
 
 const DAYS_OF_WEEK = [
   "sunday", // 0
@@ -36,12 +37,13 @@ export default function BookingScreen({ route, navigation }) {
   const [markedDates, setMarkedDates] = useState({});
   const { userInfo, appointments } = useContext(Context);
   const priority = route?.params?.priority || "low";
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   const checkExistingAppointment = () => {
     if (!appointments || !doctorInfo) return false;
 
-    console.log("appointments[4].doctor.id: ", appointments);
-    console.log("doctorInfo._id: ", doctorInfo.user._id);
+    // console.log("appointments[4].doctor.id: ", appointments);
+    // console.log("doctorInfo._id: ", doctorInfo.user._id);
 
     return appointments.some(
       (appointment) => appointment.doctor.id === doctorInfo.user._id
@@ -63,8 +65,8 @@ export default function BookingScreen({ route, navigation }) {
 
   const item = route?.params?.doctorInfo;
   const officeHours = item?.officeHours;
-  console.log("doc info", doctorInfo);
-  console.log("user", userInfo);
+  // console.log("doc info", doctorInfo);
+  // console.log("user", userInfo);
 
   const initDate = new Date();
   const minimumDate = new Date();
@@ -117,6 +119,31 @@ export default function BookingScreen({ route, navigation }) {
     return "Not selected";
   };
 
+  const paymentProcess = async () => {
+    try {
+      const response = await axios.post(
+        "http://192.168.18.40:5000/payments/intents",
+        { amount: 50 * 100 }
+      );
+      console.log("Payment intent created:", response.data);
+
+      const { error: initError } = await initPaymentSheet({
+        merchantDisplayName: "Example, Inc.",
+        paymentIntentClientSecret: response.data.paymentIntent,
+      });
+
+      if (initError) {
+        console.error("Init Payment Sheet Error:", initError);
+        return { error: initError };
+      }
+
+      return { clientSecret: response.data.paymentIntent };
+    } catch (error) {
+      console.error("Payment process error:", error);
+      return { error };
+    }
+  };
+
   const createAppointment = async () => {
     if (!selected) {
       Alert.alert("Error", "Please select a date for the appointment");
@@ -133,35 +160,36 @@ export default function BookingScreen({ route, navigation }) {
     }
 
     setLoading(true);
-    try {
-      console.log("sdsdsd", {
-        // doctor: {
-        //   id: item.user._id,
-        //   name: item.user.fullName,
-        //   avatar: item.user.avatar,
-        //   specialization: item.specialization,
-        // },
-        patient: {
-          id: userInfo?._id,
-          name:
-            userInfo?.fullName ||
-            "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
-          avatar: userInfo?.avatar,
-        },
-        // date: selected,
-        // appointmentStatus: "tbd",
-        // description: "Appointment with " + item.user.fullName,
-        // location:  doctorInfo.address,
-        // priority: extractPriority,
-        // bookedOn: selected,
-      });
 
+    // Step 1: Payment Init
+    const paymentProcessing = await paymentProcess();
+
+    if (paymentProcessing.error) {
+      Alert.alert(
+        "Payment Error",
+        paymentProcessing.error.message ||
+          "Something went wrong during payment initialization."
+      );
+      setLoading(false);
+      return;
+    }
+
+    // Step 2: Present payment sheet
+    const { error: paymentError } = await presentPaymentSheet();
+
+    if (paymentError) {
+      Alert.alert(
+        "Payment Failed",
+        paymentError.message || "Payment could not be completed."
+      );
+      setLoading(false);
+      return;
+    }
+
+    // Step 3: Proceed to appointment creation
+    try {
       const body = {
         doctor: {
-          // id: doctorInfo._id,
-          // name: doctorInfo.fullName,
-          // avatar:doctorInfo.avatar ,
-          // specialization: doctorInfo.specialization
           id: doctorInfo._id,
           name: doctorInfo.user.fullName,
           avatar: doctorInfo.user.avatar,
@@ -180,26 +208,24 @@ export default function BookingScreen({ route, navigation }) {
         bookedOn: selected,
       };
 
-      // console.log("body of booking: ", body);
-
-      const response = await axios.post(
+      const appointmentResponse = await axios.post(
         "http://192.168.18.40:5000/appointment/postAppointment",
         body
       );
 
-      setLoading(false);
-      if (response.status === 201) {
+      if (appointmentResponse.status === 201) {
         setModalVisible(true);
       } else {
-        Alert.alert("Error", "Failed to create appointment. Please try again.");
+        Alert.alert(
+          "Error",
+          "An error occurred while creating the appointment. Please try again."
+        );
       }
     } catch (error) {
-      setLoading(false);
       console.error("Error creating appointment:", error);
-      Alert.alert(
-        "Error",
-        "An error occurred while creating the appointment. Please try again."
-      );
+      Alert.alert("Error", "An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 

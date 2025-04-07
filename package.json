@@ -67,7 +67,8 @@
     "react-native-vector-icons": "^10.0.3",
     "react-native-webview": "^13.8.6",
     "rn-fetch-blob": "^0.12.0",
-    "socket.io-client": "^4.7.5"
+    "socket.io-client": "^4.7.5",
+    "@stripe/stripe-react-native": "0.37.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

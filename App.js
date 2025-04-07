@@ -28,6 +28,7 @@ import axios from "axios"; // Make sure to install axios if you haven't already
 import { Platform, PermissionsAndroid, Alert } from "react-native";
 import PushNotification from "react-native-push-notification";
 import { createNavigationContainerRef } from "@react-navigation/native";
+import { StripeProvider } from "@stripe/stripe-react-native";
 
 export default function App() {
   const [isThemeDark, setIsThemeDark] = useState(false);
@@ -252,6 +253,9 @@ export default function App() {
     [toggleTheme, isThemeDark]
   );
 
+  const STRIPE_KEY =
+    "pk_test_51RAdPhFSalvX5ARZjMI5rckxLWIhQdVmyU3qjGKsSbarCJNgBeaEPBFBfPuvA50bnrNNSJMO7cPGBjlG2HUgKWO400zScCjlrg";
+
   return (
     <RootSiblingParent>
       <ThemeContext.Provider value={preferences}>
@@ -266,7 +270,9 @@ export default function App() {
               <SocketContextProvider>
                 <NavigationContainer ref={navigationRef} theme={navTheme}>
                   <GestureHandlerRootView style={{ flex: 1 }}>
-                    <AppNavigator />
+                    <StripeProvider publishableKey={STRIPE_KEY}>
+                      <AppNavigator />
+                    </StripeProvider>
                   </GestureHandlerRootView>
                 </NavigationContainer>
               </SocketContextProvider>

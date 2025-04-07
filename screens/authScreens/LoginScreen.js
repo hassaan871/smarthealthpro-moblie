@@ -52,7 +52,7 @@ const LoginScreen = () => {
   async function sendFcmTokenToServer(email, fcmToken, device) {
     try {
       const response = await axios.post(
-        "http://192.168.100.5:5000/update-fcm-token",
+        "http://192.168.18.40:5000/update-fcm-token",
         {
           email,
           fcmToken,
@@ -96,7 +96,7 @@ const LoginScreen = () => {
 
     console.log("Entering handle submit");
     try {
-      const res = await axios.post("http://192.168.100.5:5000/user/login", {
+      const res = await axios.post("http://192.168.18.40:5000/user/login", {
         email,
         password,
       });

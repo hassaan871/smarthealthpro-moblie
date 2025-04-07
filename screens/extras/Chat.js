@@ -27,7 +27,7 @@ const Chat = ({ item, isBotChat }) => {
     console.log(`Attempting to delete conversation with ID: ${item.convoID}`);
     try {
       const response = await axios.delete(
-        `http://192.168.100.5:5000/chats/deleteChat/${item.convoID}`
+        `http://192.168.18.40:5000/chats/deleteChat/${item.convoID}`
       );
       if (response.status === 200) {
         console.log("Conversation deleted successfully");
@@ -67,7 +67,7 @@ const Chat = ({ item, isBotChat }) => {
     try {
       const userId = userInfo._id; // Add this line to get current user's ID
       await axios.post(
-        `http://192.168.100.5:5000/conversations/${conversationId}/read/${userId}`
+        `http://192.168.18.40:5000/conversations/${conversationId}/read/${userId}`
       );
     } catch (error) {
       console.error("Error updating read status:", error);

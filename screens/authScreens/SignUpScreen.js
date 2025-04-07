@@ -173,7 +173,7 @@ const SignUpScreen = ({ navigation }) => {
     });
 
     axios
-      .post("http://192.168.100.5:5000/user/register", {
+      .post("http://192.168.18.40:5000/user/register", {
         fullName: name,
         email: email,
         password: password,

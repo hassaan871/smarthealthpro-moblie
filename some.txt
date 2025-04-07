@@ -122,7 +122,7 @@ const BotChattingScreen = ({ route }) => {
 
       // Send request to the backend with the chat message
       const response = await axios.post(
-        "http://192.168.100.5:5000/chat",
+        "http://192.168.18.40:5000/chat",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -278,7 +278,7 @@ const BotChattingScreen = ({ route }) => {
 
           console.log("Sending request to server");
           const chatResponse = await axios.post(
-            "http://192.168.100.5:5000/chat",
+            "http://192.168.18.40:5000/chat",
             formData,
             {
               headers: {

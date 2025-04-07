@@ -39,7 +39,7 @@ export const SocketContextProvider = ({ children }) => {
         return;
       }
 
-      const newSocket = io("http://192.168.18.124:5000", {
+      const newSocket = io("http://192.168.18.40:5000", {
         query: { userId },
         reconnection: true,
         reconnectionAttempts: 5,

@@ -191,7 +191,7 @@ const BotChattingScreen = ({ route }) => {
         };
 
         const doctorResponse = await axios.post(
-          "http://192.168.18.124:5000/appointment/getAvailableDoctors",
+          "http://192.168.18.40:5000/appointment/getAvailableDoctors",
           payload
         );
 
@@ -385,7 +385,7 @@ Please analyze this data and provide an initial assessment.`;
         });
 
         const doctorResponse = await axios.post(
-          "http://192.168.18.124:5000/appointment/getAvailableDoctors",
+          "http://192.168.18.40:5000/appointment/getAvailableDoctors",
           { specializations: diseaseData }
         );
 

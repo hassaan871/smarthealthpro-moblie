@@ -56,8 +56,8 @@ const HomeScreen = () => {
 
       try {
         const [userResponse, doctorsResponse] = await Promise.all([
-          axios.get(`http://192.168.18.40:5000/user/getUserInfo/${userID}`),
-          axios.get(`http://192.168.18.40:5000/user/getDoctorsBySatisfaction`),
+          axios.get(`http://192.168.1.160:5000/user/getUserInfo/${userID}`),
+          axios.get(`http://192.168.1.160:5000/user/getDoctorsBySatisfaction`),
         ]);
 
         setUserInfo(userResponse.data.user);
@@ -65,7 +65,7 @@ const HomeScreen = () => {
         setSearchResults(doctorsResponse.data);
 
         // Fetch appointments after we have user info
-        const link = `http://192.168.18.40:5000/appointment/getAllAppointments?${
+        const link = `http://192.168.1.160:5000/appointment/getAllAppointments?${
           userResponse.data.user.role === "doctor" ? "doctorId" : "patientId"
         }=${userID}`;
 

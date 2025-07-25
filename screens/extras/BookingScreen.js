@@ -121,15 +121,37 @@ export default function BookingScreen({ route, navigation }) {
 
   const paymentProcess = async () => {
     try {
+      const cart = [
+        {
+          doctorId: doctorInfo._id,
+          quantity: 1,
+        },
+      ];
+      const data = JSON.stringify(cart);
+      const crypto = require("crypto-js"); // 📦 Install via npm if not installed
+      const signature = crypto
+        .HmacSHA256(data, process.env.HMAC_SECRET)
+        .toString();
+
+      // Send cart and signature to backend
       const response = await axios.post(
-        "http://192.168.18.40:5000/payments/intents",
-        { amount: 50 * 100 }
+        "http://192.168.1.160:5000/payments/intents",
+        {
+          items: cart,
+          signature: signature,
+        }
       );
-      console.log("Payment intent created:", response.data);
+
+      const { clientSecret } = response.data;
+
+      if (!clientSecret) {
+        console.error("Client secret not received.");
+        return { error: "Failed to retrieve payment intent." };
+      }
 
       const { error: initError } = await initPaymentSheet({
-        merchantDisplayName: "Example, Inc.",
-        paymentIntentClientSecret: response.data.paymentIntent,
+        merchantDisplayName: "YourApp Inc.",
+        paymentIntentClientSecret: clientSecret,
       });
 
       if (initError) {
@@ -137,7 +159,14 @@ export default function BookingScreen({ route, navigation }) {
         return { error: initError };
       }
 
-      return { clientSecret: response.data.paymentIntent };
+      const { error: paymentError } = await presentPaymentSheet();
+
+      if (paymentError) {
+        console.error("Payment Error:", paymentError);
+        return { error: paymentError };
+      }
+
+      return { clientSecret };
     } catch (error) {
       console.error("Payment process error:", error);
       return { error };
@@ -161,32 +190,20 @@ export default function BookingScreen({ route, navigation }) {
 
     setLoading(true);
 
-    // Step 1: Payment Init
-    const paymentProcessing = await paymentProcess();
+    // Step 1: Handle Payment
+    const paymentResult = await paymentProcess();
 
-    if (paymentProcessing.error) {
+    if (paymentResult.error) {
       Alert.alert(
         "Payment Error",
-        paymentProcessing.error.message ||
-          "Something went wrong during payment initialization."
+        paymentResult.error.message ||
+          "Payment process failed. Please try again."
       );
       setLoading(false);
       return;
     }
 
-    // Step 2: Present payment sheet
-    const { error: paymentError } = await presentPaymentSheet();
-
-    if (paymentError) {
-      Alert.alert(
-        "Payment Failed",
-        paymentError.message || "Payment could not be completed."
-      );
-      setLoading(false);
-      return;
-    }
-
-    // Step 3: Proceed to appointment creation
+    // Step 2: Create Appointment
     try {
       const body = {
         doctor: {
@@ -209,7 +226,7 @@ export default function BookingScreen({ route, navigation }) {
       };
 
       const appointmentResponse = await axios.post(
-        "http://192.168.18.40:5000/appointment/postAppointment",
+        "http://192.168.1.160:5000/appointment/postAppointment",
         body
       );
 

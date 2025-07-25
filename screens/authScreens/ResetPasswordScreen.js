@@ -24,7 +24,7 @@ const ResetPasswordScreen = ({ route }) => {
 
     try {
       const response = await axios.post(
-        `http://192.168.18.40:5000/user/reset-password/${userId}/${token}`,
+        `http://192.168.1.160:5000/user/reset-password/${userId}/${token}`,
         {
           password: newPassword,
         }

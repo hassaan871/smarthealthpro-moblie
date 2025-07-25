@@ -29,7 +29,7 @@ const ForgotScreen = () => {
 
     try {
       const response = await axios.post(
-        "http://192.168.18.40:5000/user/forgot-password",
+        "http://192.168.1.160:5000/user/forgot-password",
         {
           email,
         }
